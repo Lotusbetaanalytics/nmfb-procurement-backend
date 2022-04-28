@@ -1,0 +1,19 @@
+const router = require("express").Router();
+const Team = require("../models/Team");
+const {
+  createTeam,
+  getAllTeams,
+  getTeam,
+  updateTeam,
+  deleteTeam,
+} = require("../controllers/team");
+const {verifyToken} = require("../middleware/auth");
+const advancedResults = require("../middleware/advancedResults");
+
+router.post("/", verifyToken, createTeam); // create a team
+router.get("/", advancedResults(Team), getAllTeams); // get all teams
+router.get("/:id", verifyToken, getTeam); // get team details by id
+router.patch("/:id", verifyToken, updateTeam); // update team details by id
+router.delete("/:id", verifyToken, deleteTeam); // delete team by id
+
+module.exports = router;
