@@ -6,7 +6,7 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @desc    Create Team
 // @route  POST /api/v1/team
 // @access   Private
-exports.Team = asyncHandler(async (req, res, next) => {
+exports.createTeam = asyncHandler(async (req, res, next) => {
 
   const Team = await Team.find({title: req.body.title})
 
@@ -29,7 +29,7 @@ exports.Team = asyncHandler(async (req, res, next) => {
 // @desc    Get all Teams
 // @route  GET /api/v1/team
 // @access   Public
-exports.Teams = asyncHandler(async (req, res, next) => {
+exports.getAllTeams = asyncHandler(async (req, res, next) => {
   return res.status(200).json(res.advancedResults);
 });
 
@@ -37,7 +37,7 @@ exports.Teams = asyncHandler(async (req, res, next) => {
 // @desc    Get Team
 // @route  GET /api/v1/team/:id
 // @access   Private
-exports.Team = asyncHandler(async (req, res, next) => {
+exports.getTeam = asyncHandler(async (req, res, next) => {
   const team = await Team.findById(req.params.id);
 
   if (!team) {
@@ -53,7 +53,7 @@ exports.Team = asyncHandler(async (req, res, next) => {
 // @desc    Update Team
 // @route  PATCH /api/v1/team/:id
 // @access   Private
-exports.Team = asyncHandler(async (req, res, next) => {
+exports.updateTeam = asyncHandler(async (req, res, next) => {
   const team = await Team.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -72,7 +72,7 @@ exports.Team = asyncHandler(async (req, res, next) => {
 // @desc    Delete Team
 // @route  DELETE /api/v1/team
 // @access   Private
-exports.Team = asyncHandler(async (req, res, next) => {
+exports.deleteTeam = asyncHandler(async (req, res, next) => {
   const team = await Team.findByIdAndDelete(req.params.id);
 
   if (!team) {

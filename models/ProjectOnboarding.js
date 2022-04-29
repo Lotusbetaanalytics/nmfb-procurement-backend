@@ -10,37 +10,48 @@ const ProjectOnboardingSchema = new mongoose.Schema({
   },
   project: {
     type: mongoose.Schema.Types.ObjectId,
-    type: "ProjectInitiation"
+    ref: "ProjectInitiation"
   },
   projectTitle: {
     type: String,
   },
   projectType: {
     type: mongoose.Schema.Types.ObjectId,
-    type: "ProjectType"
+    ref: "ProjectType"
   },
   contractType: {
     type: mongoose.Schema.Types.ObjectId,
-    type: "ContractType"
+    ref: "ContractType"
   },
   budgetLineItem: {
     type: mongoose.Schema.Types.ObjectId,
-    type: "BudgetLineItem"
+    ref: "BudgetLineItem"
   },
   projectCategory: {
     type: mongoose.Schema.Types.ObjectId,
-    type: "ProjectCategory"
+    ref: "ProjectCategory"
   },
   vendorName: {
     type: String,
   },
   responsibleUnit: {
     type: mongoose.Schema.Types.ObjectId,
-    type: "Team"
+    ref: "Team"
   },
   responsibleOfficer: {
     type: mongoose.Schema.Types.ObjectId,
-    type: "Staff"
+    ref: "Staff"
+  },
+  assignedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  files: {
+    type: Array,
   },
   status: {
     type: String,
@@ -50,6 +61,10 @@ const ProjectOnboardingSchema = new mongoose.Schema({
   isApproved: {
     type: Boolean,
     default: false,
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
   },
   createdAt: {
     type: Date,
