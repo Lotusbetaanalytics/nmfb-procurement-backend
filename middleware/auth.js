@@ -1,6 +1,7 @@
 const Staff = require("../models/Staff")
 const { verify } = require("jsonwebtoken")
 const {ErrorResponseJSON} = require("../utils/errorResponse")
+const Role = require("../models/Role")
 
   
 exports.verifyToken = async (req, res, next) => {
@@ -23,7 +24,7 @@ exports.verifyToken = async (req, res, next) => {
       const decoded = verify(token, process.env.JWT_SECRET) // Verify token
       // staff is returned when verifying the token
       req.staff = decoded.staff
-      req.user = await Staff.findById(decoded.staff._id) // the same as req.staff
+      req.user = await Staff.findById(decoded.staff._id).populate("team role") // the same as req.staff
   
       next()
     } catch (err) {
@@ -38,7 +39,7 @@ exports.verifyToken = async (req, res, next) => {
 // Grant access to specific roles
 exports.authorize = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role.title)) {
       return next(
         new ErrorResponseJSON(res, `User role ${req.user.role} is not authorized to access this route`, 403)
       )
