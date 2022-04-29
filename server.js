@@ -18,14 +18,14 @@ const connectDB = require("./config/db");
 // TODO: Add Routes
 const auth  = require("./routes/auth")
 const staff = require("./routes/staff")
-// const role  = require("./routes/role")
-// const team  = require("./routes/team")
-// const budgetLineItem  = require("./routes/budgetLineItem")
-// const contractType  = require("./routes/contractType")
-// const projectCategory  = require("./routes/projectCategory")
-// const projectInitiation  = require("./routes/projectInitiation")
-// const projectOnboarding  = require("./routes/projectOnboarding")
-// const projectType  = require("./routes/projectType")
+const role  = require("./routes/role")
+const team  = require("./routes/team")
+const budgetLineItem  = require("./routes/budgetLineItem")
+const contractType  = require("./routes/contractType")
+const projectCategory  = require("./routes/projectCategory")
+const projectInitiation  = require("./routes/projectInitiation")
+const projectOnboarding  = require("./routes/projectOnboarding")
+const projectType  = require("./routes/projectType")
 
 // configure express
 const app = express();
@@ -63,14 +63,14 @@ app.use(cors());
 // TODO: app.use routes
 app.use("/api/v1/auth", auth)
 app.use("/api/v1/staff", staff)
-// app.use("/api/v1/role", role)
-// app.use("/api/v1/team", team)
-// app.use("/api/v1/budgetLineItem", budgetLineItem)
-// app.use("/api/v1/contractType", contractType)
-// app.use("/api/v1/projectCategory", projectCategory)
-// app.use("/api/v1/projectInitiation", projectInitiation)
-// app.use("/api/v1/projectOnboarding", projectOnboarding)
-// app.use("/api/v1/projectType", projectType)
+app.use("/api/v1/role", role)
+app.use("/api/v1/team", team)
+app.use("/api/v1/budgetLineItem", budgetLineItem)
+app.use("/api/v1/contractType", contractType)
+app.use("/api/v1/projectCategory", projectCategory)
+app.use("/api/v1/projectInitiation", projectInitiation)
+app.use("/api/v1/projectOnboarding", projectOnboarding)
+app.use("/api/v1/projectType", projectType)
 
 app.use(errorHandler);
 
