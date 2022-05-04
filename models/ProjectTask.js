@@ -15,33 +15,6 @@ const ProjectOnboardingSchema = new mongoose.Schema({
   projectTitle: {
     type: String,
   },
-  projectType: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "ProjectType"
-  },
-  contractType: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "ContractType"
-  },
-  budgetLineItem: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "BudgetLineItem"
-  },
-  projectCategory: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "ProjectCategory"
-  },
-  vendorName: {
-    type: String,
-  },
-  responsibleUnit: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Team"
-  },
-  responsibleOfficer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Staff"
-  },
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff"
@@ -50,16 +23,28 @@ const ProjectOnboardingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff"
   },
+  reassignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  responsibleOfficer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  responsibleUnit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Team"
+  },
+  comment: {
+    type: String,
+  },
   files: {
     type: Array,
   },
   status: {
     type: String,
-    enum: ["Pending", "Started", "Terminated", "Completed"],
+    enum: ["Pending", "Started", "Reassigned", "On Hold", "Terminated", "Completed"],
     default: "pending",
-  },
-  comment: {
-    type: String,
   },
   isApproved: {
     type: Boolean,
@@ -70,14 +55,6 @@ const ProjectOnboardingSchema = new mongoose.Schema({
     ref: "Staff"
   },
   createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
-  updatedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Staff"
-  },
-  updatedAt: {
     type: Date,
     default: Date.now(),
   },

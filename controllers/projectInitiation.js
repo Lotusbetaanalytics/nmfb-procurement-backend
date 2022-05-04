@@ -14,11 +14,30 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "This projectInitiation already exists, update it instead!", 400)
   }
 
+  req.body.name = req.user.fullname
+  req.body.email = req.user.email
+  req.body.createdBy = req.user._id
+
+  if (req.user.role.title == "HOP") {
+    req.body.headOfProcurement = req.user._id
+  } else if (req.user.role.title == "Admin" || req.user.role.title == "Front Desk Officer") {
+    req.body.frontDeskOfficer = req.user._id
+  }
+
   const projectInitiation = await ProjectInitiation.create(req.body)
 
   if (!projectInitiation) {
     return new ErrorResponseJSON(res, "ProjectInitiation not created!", 404)
   }
+
+  /**
+   * TODO:
+   * Post-conditions: 
+   * • The PPC portal shall send successful initiation project email notification to the head of procurement 
+   * • The PPC portal shall send a new project email notification to the project desk officer 
+   * • The system shall send email notification to the front office /admin to upload or review documents. 
+   * */
+
   res.status(200).json({
     success: true,
     data: projectInitiation,
@@ -54,6 +73,10 @@ exports.getProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id
 // @access   Private
 exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
+
+  req.body.updatedBy = req.user._id
+  req.body.updatedAt = Date.now()
+
   const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -62,6 +85,16 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
   if (!projectInitiation) {
     return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
   }
+
+  /**
+   * TODO:
+   * Post-conditions (Depending on the ProjectInitiation status): 
+   * • The PPC portal shall send successful update of project email notification to the head of procurement 
+   * • The PPC portal shall send a update project email notification to the project desk officer 
+   * • The system shall send email notification to the front office /admin to upload or review documents. 
+   * */
+
+
   res.status(200).json({
     success: true,
     data: projectInitiation,
@@ -83,3 +116,7 @@ exports.deleteProjectInitiation = asyncHandler(async (req, res, next) => {
     data: projectInitiation,
   });
 });
+
+// TODO: Add approve and decline endpoints
+
+// TODO: Add update status endpoints

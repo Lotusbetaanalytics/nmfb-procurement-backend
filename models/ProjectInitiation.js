@@ -4,12 +4,23 @@ const ProjectInitiationSchema = new mongoose.Schema({
 
   name: {
     type: String,
+    required: true,
   },
   email: {
     type: String,
+    required: true,
   },
   projectTitle: {
     type: String,
+    required: true,
+  },
+  contractType: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ContractType",
+  },
+  contract: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Contract",
   },
   vendorName: {
     type: String,
@@ -17,6 +28,7 @@ const ProjectInitiationSchema = new mongoose.Schema({
   projectDeskOfficer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
+    // required: true,
   },
   frontDeskOfficer: {
     type: mongoose.Schema.Types.ObjectId,
@@ -25,14 +37,18 @@ const ProjectInitiationSchema = new mongoose.Schema({
   headOfProcurement: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
+    required: true,
   },
   files: {
     type: Array,
   },
   status: {
     type: String,
-    enum: ["Pending", "Approved", "Started", "Terminated", "Completed"],
+    enum: ["Pending", "Approved", "Declined", "Started", "On Hold", "Terminated", "Completed"],
     default: "pending",
+  },
+  comment: {
+    type: String,
   },
   isApproved: {
     type: Boolean,
@@ -42,9 +58,21 @@ const ProjectInitiationSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  updatedAt: {
+    type: Date,
+    // default: Date.now(),
   },
 });
 

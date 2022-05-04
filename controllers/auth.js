@@ -10,7 +10,8 @@ const generateToken = require("../helpers/generateToken");
 // const dotenv = require("dotenv").config();
 // const { strToBase64 } = require("../utils/generic");
 // const open = require("open");
-const {ErrorResponseJSON} = require("../utils/errorResponse")
+const {ErrorResponseJSON} = require("../utils/errorResponse");
+const Role = require("../models/Role");
 // const {updateAllSchema} = require("../utils/updateDetails")
 
 
@@ -78,7 +79,14 @@ exports.postUserDetails = async (req, res, next) => {
     const staffPhoto = new Photo({image: avatar});
     await staffPhoto.save()
 
-    const newStaff = new Staff({ email: mail, fullname: displayName, photo: staffPhoto.id });
+    const defaultRole = await Role.findOne({title: "Staff"})
+    let payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
+    if (!"role" in req.body) {
+      payload.role = defaultRole._id
+    }
+
+    // const newStaff = new Staff({ email: mail, fullname: displayName, photo: staffPhoto.id });
+    const newStaff = new Staff({...payload});
     // const newStaff = new Staff({ email: mail, fullname: displayName});
     await newStaff.save(); //add new user to the db
 

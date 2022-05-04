@@ -14,11 +14,32 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "This projectOnboarding already exists, update it instead!", 400)
   }
 
+  req.body.name = req.user.fullname
+  req.body.email = req.user.email
+  req.body.createdBy = req.user._id
+
   const projectOnboarding = await ProjectOnboarding.create(req.body)
 
   if (!projectOnboarding) {
     return new ErrorResponseJSON(res, "ProjectOnboarding not created!", 404)
   }
+
+  if (projectOnboarding.isApproved && projectOnboarding.status != "Completed" && projectOnboarding.status != "Started") {
+    projectOnboarding.status = "Started"
+  } else if (projectOnboarding.isApproved && projectOnboarding.status != "Started") {
+    projectOnboarding.status = "Completed"
+  } else if (projectOnboardingprojectOnboarding.status == "Terminated") {
+    projectOnboarding.isApproved = false
+  }
+  await projectOnboarding.save()
+
+  /**
+   * TODO:
+   * Post-conditions:
+   * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
+   * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’ 
+   */
+
   res.status(200).json({
     success: true,
     data: projectOnboarding,
@@ -43,6 +64,14 @@ exports.getProjectOnboarding = asyncHandler(async (req, res, next) => {
   if (!projectOnboarding) {
     return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
   }
+
+    /**
+   * TODO:
+   * Post-conditions:
+   * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
+   * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’ 
+   */
+
   res.status(200).json({
     success: true,
     data: projectOnboarding,
@@ -54,6 +83,10 @@ exports.getProjectOnboarding = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectOnboarding/:id
 // @access   Private
 exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
+
+  req.body.updatedBy = req.user._id
+  req.body.updatedAt = Date.now()
+
   const projectOnboarding = await ProjectOnboarding.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -62,6 +95,16 @@ exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
   if (!projectOnboarding) {
     return new ErrorResponseJSON(res, "ProjectOnboarding not updated!", 400);
   }
+
+  if (projectOnboarding.isApproved && projectOnboarding.status != "Completed" && projectOnboarding.status != "Started") {
+    projectOnboarding.status = "Started"
+  } else if (projectOnboarding.isApproved && projectOnboarding.status != "Started") {
+    projectOnboarding.status = "Completed"
+  } else if (projectOnboardingprojectOnboarding.status == "Terminated") {
+    projectOnboarding.isApproved = false
+  }
+  await projectOnboarding.save()
+
   res.status(200).json({
     success: true,
     data: projectOnboarding,
@@ -83,3 +126,7 @@ exports.deleteProjectOnboarding = asyncHandler(async (req, res, next) => {
     data: projectOnboarding,
   });
 });
+
+// TODO: Add started and terminated endpoints
+
+// TODO: Add update status endpoints

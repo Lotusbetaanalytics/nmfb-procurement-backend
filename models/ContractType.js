@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 
 const ContractTypeSchema = new mongoose.Schema({
-
+  /**
+   * enum: ["New Contract", "Existing Contract"]
+   */
   title: {
     type: String,
   },

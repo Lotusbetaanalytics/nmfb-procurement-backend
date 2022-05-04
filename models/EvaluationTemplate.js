@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const ContractEvaluationSchema = new mongoose.Schema({
+const EvaluationTemplateSchema = new mongoose.Schema({
 
   employeeName: {
     type: String,
@@ -8,10 +8,10 @@ const ContractEvaluationSchema = new mongoose.Schema({
   employeeEmail: {
     type: String,
   },
-  // contract: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "Contract"
-  // }, // Not Implemented
+  contract: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ContractType"
+  }, // Not sure how to Implement
   project: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "ProjectInitiation"
@@ -51,4 +51,4 @@ const ContractEvaluationSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("ContractEvaluation", ContractEvaluationSchema);
+module.exports = mongoose.model("EvaluationTemplate", EvaluationTemplateSchema);

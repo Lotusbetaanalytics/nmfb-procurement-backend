@@ -1,10 +1,7 @@
 const mongoose = require("mongoose");
 
-const ProjectTypeSchema = new mongoose.Schema({
-  /**
-   * • Services related
-   * • Goods and work
-   */
+const ContractSchema = new mongoose.Schema({
+
   title: {
     type: String,
   },
@@ -17,4 +14,4 @@ const ProjectTypeSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("ProjectType", ProjectTypeSchema);
+module.exports = mongoose.model("Contract", ContractSchema);

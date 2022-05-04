@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const ProjectCategorySchema = new mongoose.Schema({
+    /**
+   * • A
+   * • B
+   * • C
+   */
   title: {
     type: String,
   },
