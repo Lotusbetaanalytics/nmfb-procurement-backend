@@ -45,7 +45,19 @@ const ContractEvaluationSchema = new mongoose.Schema({
     enum: ["Pending", "Started", "Completed"],
     default: "pending",
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
   createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  updatedAt: {
     type: Date,
     default: Date.now(),
   },

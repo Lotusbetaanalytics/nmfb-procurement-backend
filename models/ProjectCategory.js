@@ -5,6 +5,11 @@ const ProjectCategorySchema = new mongoose.Schema({
    * • A
    * • B
    * • C
+   * 
+   * OR
+   * 
+   * a. Goods related project 
+   * b. Services /consultancy related projects
    */
   title: {
     type: String,
