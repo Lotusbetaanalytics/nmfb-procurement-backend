@@ -10,7 +10,7 @@ const {
 const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
-// router.post("/", verifyToken, createStaff); // create a staff
+router.post("/", createStaff); // create a staff
 router.get("/", advancedResults(Staff), getAllStaffs); // get all staffs
 router.get("/:id", verifyToken, getStaff); // get staff details by id
 router.patch("/:id", verifyToken, updateStaff); // update staff details by id

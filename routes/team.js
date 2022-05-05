@@ -10,7 +10,7 @@ const {
 const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
-router.post("/", verifyToken, createTeam); // create a team
+router.post("/", createTeam); // create a team
 router.get("/", advancedResults(Team), getAllTeams); // get all teams
 router.get("/:id", verifyToken, getTeam); // get team details by id
 router.patch("/:id", verifyToken, updateTeam); // update team details by id

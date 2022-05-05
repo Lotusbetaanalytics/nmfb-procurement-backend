@@ -69,34 +69,47 @@ exports.postUserDetails = async (req, res, next) => {
         checkStaff.photo = staffPhoto.id;
         await checkStaff.save();
       }
+      // When limiting accounts to pre created ones
+      let payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
+      const updateStaff = await Staff.findByIdAndUpdate(checkStaff.id, payload, {
+        new: true,
+        runValidators: true,
+      })
+
       const token = generateToken({ staff: checkStaff }); //generate token
       return res.status(201).cookie("token", token).json({
         success: true,
-        token,
+        token: token,
+        staff: updateStaff,
       });
+    } else {
+      return ErrorResponseJSON(res, "Staff not authorized for creation or login")
     }
 
-    const staffPhoto = new Photo({image: avatar});
-    await staffPhoto.save()
+    /**
+     * Code block not called, when using pre created accounts
+     */
+    // const staffPhoto = new Photo({image: avatar});
+    // await staffPhoto.save()
 
-    const defaultRole = await Role.findOne({title: "Staff"})
-    let payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
-    if (!"role" in req.body) {
-      payload.role = defaultRole._id
-    }
+    // const defaultRole = await Role.findOne({title: "Staff"})
+    // let payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
+    // if (!"role" in req.body) {
+    //   payload.role = defaultRole._id
+    // }
 
-    // const newStaff = new Staff({ email: mail, fullname: displayName, photo: staffPhoto.id });
-    const newStaff = new Staff({...payload});
-    // const newStaff = new Staff({ email: mail, fullname: displayName});
-    await newStaff.save(); //add new user to the db
+    // // const newStaff = new Staff({ email: mail, fullname: displayName, photo: staffPhoto.id });
+    // const newStaff = new Staff({...payload});
+    // // const newStaff = new Staff({ email: mail, fullname: displayName});
+    // await newStaff.save(); //add new user to the db
 
-    const token = generateToken({ staff: newStaff }); //generate token
-    return res.status(200).cookie("token", token).json({
-      success: true,
-      msg: "Staff successfuly added",
-      token,
-      data: newStaff,
-    });
+    // const token = generateToken({ staff: newStaff }); //generate token
+    // return res.status(200).cookie("token", token).json({
+    //   success: true,
+    //   msg: "Staff successfuly added",
+    //   token,
+    //   data: newStaff,
+    // });
   } catch (err) {
     if (err.response.status === 401) {
       return res.status(401).json({ success: false, msg: err.response.data });

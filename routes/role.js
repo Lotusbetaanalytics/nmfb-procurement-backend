@@ -10,7 +10,7 @@ const {
 const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
-router.post("/", verifyToken, createRole); // create a role
+router.post("/", createRole); // create a role
 router.get("/", advancedResults(Role), getAllRoles); // get all roles
 router.get("/:id", verifyToken, getRole); // get role details by id
 router.patch("/:id", verifyToken, updateRole); // update role details by id

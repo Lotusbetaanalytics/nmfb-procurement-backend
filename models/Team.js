@@ -5,6 +5,10 @@ const TeamSchema = new mongoose.Schema({
    * enum: ["Front office", "Origination", "Evaluation", "Contract Management", "Pending"],
    * default: "Pending",
    */
+  role: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Role",
+  },
   title: {
     type: String,
   },
