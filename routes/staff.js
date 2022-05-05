@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const Staff = require("../models/Staff");
 const {
-  // createStaff,
+  createStaff,
   getAllStaffs,
   getStaff,
   updateStaff,
