@@ -84,13 +84,13 @@ exports.postUserDetails = async (req, res, next) => {
           runValidators: true,
         })
 
-        const token = generateToken({ staff: checkStaff }); //generate token
-        return res.status(201)
-          // .cookie("token", token)
+        const token = generateToken({ staff: checkStaff._id }); //generate token
+        return res.status(200)
+          .cookie("token", token)
           .json({
             success: true,
             token: token,
-            staff: updateStaff,
+            // staff: updateStaff,
           });
       } catch (err) {
         console.log(err)
