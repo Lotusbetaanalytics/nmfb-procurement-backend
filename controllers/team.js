@@ -8,9 +8,9 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @access   Private
 exports.createTeam = asyncHandler(async (req, res, next) => {
 
-  const Team = await Team.find({title: req.body.title})
+  const existingTeam = await Team.find({title: req.body.title})
 
-  if (Team.length > 0) {
+  if (existingTeam.length > 0) {
     return new ErrorResponseJSON(res, "This team already exists, update it instead!", 400)
   }
 
