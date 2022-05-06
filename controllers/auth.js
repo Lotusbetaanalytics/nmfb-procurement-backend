@@ -85,11 +85,13 @@ exports.postUserDetails = async (req, res, next) => {
         })
 
         const token = generateToken({ staff: checkStaff }); //generate token
-        return res.status(201).cookie("token", token).json({
-          success: true,
-          token: token,
-          staff: updateStaff,
-        });
+        return res.status(201)
+          // .cookie("token", token)
+          .json({
+            success: true,
+            token: token,
+            staff: updateStaff,
+          });
       } catch (err) {
         console.log(err)
         return new ErrorResponseJSON(res, err.message, 400)
