@@ -50,16 +50,9 @@ exports.postUserDetails = async (req, res, next) => {
   try {
     const { data } = await axios(config); //get user data from active directory
 
-    // const checkEmail = data.mail.split("@"); //split the email address
-    // if (
-    //   checkEmail[1] !== "lotusbetaanalytics.com" ||
-    //   !checkEmail.includes("lotusbetaanalytics.com") //check if the email address has lotusbetaanalytics.com domain
-    // ) {
-    //   return res.status(400).json({ success: false, msg: "Invalid email" });
-    // }
     const { mail, displayName } = data;
     // console.log(`AD Data: ${data.keys()}`)
-    email = mail.toLowerCase()
+    let email = mail.toLowerCase()
     console.log(email)
     const checkStaff = await Staff.findOne({ email: email }).populate("photo"); //check if there is a staff with the email in the db
     if (checkStaff) {
