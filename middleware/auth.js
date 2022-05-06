@@ -23,8 +23,9 @@ exports.verifyToken = async (req, res, next) => {
     try {
       const decoded = verify(token, process.env.JWT_SECRET) // Verify token
       // staff is returned when verifying the token
-      req.staff = decoded.staff
-      req.user = await Staff.findById(decoded.staff).populate("team role") // the same as req.staff
+      // req.staff = decoded.staff
+      req.user = await Staff.findById(decoded.staff)
+        // .populate("team role") // the same as req.staff
   
       next()
     } catch (err) {
