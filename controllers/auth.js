@@ -91,9 +91,10 @@ exports.postUserDetails = async (req, res, next) => {
         });
       } catch (err) {
         console.log(err)
+        return ErrorResponseJSON(res, err.message, 400)
       }
     } else {
-      return ErrorResponseJSON(res, "Staff not authorized for creation or login")
+      return ErrorResponseJSON(res, "Staff not authorized for creation or login", 400)
     }
 
     /**
