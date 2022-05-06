@@ -45,21 +45,38 @@ exports.postUserDetails = async (req, res, next) => {
     responseType: "arraybuffer",
     };
   
-    const photo = await axios(photoConfig); //get user data from active directory
-    const avatar = new Buffer.from(photo.data, "binary").toString("base64");
-  
+    let avatar = false
+    try {
+      const photo = await axios(photoConfig); //get user data from active directory
+      avatar = new Buffer.from(photo.data, "binary").toString("base64");
+      console.log("photo: " + photo)
+      console.log("avatar: " + avatar)
+    } catch (err) {
+      console.log(err.message)
+      console.log("User image not found")
+      // return new ErrorResponseJSON(res, err.message, 404)
+    }
+      
+    console.log("code continued")
     try {
       const { data } = await axios(config); //get user data from active directory
-  
+      console.log("data: " + data)
+      
       const { mail, displayName } = data;
-      // console.log(`AD Data: ${data.keys()}`)
+      console.log(mail)
+      if (!mail || !displayName) {
+        return new ErrorResponseJSON(res, "Improperly configured account, could not get mail and displayName", 400)
+      }
+
+      // console.log(`AD Data: ${data.keys()}`) // Will break the code if uncommented
       let email = mail.toLowerCase()
       console.log(email)
       const checkStaff = await Staff.findOne({ email: email }).populate("photo"); //check if there is a staff with the email in the db
+      console.log("Tried 1")
       if (checkStaff) {
         try {
           let staffPhoto = false
-          if (!checkStaff.photo || checkStaff.photo.image != avatar) {
+          if (avatar && !checkStaff.photo || checkStaff.photo.image != avatar) {
             staffPhoto = new Photo({image: avatar});
             await staffPhoto.save()
   
@@ -73,10 +90,11 @@ exports.postUserDetails = async (req, res, next) => {
           } else {
             payload = {email: email, fullname: displayName}
           }
+          
           const updateStaff = await Staff.findByIdAndUpdate(checkStaff.id, payload, {
             new: true,
             runValidators: true,
-          })
+          }).populate("role team")
   
           const token = generateToken({ staff: checkStaff._id }); //generate token
           return res.status(200)
@@ -84,7 +102,7 @@ exports.postUserDetails = async (req, res, next) => {
             .json({
               success: true,
               token: token,
-              // staff: updateStaff,
+              staff: updateStaff,
             });
         } catch (err) {
           console.log(err)
