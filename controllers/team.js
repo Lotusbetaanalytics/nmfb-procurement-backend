@@ -1,6 +1,7 @@
 const asyncHandler = require("../middleware/async");
 const Team = require("../models/Team");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {configureHeadRoles} = require("../utils/userManagement")
 
 
 // @desc    Create Team
@@ -16,9 +17,27 @@ exports.createTeam = asyncHandler(async (req, res, next) => {
 
   const team = await Team.create(req.body)
 
+  // if (team.title == "Procurement" && team.head) {
+  //   const procurementHead = await Staff.findById(team.head)
+  //   const procurementHeadRole = await Role.findOne({title: "HOP"})
+  //   procurementHead.isTeamHead = true
+  //   procurementHead.isHOP = true
+  //   procurementHead.role = procurementHeadRole
+  //   await procurementHead.save()
+  // } else if (team.head) {
+  //   const head = await Staff.findById(team.head)
+  //   const headRole = await Role.findOne({title: "HOP"})
+  //   head.isTeamHead = true
+  //   head.role = headRole
+  //   await head.save()
+  // }
+
   if (!team) {
     return new ErrorResponseJSON(res, "Team not created!", 404)
   }
+
+  await configureHeadRoles(team)
+
   res.status(200).json({
     success: true,
     data: team,
@@ -62,6 +81,9 @@ exports.updateTeam = asyncHandler(async (req, res, next) => {
   if (!team) {
     return new ErrorResponseJSON(res, "Team not updated!", 400);
   }
+
+  await configureHeadRoles(team)
+
   res.status(200).json({
     success: true,
     data: team,

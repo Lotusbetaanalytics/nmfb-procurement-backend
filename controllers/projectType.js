@@ -4,30 +4,30 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 
 
 // @desc    Create ProjectType
-// @route  POST /api/v1/budgetLineItem
+// @route  POST /api/v1/projectType
 // @access   Private
 exports.createProjectType = asyncHandler(async (req, res, next) => {
 
   const existingProjectType = await ProjectType.find({title: req.body.title})
 
   if (existingProjectType.length > 0) {
-    return new ErrorResponseJSON(res, "This budgetLineItem already exists, update it instead!", 400)
+    return new ErrorResponseJSON(res, "This projectType already exists, update it instead!", 400)
   }
 
-  const budgetLineItem = await ProjectType.create(req.body)
+  const projectType = await ProjectType.create(req.body)
 
-  if (!budgetLineItem) {
+  if (!projectType) {
     return new ErrorResponseJSON(res, "ProjectType not created!", 404)
   }
   res.status(200).json({
     success: true,
-    data: budgetLineItem,
+    data: projectType,
   })
 })
 
 
 // @desc    Get all ProjectTypes
-// @route  GET /api/v1/budgetLineItem
+// @route  GET /api/v1/projectType
 // @access   Public
 exports.getAllProjectTypes = asyncHandler(async (req, res, next) => {
   return res.status(200).json(res.advancedResults);
@@ -35,51 +35,51 @@ exports.getAllProjectTypes = asyncHandler(async (req, res, next) => {
 
 
 // @desc    Get ProjectType
-// @route  GET /api/v1/budgetLineItem/:id
+// @route  GET /api/v1/projectType/:id
 // @access   Private
 exports.getProjectType = asyncHandler(async (req, res, next) => {
-  const budgetLineItem = await ProjectType.findById(req.params.id);
+  const projectType = await ProjectType.findById(req.params.id);
 
-  if (!budgetLineItem) {
+  if (!projectType) {
     return new ErrorResponseJSON(res, "ProjectType not found!", 404);
   }
   res.status(200).json({
     success: true,
-    data: budgetLineItem,
+    data: projectType,
   });
 });
 
 
 // @desc    Update ProjectType
-// @route  PATCH /api/v1/budgetLineItem/:id
+// @route  PATCH /api/v1/projectType/:id
 // @access   Private
 exports.updateProjectType = asyncHandler(async (req, res, next) => {
-  const budgetLineItem = await ProjectType.findByIdAndUpdate(req.params.id, req.body, {
+  const projectType = await ProjectType.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
 
-  if (!budgetLineItem) {
+  if (!projectType) {
     return new ErrorResponseJSON(res, "ProjectType not updated!", 400);
   }
   res.status(200).json({
     success: true,
-    data: budgetLineItem,
+    data: projectType,
   });
 });
 
 
 // @desc    Delete ProjectType
-// @route  DELETE /api/v1/budgetLineItem
+// @route  DELETE /api/v1/projectType
 // @access   Private
 exports.deleteProjectType = asyncHandler(async (req, res, next) => {
-  const budgetLineItem = await ProjectType.findByIdAndDelete(req.params.id);
+  const projectType = await ProjectType.findByIdAndDelete(req.params.id);
 
-  if (!budgetLineItem) {
+  if (!projectType) {
     return new ErrorResponseJSON(res, "ProjectType not found!", 404);
   }
   res.status(200).json({
     success: true,
-    data: budgetLineItem,
+    data: projectType,
   });
 });

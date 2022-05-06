@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const TeamSchema = new mongoose.Schema({
   /**
-   * enum: ["Front office", "Origination", "Evaluation", "Contract Management", "Pending"],
+   * enum: ["Front office", "Origination", "Evaluation", "Contract Management", "Procurement", "Pending"],
    * default: "Pending",
    */
   role: {
