@@ -35,17 +35,17 @@ exports.postUserDetails = async (req, res, next) => {
     },
   };
 
-  // const photoConfig = {
-  // method: "get",
-  // url: "https://graph.microsoft.com/v1.0/me/photo/$value",
-  // headers: {
-  // Authorization: `Bearer ${accessToken}`,
-  // },
-  // responseType: "arraybuffer",
-  // };
+  const photoConfig = {
+  method: "get",
+  url: "https://graph.microsoft.com/v1.0/me/photo/$value",
+  headers: {
+  Authorization: `Bearer ${accessToken}`,
+  },
+  responseType: "arraybuffer",
+  };
 
-  // const photo = await axios(photoConfig); //get user data from active directory
-  // const avatar = new Buffer.from(photo.data, "binary").toString("base64");
+  const photo = await axios(photoConfig); //get user data from active directory
+  const avatar = new Buffer.from(photo.data, "binary").toString("base64");
 
   try {
     const { data } = await axios(config); //get user data from active directory
@@ -59,24 +59,25 @@ exports.postUserDetails = async (req, res, next) => {
     // }
     const { mail, displayName } = data;
     // console.log(`AD Data: ${data.keys()}`)
-
-    const checkStaff = await Staff.findOne({ email: mail }).populate("photo"); //check if there is a staff with the email in the db
+    email = mail.toLowerCase()
+    console.log(email)
+    const checkStaff = await Staff.findOne({ email: email }).populate("photo"); //check if there is a staff with the email in the db
     if (checkStaff) {
       try {
         let staffPhoto = false
-      //   if (!checkStaff.photo || checkStaff.photo.image != avatar) {
-      //     staffPhoto = new Photo({image: avatar});
-      //     await staffPhoto.save()
+        if (!checkStaff.photo || checkStaff.photo.image != avatar) {
+          staffPhoto = new Photo({image: avatar});
+          await staffPhoto.save()
 
-      //     checkStaff.photo = staffPhoto.id;
-      //     await checkStaff.save();
-      //   }
+          checkStaff.photo = staffPhoto.id;
+          await checkStaff.save();
+        }
         // When limiting accounts to pre created ones
         let payload
         if (staffPhoto) {
-          payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
+          payload = {email: email, fullname: displayName, photo: staffPhoto.id}
         } else {
-          payload = {email: mail, fullname: displayName}
+          payload = {email: email, fullname: displayName}
         }
         const updateStaff = await Staff.findByIdAndUpdate(checkStaff.id, payload, {
           new: true,
@@ -91,10 +92,11 @@ exports.postUserDetails = async (req, res, next) => {
         });
       } catch (err) {
         console.log(err)
-        // return ErrorResponseJSON(res, err.message, 400)
+        return new ErrorResponseJSON(res, err.message, 400)
       }
     } else {
-      // return ErrorResponseJSON(res, "Staff not authorized for creation or login", 400)
+      console.log("Staff not authorized for creation or login")
+      return new ErrorResponseJSON(res, "Staff not authorized for creation or login", 401)
     }
 
     /**
