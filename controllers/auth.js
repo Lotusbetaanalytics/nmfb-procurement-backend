@@ -62,26 +62,36 @@ exports.postUserDetails = async (req, res, next) => {
 
     const checkStaff = await Staff.findOne({ email: mail }).populate("photo"); //check if there is a staff with the email in the db
     if (checkStaff) {
-      if (!checkStaff.photo || checkStaff.photo.image != avatar) {
-        const staffPhoto = new Photo({image: avatar});
-        await staffPhoto.save()
+      try {
+        let staffPhoto = false
+        if (!checkStaff.photo || checkStaff.photo.image != avatar) {
+          staffPhoto = new Photo({image: avatar});
+          await staffPhoto.save()
 
-        checkStaff.photo = staffPhoto.id;
-        await checkStaff.save();
+          checkStaff.photo = staffPhoto.id;
+          await checkStaff.save();
+        }
+        // When limiting accounts to pre created ones
+        let payload
+        if (staffPhoto) {
+          payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
+        } else {
+          payload = {email: mail, fullname: displayName}
+        }
+        const updateStaff = await Staff.findByIdAndUpdate(checkStaff.id, payload, {
+          new: true,
+          runValidators: true,
+        })
+
+        const token = generateToken({ staff: checkStaff }); //generate token
+        return res.status(201).cookie("token", token).json({
+          success: true,
+          token: token,
+          staff: updateStaff,
+        });
+      } catch (err) {
+        console.log(err)
       }
-      // When limiting accounts to pre created ones
-      let payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
-      const updateStaff = await Staff.findByIdAndUpdate(checkStaff.id, payload, {
-        new: true,
-        runValidators: true,
-      })
-
-      const token = generateToken({ staff: checkStaff }); //generate token
-      return res.status(201).cookie("token", token).json({
-        success: true,
-        token: token,
-        staff: updateStaff,
-      });
     } else {
       return ErrorResponseJSON(res, "Staff not authorized for creation or login")
     }
