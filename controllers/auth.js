@@ -22,107 +22,111 @@ const Role = require("../models/Role");
 exports.postUserDetails = async (req, res, next) => {
   const { accessToken } = req.body;
 
-  if (!accessToken) {
-    return res
-      .status(400)
-      .json({ success: false, msg: "No access token provided" });
-  }
-  const config = {
-    method: "get",
-    url: "https://graph.microsoft.com/v1.0/me",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  };
-
-  const photoConfig = {
-  method: "get",
-  url: "https://graph.microsoft.com/v1.0/me/photo/$value",
-  headers: {
-  Authorization: `Bearer ${accessToken}`,
-  },
-  responseType: "arraybuffer",
-  };
-
-  const photo = await axios(photoConfig); //get user data from active directory
-  const avatar = new Buffer.from(photo.data, "binary").toString("base64");
-
   try {
-    const { data } = await axios(config); //get user data from active directory
-
-    const { mail, displayName } = data;
-    // console.log(`AD Data: ${data.keys()}`)
-    let email = mail.toLowerCase()
-    console.log(email)
-    const checkStaff = await Staff.findOne({ email: email }).populate("photo"); //check if there is a staff with the email in the db
-    if (checkStaff) {
-      try {
-        let staffPhoto = false
-        if (!checkStaff.photo || checkStaff.photo.image != avatar) {
-          staffPhoto = new Photo({image: avatar});
-          await staffPhoto.save()
-
-          checkStaff.photo = staffPhoto.id;
-          await checkStaff.save();
+    if (!accessToken) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "No access token provided" });
+    }
+    const config = {
+      method: "get",
+      url: "https://graph.microsoft.com/v1.0/me",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+  
+    const photoConfig = {
+    method: "get",
+    url: "https://graph.microsoft.com/v1.0/me/photo/$value",
+    headers: {
+    Authorization: `Bearer ${accessToken}`,
+    },
+    responseType: "arraybuffer",
+    };
+  
+    const photo = await axios(photoConfig); //get user data from active directory
+    const avatar = new Buffer.from(photo.data, "binary").toString("base64");
+  
+    try {
+      const { data } = await axios(config); //get user data from active directory
+  
+      const { mail, displayName } = data;
+      // console.log(`AD Data: ${data.keys()}`)
+      let email = mail.toLowerCase()
+      console.log(email)
+      const checkStaff = await Staff.findOne({ email: email }).populate("photo"); //check if there is a staff with the email in the db
+      if (checkStaff) {
+        try {
+          let staffPhoto = false
+          if (!checkStaff.photo || checkStaff.photo.image != avatar) {
+            staffPhoto = new Photo({image: avatar});
+            await staffPhoto.save()
+  
+            checkStaff.photo = staffPhoto.id;
+            await checkStaff.save();
+          }
+          // When limiting accounts to pre created ones
+          let payload
+          if (staffPhoto) {
+            payload = {email: email, fullname: displayName, photo: staffPhoto.id}
+          } else {
+            payload = {email: email, fullname: displayName}
+          }
+          const updateStaff = await Staff.findByIdAndUpdate(checkStaff.id, payload, {
+            new: true,
+            runValidators: true,
+          })
+  
+          const token = generateToken({ staff: checkStaff._id }); //generate token
+          return res.status(200)
+            .cookie("token", token)
+            .json({
+              success: true,
+              token: token,
+              // staff: updateStaff,
+            });
+        } catch (err) {
+          console.log(err)
+          return new ErrorResponseJSON(res, err.message, 400)
         }
-        // When limiting accounts to pre created ones
-        let payload
-        if (staffPhoto) {
-          payload = {email: email, fullname: displayName, photo: staffPhoto.id}
-        } else {
-          payload = {email: email, fullname: displayName}
-        }
-        const updateStaff = await Staff.findByIdAndUpdate(checkStaff.id, payload, {
-          new: true,
-          runValidators: true,
-        })
-
-        const token = generateToken({ staff: checkStaff._id }); //generate token
-        return res.status(200)
-          .cookie("token", token)
-          .json({
-            success: true,
-            token: token,
-            // staff: updateStaff,
-          });
-      } catch (err) {
-        console.log(err)
-        return new ErrorResponseJSON(res, err.message, 400)
+      } else {
+        console.log("Staff not authorized for creation or login")
+        return new ErrorResponseJSON(res, "Staff not authorized for creation or login", 401)
       }
-    } else {
-      console.log("Staff not authorized for creation or login")
-      return new ErrorResponseJSON(res, "Staff not authorized for creation or login", 401)
+  
+      /**
+       * Code block not called, when using pre created accounts
+       */
+      // const staffPhoto = new Photo({image: avatar});
+      // await staffPhoto.save()
+  
+      // const defaultRole = await Role.findOne({title: "Staff"})
+      // let payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
+      // if (!"role" in req.body) {
+      //   payload.role = defaultRole._id
+      // }
+  
+      // // const newStaff = new Staff({ email: mail, fullname: displayName, photo: staffPhoto.id });
+      // const newStaff = new Staff({...payload});
+      // // const newStaff = new Staff({ email: mail, fullname: displayName});
+      // await newStaff.save(); //add new user to the db
+  
+      // const token = generateToken({ staff: newStaff }); //generate token
+      // return res.status(200).cookie("token", token).json({
+      //   success: true,
+      //   msg: "Staff successfuly added",
+      //   token,
+      //   data: newStaff,
+      // });
+    } catch (err) {
+      if (err.response.status === 401) {
+        return res.status(401).json({ success: false, msg: err.response.data });
+      }
+      return res.status(500).json({ success: false, msg: err.message });
     }
-
-    /**
-     * Code block not called, when using pre created accounts
-     */
-    // const staffPhoto = new Photo({image: avatar});
-    // await staffPhoto.save()
-
-    // const defaultRole = await Role.findOne({title: "Staff"})
-    // let payload = {email: mail, fullname: displayName, photo: staffPhoto.id}
-    // if (!"role" in req.body) {
-    //   payload.role = defaultRole._id
-    // }
-
-    // // const newStaff = new Staff({ email: mail, fullname: displayName, photo: staffPhoto.id });
-    // const newStaff = new Staff({...payload});
-    // // const newStaff = new Staff({ email: mail, fullname: displayName});
-    // await newStaff.save(); //add new user to the db
-
-    // const token = generateToken({ staff: newStaff }); //generate token
-    // return res.status(200).cookie("token", token).json({
-    //   success: true,
-    //   msg: "Staff successfuly added",
-    //   token,
-    //   data: newStaff,
-    // });
   } catch (err) {
-    if (err.response.status === 401) {
-      return res.status(401).json({ success: false, msg: err.response.data });
-    }
-    return res.status(500).json({ success: false, msg: err.message });
+    return new ErrorResponseJSON(res, err.message, 400)
   }
 };
 
