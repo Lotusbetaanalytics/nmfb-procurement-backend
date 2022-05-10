@@ -8,6 +8,9 @@ const ContractSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  validFor: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),

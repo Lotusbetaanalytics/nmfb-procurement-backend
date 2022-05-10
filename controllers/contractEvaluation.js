@@ -14,7 +14,16 @@ exports.createContractEvaluation = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "This contractEvaluation already exists, update it instead!", 400)
   }
 
+  req.body.employeeName = req.user.fullname
+  req.body.employeeEmail = req.user.email
+  req.body.createdBy = req.user._id
+
   const contractEvaluation = await ContractEvaluation.create(req.body)
+
+  /**
+   * TODO:
+   * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
+   */
 
   if (!contractEvaluation) {
     return new ErrorResponseJSON(res, "ContractEvaluation not created!", 404)
@@ -62,6 +71,13 @@ exports.updateContractEvaluation = asyncHandler(async (req, res, next) => {
   if (!contractEvaluation) {
     return new ErrorResponseJSON(res, "ContractEvaluation not updated!", 400);
   }
+
+  /**
+   * TODO:
+   * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
+   */
+
+
   res.status(200).json({
     success: true,
     data: contractEvaluation,
