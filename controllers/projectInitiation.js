@@ -1,6 +1,8 @@
 const asyncHandler = require("../middleware/async");
 const ProjectInitiation = require("../models/ProjectInitiation");
+const ProjectTask = require("../models/ProjectTask");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {projectInitiationEmail, projectInitiationUpdateEmail} = require("../utils/projectEmail");
 
 
 // @desc    Create ProjectInitiation
@@ -37,6 +39,7 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
    * • The PPC portal shall send a new project email notification to the project desk officer 
    * • The system shall send email notification to the front office /admin to upload or review documents. 
    * */
+  await projectInitiationEmail(projectInitiation, req, res, next)
 
   res.status(200).json({
     success: true,
@@ -93,7 +96,7 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
    * • The PPC portal shall send a update project email notification to the project desk officer 
    * • The system shall send email notification to the front office /admin to upload or review documents. 
    * */
-
+  await projectInitiationUpdateEmail(projectInitiation, req, res, next)
 
   res.status(200).json({
     success: true,
@@ -117,6 +120,67 @@ exports.deleteProjectInitiation = asyncHandler(async (req, res, next) => {
   });
 });
 
+
 // TODO: Add approve and decline endpoints
+// @desc    Approve ProjectInitiation
+// @route  GET /api/v1/projectInitiation/:id/approve
+// @access   Private
+exports.approveProjectInitiation = asyncHandler(async (req, res, next) => {
+  const projectInitiation = await ProjectInitiation.findById(req.params.id);
+
+  if (!projectInitiation) {
+    return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+  }
+
+  projectInitiation.status = "Approved"
+  projectInitiation.isOnboarede = true
+  projectInitiation.save()
+
+  res.status(200).json({
+    success: true,
+    data: projectInitiation,
+  });
+});
+
 
 // TODO: Add update status endpoints
+// @desc    Decline ProjectInitiation
+// @route  GET /api/v1/projectInitiation/:id/decline
+// @access   Private
+exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
+  const projectInitiation = await ProjectInitiation.findById(req.params.id);
+
+  if (!projectInitiation) {
+    return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+  }
+
+  projectInitiation.status = "Declined"
+  projectInitiation.save()
+
+  res.status(200).json({
+    success: true,
+    data: projectInitiation,
+  });
+});
+
+
+// TODO: Add project tasks endpoint
+// @desc    Get ProjectInitiation Tasks
+// @route  GET /api/v1/projectInitiation/:id/tasks
+// @access   Private
+exports.geteProjectInitiationTasks = asyncHandler(async (req, res, next) => {
+  const projectInitiation = await ProjectInitiation.findById(req.params.id);
+  
+  if (!projectInitiation) {
+    return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+  }
+  
+  const projectTasks = await ProjectTask.find({project:req.params.id})
+
+  res.status(200).json({
+    success: true,
+    project: projectInitiation,
+    data: projectTasks,
+  });
+});
+

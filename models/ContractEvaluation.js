@@ -8,10 +8,10 @@ const ContractEvaluationSchema = new mongoose.Schema({
   employeeEmail: {
     type: String,
   },
-  // contract: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "Contract"
-  // }, // Not Implemented
+  contract: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Contract"
+  }, // Not Implemented
   project: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "ProjectInitiation"

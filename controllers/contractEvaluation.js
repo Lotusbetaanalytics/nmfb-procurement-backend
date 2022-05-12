@@ -1,6 +1,8 @@
 const asyncHandler = require("../middleware/async");
 const ContractEvaluation = require("../models/ContractEvaluation");
+const ProjectInitiation = require("../models/ProjectInitiation");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {contractEvaluationEmail} = require("../utils/projectEmail")
 
 
 // @desc    Create ContractEvaluation
@@ -9,25 +11,37 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 exports.createContractEvaluation = asyncHandler(async (req, res, next) => {
 
   const existingContractEvaluation = await ContractEvaluation.find({project: req.body.project})
+  const {employeeName, employeeEmail, projectTitle, projectType} = req.body
 
   if (existingContractEvaluation.length > 0) {
     return new ErrorResponseJSON(res, "This contractEvaluation already exists, update it instead!", 400)
   }
 
-  req.body.employeeName = req.user.fullname
-  req.body.employeeEmail = req.user.email
+  if (!employeeName || !employeeEmail) {
+    req.body.employeeName = req.user.fullname
+    req.body.employeeEmail = req.user.email
+  }
+
+  if (!projectTitle || !projectType) {
+    const projectInitiation = await ProjectInitiation.findById(req.body.project)
+    req.body.projectTitle = projectInitiation.projectTitle
+    req.body.projectType = projectInitiation.projectType
+  }
+  
   req.body.createdBy = req.user._id
 
   const contractEvaluation = await ContractEvaluation.create(req.body)
+
+  if (!contractEvaluation) {
+    return new ErrorResponseJSON(res, "ContractEvaluation not created!", 404)
+  }
 
   /**
    * TODO:
    * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
    */
+   await contractEvaluationEmail(contractEvaluation, req, res,next)
 
-  if (!contractEvaluation) {
-    return new ErrorResponseJSON(res, "ContractEvaluation not created!", 404)
-  }
   res.status(200).json({
     success: true,
     data: contractEvaluation,

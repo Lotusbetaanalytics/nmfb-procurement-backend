@@ -102,17 +102,46 @@ exports.projectInitiationEmail = asyncHandler(async (projectInitiation, req, res
 })
 
 
-exports.projectOnboardingEmail = asyncHandler(async (projectOnboardInstance, req, res, next) => {
+exports.projectInitiationUpdateEmail = asyncHandler(async (projectInitiation, req, res, next) => {
+  const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
+  const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+  const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+  const updatedBy = await Staff.findById(projectInitiation.updatedBy)
+
+  const subject = `Project Initiation Update`
+  const salutation = `Hello,`
+  const message = `
+    Proposition testing
+  `
+  const options = {
+    to: [headOfProcurement.email, frontDeskOfficer.email, projectDeskOfficer.email], // email
+    cc: [updatedBy.email], // cc
+    subject: subject, // subject
+    text: salutation, // message (salutation)
+    html: message, // html
+  }
+  try {
+    const email = await sendEmail(options)
+    console.log(`email: ${email}`)
+    return true
+  } catch (err) {
+    console.log(err)
+    return false
+  }
+})
+
+
+exports.projectOnboardingEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
   /**
    * TODO: 
    * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’ 
    * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
    */
-  const projectOnboarding = await ProjectOnboarding.findById(projectOnboardInstance._id).populate(
+  const projectOnboarding = await ProjectOnboarding.findById(projectOnboardingInstance._id).populate(
     "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
     assignedTo assignedBy createdBy updatedBy"
   )
-  const projectInitiation = await ProjectInitiation.findById(projectOnboardInstance.project).populate(
+  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(
     "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
   )
 
@@ -173,6 +202,38 @@ exports.projectOnboardingEmail = asyncHandler(async (projectOnboardInstance, req
   } else {
     console.log(`Project Onboarded Improperly`)
     // Do stuff to the project initiation
+    return false
+  }
+})
+
+
+exports.projectOnboardingUpdateEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
+  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(
+    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
+  )
+  const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
+  const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+  const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+  const updatedBy = await Staff.findById(projectOnboardingInstance.updatedBy)
+
+  const subject = `Project Onboarding Update`
+  const salutation = `Hello,`
+  const message = `
+    Proposition testing
+  `
+  const options = {
+    to: [headOfProcurement.email, frontDeskOfficer.email, projectDeskOfficer.email], // email
+    cc: [updatedBy.email], // cc
+    subject: subject, // subject
+    text: salutation, // message (salutation)
+    html: message, // html
+  }
+  try {
+    const email = await sendEmail(options)
+    console.log(`email: ${email}`)
+    return true
+  } catch (err) {
+    console.log(err)
     return false
   }
 })

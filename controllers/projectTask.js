@@ -1,6 +1,7 @@
 const asyncHandler = require("../middleware/async");
 const ProjectTask = require("../models/ProjectTask");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {projectAssignmentEmail, projectReassignmentEmail} = require("../utils/projectEmail");
 
 
 // @desc    Create ProjectTask
@@ -8,7 +9,7 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @access   Private
 exports.createProjectTask = asyncHandler(async (req, res, next) => {
 
-  const existingProjectTask = await ProjectTask.find({title: req.body.title})
+  const existingProjectTask = await ProjectTask.find({projectTitle: req.body.projectTitle})
 
   if (existingProjectTask.length > 0) {
     return new ErrorResponseJSON(res, "This projectTask already exists, update it instead!", 400)
@@ -19,6 +20,9 @@ exports.createProjectTask = asyncHandler(async (req, res, next) => {
   if (!projectTask) {
     return new ErrorResponseJSON(res, "ProjectTask not created!", 404)
   }
+
+  await projectAssignmentEmail(projectTask, req, res, next)
+
   res.status(200).json({
     success: true,
     data: projectTask,
@@ -62,6 +66,11 @@ exports.updateProjectTask = asyncHandler(async (req, res, next) => {
   if (!projectTask) {
     return new ErrorResponseJSON(res, "ProjectTask not updated!", 400);
   }
+
+  if ("reassignedTo" in req.body) {
+    await projectReassignmentEmail(projectTask, req, res, next)
+  }
+
   res.status(200).json({
     success: true,
     data: projectTask,

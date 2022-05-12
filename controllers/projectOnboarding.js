@@ -1,6 +1,8 @@
 const asyncHandler = require("../middleware/async");
+const ProjectInitiation = require("../models/ProjectInitiation");
 const ProjectOnboarding = require("../models/ProjectOnboarding");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {projectOnboardingEmail, projectOnboardingUpdateEmail} = require("../utils/projectEmail");
 
 
 // @desc    Create ProjectOnboarding
@@ -33,12 +35,21 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
   }
   await projectOnboarding.save()
 
+  if (projectOnboarding.isApproved && projectOnboarding.status == "Completed") {
+    const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project)
+    projectInitiation.status = "Approved"
+    projectInitiation.isApproved = true
+    projectInitiation.isOnboarded = true
+    await projectInitiation.save()
+  }
+
   /**
    * TODO:
    * Post-conditions:
    * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
    * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’ 
    */
+  await projectOnboardingEmail(projectOnboarding, req, res, next)
 
   res.status(200).json({
     success: true,
@@ -64,14 +75,6 @@ exports.getProjectOnboarding = asyncHandler(async (req, res, next) => {
   if (!projectOnboarding) {
     return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
   }
-
-    /**
-   * TODO:
-   * Post-conditions:
-   * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
-   * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’ 
-   */
-
   res.status(200).json({
     success: true,
     data: projectOnboarding,
@@ -104,6 +107,14 @@ exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
     projectOnboarding.isApproved = false
   }
   await projectOnboarding.save()
+
+  /**
+   * TODO:
+   * Post-conditions:
+   * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
+   * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’ 
+   */
+  await projectOnboardingUpdateEmail(projectOnboarding, req, res, next)
 
   res.status(200).json({
     success: true,

@@ -30,6 +30,7 @@ const projectInitiation  = require("./routes/projectInitiation")
 const projectOnboarding  = require("./routes/projectOnboarding")
 const projectTask  = require("./routes/projectTask")
 const projectType  = require("./routes/projectType")
+const log  = require("./routes/log")
 
 // configure express
 const app = express();
@@ -79,6 +80,7 @@ app.use("/api/v1/projectInitiation", projectInitiation)
 app.use("/api/v1/projectOnboarding", projectOnboarding)
 app.use("/api/v1/projectTask", projectTask)
 app.use("/api/v1/projectType", projectType)
+app.use("/api/v1/log", log)
 
 app.use(errorHandler);
 
