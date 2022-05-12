@@ -1,3 +1,4 @@
+const path = require("path");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const xss = require("xss-clean");
@@ -83,6 +84,16 @@ app.use("/api/v1/projectType", projectType)
 app.use("/api/v1/log", log)
 
 app.use(errorHandler);
+
+//Set static folder
+app.use(express.static(path.join(__dirname, "public")));
+app.get("/*", function (req, res) {
+  res.sendFile(path.join(__dirname, "public/index.html"), function (err) {
+    if (err) {
+      res.status(500).send(err);
+    }
+  });
+});
 
 app.engine('.html', require('ejs').__express);
 app.set('view engine', 'html');
