@@ -11,6 +11,7 @@ const TeamSchema = new mongoose.Schema({
   },
   title: {
     type: String,
+    required: true
   },
   email: {
     type: String,
