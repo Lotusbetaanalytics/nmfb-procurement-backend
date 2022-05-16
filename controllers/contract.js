@@ -143,7 +143,7 @@ exports.terminateContract = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "Contract not found!", 404);
   }
 
-  if (contract.score != 0 && contract.score < 70) {
+  if ((contract.score != 0 && contract.score < 70) || contract.isTerminated) {
     contract.isActive = false
     contract.deactivatedBy = req.user._id
     contract.deactivatedAt = Date.now()

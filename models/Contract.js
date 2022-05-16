@@ -17,6 +17,11 @@ const ContractSchema = new mongoose.Schema({
   },
   isActive: {
     type: Boolean,
+    default: true
+  },
+  isTerminated: {
+    type: Boolean,
+    default: false
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -25,6 +30,13 @@ const ContractSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  updatedAt: {
+    type: Date,
   },
   deactivatedBy: {
     type: mongoose.Schema.Types.ObjectId,

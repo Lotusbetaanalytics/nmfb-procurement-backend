@@ -8,11 +8,11 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @access   Private
 exports.createSupportingDocuments = asyncHandler(async (req, res, next) => {
 
-  const existingSupportingDocuments = await SupportingDocuments.find({title: req.body.title})
+  // const existingSupportingDocuments = await SupportingDocuments.find({title: req.body.title})
 
-  if (existingSupportingDocuments.length > 0) {
-    return new ErrorResponseJSON(res, "This supportingDocuments already exists, update it instead!", 400)
-  }
+  // if (existingSupportingDocuments.length > 0) {
+  //   return new ErrorResponseJSON(res, "This supportingDocuments already exists, update it instead!", 400)
+  // }
 
   const supportingDocuments = await SupportingDocuments.create(req.body)
 

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const EvaluationSchema = new mongoose.Schema({
+const SupportingDocumentsSchema = new mongoose.Schema({
 
   employeeName: {
     type: String,
@@ -21,10 +21,17 @@ const EvaluationSchema = new mongoose.Schema({
   files: {
     type: Array,
   },
+  description: {
+    type: String,
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
   },
 });
 
-module.exports = mongoose.model("Evaluation", EvaluationSchema);
+module.exports = mongoose.model("SupportingDocuments", SupportingDocumentsSchema);
