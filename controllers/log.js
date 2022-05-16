@@ -32,6 +32,7 @@ exports.getAllLogs = asyncHandler(async (req, res, next) => {
   const projectTypes = await ProjectType.find();
   const projectCategories = await ProjectCategory.find();
   
+  const projectInitiation = await ProjectInitiation.find();
   const projectInitiationPending = await ProjectInitiation.find({status: "Pending"});
   const projectInitiationApproved = await ProjectInitiation.find({status: "Approved"});
   const projectInitiationDeclined = await ProjectInitiation.find({status: "Declined"});
@@ -41,11 +42,13 @@ exports.getAllLogs = asyncHandler(async (req, res, next) => {
   const projectInitiationCompleted = await ProjectInitiation.find({status: "Completed"});
   const projectInitiationOnboarded = await ProjectInitiation.find({isOnboarded: true});
 
+  const projectOnboarding = await ProjectOnboarding.find();
   const projectOnboardingPending = await ProjectOnboarding.find({status: "Pending"});
   const projectOnboardingStarted = await ProjectOnboarding.find({status: "Started"});
   const projectOnboardingTerminated = await ProjectOnboarding.find({status: "Terminated"});
   const projectOnboardingCompleted = await ProjectOnboarding.find({status: "Completed"});
 
+  const projectTask = await ProjectTask.find();
   const projectTaskPending = await ProjectTask.find({status: "Pending"});
   const projectTaskStarted = await ProjectTask.find({status: "Started"});
   const projectTaskReassigned = await ProjectTask.find({status: "Reassigned"});
@@ -53,6 +56,7 @@ exports.getAllLogs = asyncHandler(async (req, res, next) => {
   const projectTaskTerminated = await ProjectTask.find({status: "Terminated"});
   const projectTaskCompleted = await ProjectTask.find({status: "Completed"});
 
+  const contractEvaluation = await ContractEvaluation.find();
   const contractEvaluationPending = await ContractEvaluation.find({status: "Pending"});
   const contractEvaluationStarted = await ContractEvaluation.find({status: "Started"});
   const contractEvaluationCompleted = await ContractEvaluation.find({status: "Completed"});
@@ -74,6 +78,7 @@ exports.getAllLogs = asyncHandler(async (req, res, next) => {
       evaluationTemplates: evaluationTemplates,
       projectTypes: projectTypes,
       projectCategories: projectCategories,
+      projectInitiation: projectInitiation,
       projectInitiationPending: projectInitiationPending,
       projectInitiationApproved: projectInitiationApproved,
       projectInitiationDeclined: projectInitiationDeclined,
@@ -82,16 +87,19 @@ exports.getAllLogs = asyncHandler(async (req, res, next) => {
       projectInitiationTerminated: projectInitiationTerminated,
       projectInitiationCompleted: projectInitiationCompleted,
       projectInitiationOnboarded: projectInitiationOnboarded,
+      projectOnboarding: projectOnboarding,
       projectOnboardingPending: projectOnboardingPending,
       projectOnboardingStarted: projectOnboardingStarted,
       projectOnboardingTerminated: projectOnboardingTerminated,
       projectOnboardingCompleted: projectOnboardingCompleted,
+      projectTask: projectTask,
       projectTaskPending: projectTaskPending,
       projectTaskStarted: projectTaskStarted,
       projectTaskReassigned: projectTaskReassigned,
       projectTaskOnHold: projectTaskOnHold,
       projectTaskTerminated: projectTaskTerminated,
       projectTaskCompleted: projectTaskCompleted,
+      contractEvaluation: contractEvaluation,
       contractEvaluationPending: contractEvaluationPending,
       contractEvaluationStarted: contractEvaluationStarted,
       contractEvaluationCompleted: contractEvaluationCompleted,

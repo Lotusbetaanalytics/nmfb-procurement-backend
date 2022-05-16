@@ -83,3 +83,77 @@ exports.deleteContract = asyncHandler(async (req, res, next) => {
     data: contract,
   });
 });
+
+
+// @desc    Get all Active Contracts
+// @route  GET /api/v1/contract/active
+// @access   Private
+exports.getAllActiveContracts = asyncHandler(async (req, res, next) => {
+  const contract = await Contract.find({isActive: true});
+
+  if (contract.length() < 1) {
+    return new ErrorResponseJSON(res, "Contracts not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: contract,
+  });
+});
+
+
+// @desc    Get all Terminated Contracts
+// @route  GET /api/v1/contract/terminated
+// @access   Private
+exports.getAllTerminatedContracts = asyncHandler(async (req, res, next) => {
+  const contract = await Contract.find({isActive: false});
+
+  if (contract.length() < 1) {
+    return new ErrorResponseJSON(res, "Contracts not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: contract,
+  });
+});
+
+
+// @desc    Get all Failed Contracts (Score < 70)
+// @route  GET /api/v1/contract/failed
+// @access   Private
+exports.getAllFailedContracts = asyncHandler(async (req, res, next) => {
+  const contract = await Contract.find({score: {$lt: 70}});
+
+  if (contract.length() < 1) {
+    return new ErrorResponseJSON(res, "Contracts not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: contract,
+  });
+});
+
+
+// @desc    Terminate Contract
+// @route  POST /api/v1/contract/:id/terminate
+// @access   Private
+exports.terminateContract = asyncHandler(async (req, res, next) => {
+  const contract = await Contract.findById(req.params.id);
+
+  if (!contract) {
+    return new ErrorResponseJSON(res, "Contract not found!", 404);
+  }
+
+  if (contract.score != 0 && contract.score < 70) {
+    contract.isActive = false
+    contract.deactivatedBy = req.user._id
+    contract.deactivatedAt = Date.now()
+    await contract.save()
+  } else {
+    return new ErrorResponseJSON(res, "Contract score greater than 70!", 400);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: contract,
+  });
+});

@@ -11,9 +11,27 @@ const ContractSchema = new mongoose.Schema({
   validFor: {
     type: String,
   },
+  score: {
+    type: Number,
+    default: 100,
+  },
+  isActive: {
+    type: Boolean,
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
+  },
+  deactivatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  deactivatedAt: {
+    type: Date,
   },
 });
 

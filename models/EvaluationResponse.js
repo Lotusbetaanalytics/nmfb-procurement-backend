@@ -19,6 +19,9 @@ const EvaluationResponseSchema = new mongoose.Schema({
   response: {
     type: String,
   },
+  score: {
+    type: String,
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
