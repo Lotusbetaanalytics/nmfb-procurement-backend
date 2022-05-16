@@ -4,6 +4,7 @@ const ProjectTypeSchema = new mongoose.Schema({
   /**
    * • Services related
    * • Goods and work
+   * • Contract Renewal
    */
   title: {
     type: String,

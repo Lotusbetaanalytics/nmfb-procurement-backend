@@ -23,10 +23,12 @@ const ContractEvaluationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "ProjectType"
   },
+  // Evaluating officer email
   evaluatingOfficer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff"
   },
+  // Configurable units in Nirsal PLC
   businessUsersUnitName: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Team"

@@ -19,6 +19,7 @@ const ProjectOnboardingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "ProjectType"
   },
+  // Shall be read only for the head of procurement
   contractType: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "ContractType"
@@ -79,7 +80,6 @@ const ProjectOnboardingSchema = new mongoose.Schema({
   },
   updatedAt: {
     type: Date,
-    default: Date.now(),
   },
 });
 
