@@ -154,7 +154,7 @@ exports.postUserDetails = async (req, res, next) => {
 // @access   Private
 exports.getUser = asyncHandler(async (req, res, next) => {
   try {
-    const staff = await Staff.findById(req.user._id).populate("manager")
+    const staff = await Staff.findById(req.user._id).populate("manager team role")
 
     res.status(200).json({
       success: true,

@@ -24,6 +24,8 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
       req.body.headOfProcurement = req.user._id;
     } else if (req.user.role.title == "Admin" || req.user.role.title == "Front Desk Officer") {
       req.body.frontDeskOfficer = req.user._id;
+    } else {
+      return new ErrorResponseJSON(res, "You are not authorized to create projects!", 404);
     }
 
     const projectInitiation = await ProjectInitiation.create(req.body);
