@@ -7,23 +7,26 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @route  POST /api/v1/evaluationTemplate
 // @access   Private
 exports.createEvaluationTemplate = asyncHandler(async (req, res, next) => {
+  try {
+    const existingEvaluationTemplate = await EvaluationTemplate.find({project: req.body.project});
 
-  const existingEvaluationTemplate = await EvaluationTemplate.find({project: req.body.project})
+    if (existingEvaluationTemplate.length > 0) {
+      return new ErrorResponseJSON(res, "This evaluationTemplate already exists, update it instead!", 400);
+    }
 
-  if (existingEvaluationTemplate.length > 0) {
-    return new ErrorResponseJSON(res, "This evaluationTemplate already exists, update it instead!", 400)
+    const evaluationTemplate = await EvaluationTemplate.create(req.body);
+
+    if (!evaluationTemplate) {
+      return new ErrorResponseJSON(res, "EvaluationTemplate not created!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: evaluationTemplate,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  const evaluationTemplate = await EvaluationTemplate.create(req.body)
-
-  if (!evaluationTemplate) {
-    return new ErrorResponseJSON(res, "EvaluationTemplate not created!", 404)
-  }
-  res.status(200).json({
-    success: true,
-    data: evaluationTemplate,
-  })
-})
+});
 
 
 // @desc    Get all EvaluationTemplates
@@ -43,10 +46,15 @@ exports.getEvaluationTemplate = asyncHandler(async (req, res, next) => {
   if (!evaluationTemplate) {
     return new ErrorResponseJSON(res, "EvaluationTemplate not found!", 404);
   }
-  res.status(200).json({
-    success: true,
-    data: evaluationTemplate,
-  });
+
+  try {
+    res.status(200).json({
+      success: true,
+      data: evaluationTemplate,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });
 
 
@@ -62,10 +70,15 @@ exports.updateEvaluationTemplate = asyncHandler(async (req, res, next) => {
   if (!evaluationTemplate) {
     return new ErrorResponseJSON(res, "EvaluationTemplate not updated!", 400);
   }
-  res.status(200).json({
-    success: true,
-    data: evaluationTemplate,
-  });
+
+  try {
+    res.status(200).json({
+      success: true,
+      data: evaluationTemplate,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });
 
 
@@ -78,8 +91,13 @@ exports.deleteEvaluationTemplate = asyncHandler(async (req, res, next) => {
   if (!evaluationTemplate) {
     return new ErrorResponseJSON(res, "EvaluationTemplate not found!", 404);
   }
-  res.status(200).json({
-    success: true,
-    data: evaluationTemplate,
-  });
+
+  try {
+    res.status(200).json({
+      success: true,
+      data: evaluationTemplate,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });

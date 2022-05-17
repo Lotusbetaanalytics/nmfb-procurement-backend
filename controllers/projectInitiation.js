@@ -136,7 +136,6 @@ exports.deleteProjectInitiation = asyncHandler(async (req, res, next) => {
   }
 });
 
-// TODO: Add approve and decline endpoints
 
 // @desc    Approve ProjectInitiation
 // @route  GET /api/v1/projectInitiation/:id/approve
@@ -162,7 +161,6 @@ exports.approveProjectInitiation = asyncHandler(async (req, res, next) => {
   }
 });
 
-// TODO: Add update status endpoints
 
 // @desc    Decline ProjectInitiation
 // @route  GET /api/v1/projectInitiation/:id/decline
@@ -187,7 +185,9 @@ exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
   }
 });
 
-// TODO: Add project tasks endpoint
+
+// TODO: Add update status endpoints
+
 
 // @desc    Get ProjectInitiation Tasks
 // @route  GET /api/v1/projectInitiation/:id/tasks

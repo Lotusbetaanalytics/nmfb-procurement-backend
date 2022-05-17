@@ -1,21 +1,22 @@
 const asyncHandler = require("../middleware/async");
 const Team = require("../models/Team");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
-const {configureHeadRoles} = require("../utils/userManagement")
+const {configureHeadRoles} = require("../utils/userManagement");
 
 
 // @desc    Create Team
 // @route  POST /api/v1/team
 // @access   Private
 exports.createTeam = asyncHandler(async (req, res, next) => {
-
-  const existingTeam = await Team.find({title: req.body.title})
+  try {
+    
+  const existingTeam = await Team.find({title: req.body.title});
 
   if (existingTeam.length > 0) {
-    return new ErrorResponseJSON(res, "This team already exists, update it instead!", 400)
+    return new ErrorResponseJSON(res, "This team already exists, update it instead!", 400);
   }
 
-  const team = await Team.create(req.body)
+  const team = await Team.create(req.body);
 
   // if (team.title == "Procurement" && team.head) {
   //   const procurementHead = await Staff.findById(team.head)
@@ -33,16 +34,20 @@ exports.createTeam = asyncHandler(async (req, res, next) => {
   // }
 
   if (!team) {
-    return new ErrorResponseJSON(res, "Team not created!", 404)
+    return new ErrorResponseJSON(res, "Team not created!", 404);
   }
 
-  await configureHeadRoles(team)
+  await configureHeadRoles(team);
 
   res.status(200).json({
     success: true,
     data: team,
-  })
-})
+  });
+
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
 
 
 // @desc    Get all Teams
@@ -57,6 +62,8 @@ exports.getAllTeams = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/team/:id
 // @access   Private
 exports.getTeam = asyncHandler(async (req, res, next) => {
+  try {
+    
   const team = await Team.findById(req.params.id);
 
   if (!team) {
@@ -66,6 +73,10 @@ exports.getTeam = asyncHandler(async (req, res, next) => {
     success: true,
     data: team,
   });
+
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });
 
 
@@ -73,6 +84,8 @@ exports.getTeam = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/team/:id
 // @access   Private
 exports.updateTeam = asyncHandler(async (req, res, next) => {
+  try {
+    
   const team = await Team.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -82,12 +95,16 @@ exports.updateTeam = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "Team not updated!", 400);
   }
 
-  await configureHeadRoles(team)
+  await configureHeadRoles(team);
 
   res.status(200).json({
     success: true,
     data: team,
   });
+
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });
 
 
@@ -95,6 +112,8 @@ exports.updateTeam = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/team
 // @access   Private
 exports.deleteTeam = asyncHandler(async (req, res, next) => {
+  try {
+    
   const team = await Team.findByIdAndDelete(req.params.id);
 
   if (!team) {
@@ -104,4 +123,8 @@ exports.deleteTeam = asyncHandler(async (req, res, next) => {
     success: true,
     data: team,
   });
+
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });

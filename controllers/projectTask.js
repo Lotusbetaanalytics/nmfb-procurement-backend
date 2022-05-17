@@ -8,26 +8,29 @@ const {projectAssignmentEmail, projectReassignmentEmail} = require("../utils/pro
 // @route  POST /api/v1/projectTask
 // @access   Private
 exports.createProjectTask = asyncHandler(async (req, res, next) => {
+  try {
+    const existingProjectTask = await ProjectTask.find({projectTitle: req.body.projectTitle});
 
-  const existingProjectTask = await ProjectTask.find({projectTitle: req.body.projectTitle})
+    if (existingProjectTask.length > 0) {
+      return new ErrorResponseJSON(res, "This projectTask already exists, update it instead!", 400);
+    }
 
-  if (existingProjectTask.length > 0) {
-    return new ErrorResponseJSON(res, "This projectTask already exists, update it instead!", 400)
+    const projectTask = await ProjectTask.create(req.body);
+
+    if (!projectTask) {
+      return new ErrorResponseJSON(res, "ProjectTask not created!", 404);
+    }
+
+    await projectAssignmentEmail(projectTask, req, res, next);
+
+    res.status(200).json({
+      success: true,
+      data: projectTask,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  const projectTask = await ProjectTask.create(req.body)
-
-  if (!projectTask) {
-    return new ErrorResponseJSON(res, "ProjectTask not created!", 404)
-  }
-
-  await projectAssignmentEmail(projectTask, req, res, next)
-
-  res.status(200).json({
-    success: true,
-    data: projectTask,
-  })
-})
+});
 
 
 // @desc    Get all ProjectTasks
@@ -42,15 +45,19 @@ exports.getAllProjectTasks = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectTask/:id
 // @access   Private
 exports.getProjectTask = asyncHandler(async (req, res, next) => {
-  const projectTask = await ProjectTask.findById(req.params.id);
+  try {
+    const projectTask = await ProjectTask.findById(req.params.id);
 
-  if (!projectTask) {
-    return new ErrorResponseJSON(res, "ProjectTask not found!", 404);
+    if (!projectTask) {
+      return new ErrorResponseJSON(res, "ProjectTask not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: projectTask,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: projectTask,
-  });
 });
 
 
@@ -58,23 +65,27 @@ exports.getProjectTask = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectTask/:id
 // @access   Private
 exports.updateProjectTask = asyncHandler(async (req, res, next) => {
-  const projectTask = await ProjectTask.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  try {
+    const projectTask = await ProjectTask.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-  if (!projectTask) {
-    return new ErrorResponseJSON(res, "ProjectTask not updated!", 400);
+    if (!projectTask) {
+      return new ErrorResponseJSON(res, "ProjectTask not updated!", 400);
+    }
+
+    if ("reassignedTo" in req.body) {
+      await projectReassignmentEmail(projectTask, req, res, next);
+    }
+
+    res.status(200).json({
+      success: true,
+      data: projectTask,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  if ("reassignedTo" in req.body) {
-    await projectReassignmentEmail(projectTask, req, res, next)
-  }
-
-  res.status(200).json({
-    success: true,
-    data: projectTask,
-  });
 });
 
 
@@ -82,13 +93,17 @@ exports.updateProjectTask = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/projectTask
 // @access   Private
 exports.deleteProjectTask = asyncHandler(async (req, res, next) => {
-  const projectTask = await ProjectTask.findByIdAndDelete(req.params.id);
+  try {
+    const projectTask = await ProjectTask.findByIdAndDelete(req.params.id);
 
-  if (!projectTask) {
-    return new ErrorResponseJSON(res, "ProjectTask not found!", 404);
+    if (!projectTask) {
+      return new ErrorResponseJSON(res, "ProjectTask not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: projectTask,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: projectTask,
-  });
 });

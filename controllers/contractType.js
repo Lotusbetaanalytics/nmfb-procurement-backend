@@ -7,23 +7,26 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @route  POST /api/v1/contractType
 // @access   Private
 exports.createContractType = asyncHandler(async (req, res, next) => {
+  try {
+    const existingContractType = await ContractType.find({title: req.body.title});
 
-  const existingContractType = await ContractType.find({title: req.body.title})
+    if (existingContractType.length > 0) {
+      return new ErrorResponseJSON(res, "This contractType already exists, update it instead!", 400);
+    }
 
-  if (existingContractType.length > 0) {
-    return new ErrorResponseJSON(res, "This contractType already exists, update it instead!", 400)
+    const contractType = await ContractType.create(req.body);
+
+    if (!contractType) {
+      return new ErrorResponseJSON(res, "ContractType not created!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contractType,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  const contractType = await ContractType.create(req.body)
-
-  if (!contractType) {
-    return new ErrorResponseJSON(res, "ContractType not created!", 404)
-  }
-  res.status(200).json({
-    success: true,
-    data: contractType,
-  })
-})
+});
 
 
 // @desc    Get all ContractTypes
@@ -38,15 +41,19 @@ exports.getAllContractTypes = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/contractType/:id
 // @access   Private
 exports.getContractType = asyncHandler(async (req, res, next) => {
-  const contractType = await ContractType.findById(req.params.id);
+  try {
+    const contractType = await ContractType.findById(req.params.id);
 
-  if (!contractType) {
-    return new ErrorResponseJSON(res, "ContractType not found!", 404);
+    if (!contractType) {
+      return new ErrorResponseJSON(res, "ContractType not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contractType,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contractType,
-  });
 });
 
 
@@ -54,18 +61,22 @@ exports.getContractType = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/contractType/:id
 // @access   Private
 exports.updateContractType = asyncHandler(async (req, res, next) => {
-  const contractType = await ContractType.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  try {
+    const contractType = await ContractType.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-  if (!contractType) {
-    return new ErrorResponseJSON(res, "ContractType not updated!", 400);
+    if (!contractType) {
+      return new ErrorResponseJSON(res, "ContractType not updated!", 400);
+    }
+    res.status(200).json({
+      success: true,
+      data: contractType,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contractType,
-  });
 });
 
 
@@ -73,13 +84,17 @@ exports.updateContractType = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/contractType
 // @access   Private
 exports.deleteContractType = asyncHandler(async (req, res, next) => {
-  const contractType = await ContractType.findByIdAndDelete(req.params.id);
+  try {
+    const contractType = await ContractType.findByIdAndDelete(req.params.id);
 
-  if (!contractType) {
-    return new ErrorResponseJSON(res, "ContractType not found!", 404);
+    if (!contractType) {
+      return new ErrorResponseJSON(res, "ContractType not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contractType,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contractType,
-  });
 });

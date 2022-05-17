@@ -7,23 +7,26 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @route  POST /api/v1/contract
 // @access   Private
 exports.createContract = asyncHandler(async (req, res, next) => {
+  try {
+    const existingContract = await Contract.find({title: req.body.title});
 
-  const existingContract = await Contract.find({title: req.body.title})
+    if (existingContract.length > 0) {
+      return new ErrorResponseJSON(res, "This contract already exists, update it instead!", 400);
+    }
 
-  if (existingContract.length > 0) {
-    return new ErrorResponseJSON(res, "This contract already exists, update it instead!", 400)
+    const contract = await Contract.create(req.body);
+
+    if (!contract) {
+      return new ErrorResponseJSON(res, "Contract not created!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contract,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  const contract = await Contract.create(req.body)
-
-  if (!contract) {
-    return new ErrorResponseJSON(res, "Contract not created!", 404)
-  }
-  res.status(200).json({
-    success: true,
-    data: contract,
-  })
-})
+});
 
 
 // @desc    Get all Contracts
@@ -38,15 +41,19 @@ exports.getAllContracts = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/contract/:id
 // @access   Private
 exports.getContract = asyncHandler(async (req, res, next) => {
-  const contract = await Contract.findById(req.params.id);
+  try {
+    const contract = await Contract.findById(req.params.id);
 
-  if (!contract) {
-    return new ErrorResponseJSON(res, "Contract not found!", 404);
+    if (!contract) {
+      return new ErrorResponseJSON(res, "Contract not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contract,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contract,
-  });
 });
 
 
@@ -54,18 +61,22 @@ exports.getContract = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/contract/:id
 // @access   Private
 exports.updateContract = asyncHandler(async (req, res, next) => {
-  const contract = await Contract.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  try {
+    const contract = await Contract.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-  if (!contract) {
-    return new ErrorResponseJSON(res, "Contract not updated!", 400);
+    if (!contract) {
+      return new ErrorResponseJSON(res, "Contract not updated!", 400);
+    }
+    res.status(200).json({
+      success: true,
+      data: contract,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contract,
-  });
 });
 
 
@@ -73,15 +84,19 @@ exports.updateContract = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/contract
 // @access   Private
 exports.deleteContract = asyncHandler(async (req, res, next) => {
-  const contract = await Contract.findByIdAndDelete(req.params.id);
+  try {
+    const contract = await Contract.findByIdAndDelete(req.params.id);
 
-  if (!contract) {
-    return new ErrorResponseJSON(res, "Contract not found!", 404);
+    if (!contract) {
+      return new ErrorResponseJSON(res, "Contract not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contract,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contract,
-  });
 });
 
 
@@ -89,15 +104,19 @@ exports.deleteContract = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/contract/active
 // @access   Private
 exports.getAllActiveContracts = asyncHandler(async (req, res, next) => {
-  const contract = await Contract.find({isActive: true});
+  try {
+    const contract = await Contract.find({isActive: true});
 
-  if (contract.length < 1) {
-    return new ErrorResponseJSON(res, "Contracts not found!", 404);
+    if (contract.length < 1) {
+      return new ErrorResponseJSON(res, "Contracts not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contract,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contract,
-  });
 });
 
 
@@ -105,15 +124,19 @@ exports.getAllActiveContracts = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/contract/terminated
 // @access   Private
 exports.getAllTerminatedContracts = asyncHandler(async (req, res, next) => {
-  const contract = await Contract.find({isActive: false});
+  try {
+    const contract = await Contract.find({isActive: false});
 
-  if (contract.length < 1) {
-    return new ErrorResponseJSON(res, "Contracts not found!", 404);
+    if (contract.length < 1) {
+      return new ErrorResponseJSON(res, "Contracts not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contract,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contract,
-  });
 });
 
 
@@ -121,15 +144,19 @@ exports.getAllTerminatedContracts = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/contract/failed
 // @access   Private
 exports.getAllFailedContracts = asyncHandler(async (req, res, next) => {
-  const contract = await Contract.find({score: {$lt: 70}});
+  try {
+    const contract = await Contract.find({score: {$lt: 70}});
 
-  if (contract.length < 1) {
-    return new ErrorResponseJSON(res, "Contracts not found!", 404);
+    if (contract.length < 1) {
+      return new ErrorResponseJSON(res, "Contracts not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contract,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contract,
-  });
 });
 
 
@@ -137,23 +164,27 @@ exports.getAllFailedContracts = asyncHandler(async (req, res, next) => {
 // @route  POST /api/v1/contract/:id/terminate
 // @access   Private
 exports.terminateContract = asyncHandler(async (req, res, next) => {
-  const contract = await Contract.findById(req.params.id);
+  try {
+    const contract = await Contract.findById(req.params.id);
 
-  if (!contract) {
-    return new ErrorResponseJSON(res, "Contract not found!", 404);
+    if (!contract) {
+      return new ErrorResponseJSON(res, "Contract not found!", 404);
+    }
+
+    if ((contract.score != 0 && contract.score < 70) || contract.isTerminated) {
+      contract.isActive = false;
+      contract.deactivatedBy = req.user._id;
+      contract.deactivatedAt = Date.now();
+      await contract.save();
+    } else {
+      return new ErrorResponseJSON(res, "Contract score greater than 70!", 400);
+    }
+
+    res.status(200).json({
+      success: true,
+      data: contract,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  if ((contract.score != 0 && contract.score < 70) || contract.isTerminated) {
-    contract.isActive = false
-    contract.deactivatedBy = req.user._id
-    contract.deactivatedAt = Date.now()
-    await contract.save()
-  } else {
-    return new ErrorResponseJSON(res, "Contract score greater than 70!", 400);
-  }
-
-  res.status(200).json({
-    success: true,
-    data: contract,
-  });
 });

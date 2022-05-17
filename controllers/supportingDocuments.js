@@ -7,23 +7,26 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @route  POST /api/v1/supportingDocuments
 // @access   Private
 exports.createSupportingDocuments = asyncHandler(async (req, res, next) => {
+  try {
+    // const existingSupportingDocuments = await SupportingDocuments.find({title: req.body.title})
 
-  // const existingSupportingDocuments = await SupportingDocuments.find({title: req.body.title})
+    // if (existingSupportingDocuments.length > 0) {
+    //   return new ErrorResponseJSON(res, "This supportingDocuments already exists, update it instead!", 400)
+    // }
 
-  // if (existingSupportingDocuments.length > 0) {
-  //   return new ErrorResponseJSON(res, "This supportingDocuments already exists, update it instead!", 400)
-  // }
+    const supportingDocuments = await SupportingDocuments.create(req.body);
 
-  const supportingDocuments = await SupportingDocuments.create(req.body)
-
-  if (!supportingDocuments) {
-    return new ErrorResponseJSON(res, "SupportingDocuments not created!", 404)
+    if (!supportingDocuments) {
+      return new ErrorResponseJSON(res, "SupportingDocuments not created!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: supportingDocuments,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: supportingDocuments,
-  })
-})
+});
 
 
 // @desc    Get all SupportingDocuments
@@ -38,15 +41,19 @@ exports.getAllSupportingDocuments = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/supportingDocuments/:id
 // @access   Private
 exports.getSupportingDocuments = asyncHandler(async (req, res, next) => {
-  const supportingDocuments = await SupportingDocuments.findById(req.params.id);
+  try {
+    const supportingDocuments = await SupportingDocuments.findById(req.params.id);
 
-  if (!supportingDocuments) {
-    return new ErrorResponseJSON(res, "SupportingDocuments not found!", 404);
+    if (!supportingDocuments) {
+      return new ErrorResponseJSON(res, "SupportingDocuments not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: supportingDocuments,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: supportingDocuments,
-  });
 });
 
 
@@ -54,18 +61,22 @@ exports.getSupportingDocuments = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/supportingDocuments/:id
 // @access   Private
 exports.updateSupportingDocuments = asyncHandler(async (req, res, next) => {
-  const supportingDocuments = await SupportingDocuments.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  try {
+    const supportingDocuments = await SupportingDocuments.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-  if (!supportingDocuments) {
-    return new ErrorResponseJSON(res, "SupportingDocuments not updated!", 400);
+    if (!supportingDocuments) {
+      return new ErrorResponseJSON(res, "SupportingDocuments not updated!", 400);
+    }
+    res.status(200).json({
+      success: true,
+      data: supportingDocuments,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: supportingDocuments,
-  });
 });
 
 
@@ -73,13 +84,17 @@ exports.updateSupportingDocuments = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/supportingDocuments
 // @access   Private
 exports.deleteSupportingDocuments = asyncHandler(async (req, res, next) => {
-  const supportingDocuments = await SupportingDocuments.findByIdAndDelete(req.params.id);
+  try {
+    const supportingDocuments = await SupportingDocuments.findByIdAndDelete(req.params.id);
 
-  if (!supportingDocuments) {
-    return new ErrorResponseJSON(res, "SupportingDocuments not found!", 404);
+    if (!supportingDocuments) {
+      return new ErrorResponseJSON(res, "SupportingDocuments not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: supportingDocuments,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: supportingDocuments,
-  });
 });

@@ -7,23 +7,26 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @route  POST /api/v1/evaluationResponse
 // @access   Private
 exports.createEvaluationResponse = asyncHandler(async (req, res, next) => {
+  try {
+    const existingEvaluationResponse = await EvaluationResponse.find({project: req.body.project});
 
-  const existingEvaluationResponse = await EvaluationResponse.find({project: req.body.project})
+    if (existingEvaluationResponse.length > 0) {
+      return new ErrorResponseJSON(res, "This evaluationResponse already exists, update it instead!", 400);
+    }
 
-  if (existingEvaluationResponse.length > 0) {
-    return new ErrorResponseJSON(res, "This evaluationResponse already exists, update it instead!", 400)
+    const evaluationResponse = await EvaluationResponse.create(req.body);
+
+    if (!evaluationResponse) {
+      return new ErrorResponseJSON(res, "EvaluationResponse not created!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: evaluationResponse,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  const evaluationResponse = await EvaluationResponse.create(req.body)
-
-  if (!evaluationResponse) {
-    return new ErrorResponseJSON(res, "EvaluationResponse not created!", 404)
-  }
-  res.status(200).json({
-    success: true,
-    data: evaluationResponse,
-  })
-})
+});
 
 
 // @desc    Get all EvaluationResponses
@@ -43,10 +46,15 @@ exports.getEvaluationResponse = asyncHandler(async (req, res, next) => {
   if (!evaluationResponse) {
     return new ErrorResponseJSON(res, "EvaluationResponse not found!", 404);
   }
-  res.status(200).json({
-    success: true,
-    data: evaluationResponse,
-  });
+
+  try {
+    res.status(200).json({
+      success: true,
+      data: evaluationResponse,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });
 
 
@@ -62,10 +70,15 @@ exports.updateEvaluationResponse = asyncHandler(async (req, res, next) => {
   if (!evaluationResponse) {
     return new ErrorResponseJSON(res, "EvaluationResponse not updated!", 400);
   }
-  res.status(200).json({
-    success: true,
-    data: evaluationResponse,
-  });
+
+  try {
+    res.status(200).json({
+      success: true,
+      data: evaluationResponse,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });
 
 
@@ -78,8 +91,13 @@ exports.deleteEvaluationResponse = asyncHandler(async (req, res, next) => {
   if (!evaluationResponse) {
     return new ErrorResponseJSON(res, "EvaluationResponse not found!", 404);
   }
-  res.status(200).json({
-    success: true,
-    data: evaluationResponse,
-  });
+
+  try {
+    res.status(200).json({
+      success: true,
+      data: evaluationResponse,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });

@@ -7,23 +7,26 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @route  POST /api/v1/budgetLineItem
 // @access   Private
 exports.createBudgetLineItem = asyncHandler(async (req, res, next) => {
+  try {
+    const existingBudgetLineItem = await BudgetLineItem.find({title: req.body.title});
 
-  const existingBudgetLineItem = await BudgetLineItem.find({title: req.body.title})
+    if (existingBudgetLineItem.length > 0) {
+      return new ErrorResponseJSON(res, "This budgetLineItem already exists, update it instead!", 400);
+    }
 
-  if (existingBudgetLineItem.length > 0) {
-    return new ErrorResponseJSON(res, "This budgetLineItem already exists, update it instead!", 400)
+    const budgetLineItem = await BudgetLineItem.create(req.body);
+
+    if (!budgetLineItem) {
+      return new ErrorResponseJSON(res, "BudgetLineItem not created!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: budgetLineItem,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  const budgetLineItem = await BudgetLineItem.create(req.body)
-
-  if (!budgetLineItem) {
-    return new ErrorResponseJSON(res, "BudgetLineItem not created!", 404)
-  }
-  res.status(200).json({
-    success: true,
-    data: budgetLineItem,
-  })
-})
+});
 
 
 // @desc    Get all BudgetLineItems
@@ -38,15 +41,19 @@ exports.getAllBudgetLineItems = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/budgetLineItem/:id
 // @access   Private
 exports.getBudgetLineItem = asyncHandler(async (req, res, next) => {
-  const budgetLineItem = await BudgetLineItem.findById(req.params.id);
+  try {
+    const budgetLineItem = await BudgetLineItem.findById(req.params.id);
 
-  if (!budgetLineItem) {
-    return new ErrorResponseJSON(res, "BudgetLineItem not found!", 404);
+    if (!budgetLineItem) {
+      return new ErrorResponseJSON(res, "BudgetLineItem not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: budgetLineItem,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: budgetLineItem,
-  });
 });
 
 
@@ -54,18 +61,22 @@ exports.getBudgetLineItem = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/budgetLineItem/:id
 // @access   Private
 exports.updateBudgetLineItem = asyncHandler(async (req, res, next) => {
-  const budgetLineItem = await BudgetLineItem.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  try {
+    const budgetLineItem = await BudgetLineItem.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-  if (!budgetLineItem) {
-    return new ErrorResponseJSON(res, "BudgetLineItem not updated!", 400);
+    if (!budgetLineItem) {
+      return new ErrorResponseJSON(res, "BudgetLineItem not updated!", 400);
+    }
+    res.status(200).json({
+      success: true,
+      data: budgetLineItem,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: budgetLineItem,
-  });
 });
 
 
@@ -73,13 +84,17 @@ exports.updateBudgetLineItem = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/budgetLineItem
 // @access   Private
 exports.deleteBudgetLineItem = asyncHandler(async (req, res, next) => {
-  const budgetLineItem = await BudgetLineItem.findByIdAndDelete(req.params.id);
+  try {
+    const budgetLineItem = await BudgetLineItem.findByIdAndDelete(req.params.id);
 
-  if (!budgetLineItem) {
-    return new ErrorResponseJSON(res, "BudgetLineItem not found!", 404);
+    if (!budgetLineItem) {
+      return new ErrorResponseJSON(res, "BudgetLineItem not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: budgetLineItem,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: budgetLineItem,
-  });
 });

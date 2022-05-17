@@ -2,51 +2,54 @@ const asyncHandler = require("../middleware/async");
 const ContractEvaluation = require("../models/ContractEvaluation");
 const ProjectInitiation = require("../models/ProjectInitiation");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
-const {contractEvaluationEmail} = require("../utils/projectEmail")
+const {contractEvaluationEmail} = require("../utils/projectEmail");
 
 
 // @desc    Create ContractEvaluation
 // @route  POST /api/v1/contractEvaluation
 // @access   Private
 exports.createContractEvaluation = asyncHandler(async (req, res, next) => {
+  try {
+    const existingContractEvaluation = await ContractEvaluation.find({project: req.body.project});
+    const {employeeName, employeeEmail, projectTitle, projectType} = req.body;
 
-  const existingContractEvaluation = await ContractEvaluation.find({project: req.body.project})
-  const {employeeName, employeeEmail, projectTitle, projectType} = req.body
+    if (existingContractEvaluation.length > 0) {
+      return new ErrorResponseJSON(res, "This contractEvaluation already exists, update it instead!", 400);
+    }
 
-  if (existingContractEvaluation.length > 0) {
-    return new ErrorResponseJSON(res, "This contractEvaluation already exists, update it instead!", 400)
+    if (!employeeName || !employeeEmail) {
+      req.body.employeeName = req.user.fullname;
+      req.body.employeeEmail = req.user.email;
+    }
+
+    if (!projectTitle || !projectType) {
+      const projectInitiation = await ProjectInitiation.findById(req.body.project);
+      req.body.projectTitle = projectInitiation.projectTitle;
+      req.body.projectType = projectInitiation.projectType;
+    }
+
+    req.body.createdBy = req.user._id;
+
+    const contractEvaluation = await ContractEvaluation.create(req.body);
+
+    if (!contractEvaluation) {
+      return new ErrorResponseJSON(res, "ContractEvaluation not created!", 404);
+    }
+
+    /**
+     * TODO:
+     * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
+     */
+    await contractEvaluationEmail(contractEvaluation, req, res, next);
+
+    res.status(200).json({
+      success: true,
+      data: contractEvaluation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-
-  if (!employeeName || !employeeEmail) {
-    req.body.employeeName = req.user.fullname
-    req.body.employeeEmail = req.user.email
-  }
-
-  if (!projectTitle || !projectType) {
-    const projectInitiation = await ProjectInitiation.findById(req.body.project)
-    req.body.projectTitle = projectInitiation.projectTitle
-    req.body.projectType = projectInitiation.projectType
-  }
-  
-  req.body.createdBy = req.user._id
-
-  const contractEvaluation = await ContractEvaluation.create(req.body)
-
-  if (!contractEvaluation) {
-    return new ErrorResponseJSON(res, "ContractEvaluation not created!", 404)
-  }
-
-  /**
-   * TODO:
-   * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
-   */
-   await contractEvaluationEmail(contractEvaluation, req, res,next)
-
-  res.status(200).json({
-    success: true,
-    data: contractEvaluation,
-  })
-})
+});
 
 
 // @desc    Get all ContractEvaluations
@@ -61,15 +64,19 @@ exports.getAllContractEvaluations = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/contractEvaluation/:id
 // @access   Private
 exports.getContractEvaluation = asyncHandler(async (req, res, next) => {
-  const contractEvaluation = await ContractEvaluation.findById(req.params.id);
+  try {
+    const contractEvaluation = await ContractEvaluation.findById(req.params.id);
 
-  if (!contractEvaluation) {
-    return new ErrorResponseJSON(res, "ContractEvaluation not found!", 404);
+    if (!contractEvaluation) {
+      return new ErrorResponseJSON(res, "ContractEvaluation not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contractEvaluation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contractEvaluation,
-  });
 });
 
 
@@ -86,16 +93,19 @@ exports.updateContractEvaluation = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "ContractEvaluation not updated!", 400);
   }
 
-  /**
-   * TODO:
-   * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
-   */
+  try {
+    /**
+     * TODO:
+     * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
+     */
 
-
-  res.status(200).json({
-    success: true,
-    data: contractEvaluation,
-  });
+    res.status(200).json({
+      success: true,
+      data: contractEvaluation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
 });
 
 
@@ -103,13 +113,17 @@ exports.updateContractEvaluation = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/contractEvaluation
 // @access   Private
 exports.deleteContractEvaluation = asyncHandler(async (req, res, next) => {
-  const contractEvaluation = await ContractEvaluation.findByIdAndDelete(req.params.id);
+  try {
+    const contractEvaluation = await ContractEvaluation.findByIdAndDelete(req.params.id);
 
-  if (!contractEvaluation) {
-    return new ErrorResponseJSON(res, "ContractEvaluation not found!", 404);
+    if (!contractEvaluation) {
+      return new ErrorResponseJSON(res, "ContractEvaluation not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: contractEvaluation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
   }
-  res.status(200).json({
-    success: true,
-    data: contractEvaluation,
-  });
 });

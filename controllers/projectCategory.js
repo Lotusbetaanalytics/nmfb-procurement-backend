@@ -7,23 +7,22 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @route  POST /api/v1/projectCategory
 // @access   Private
 exports.createProjectCategory = asyncHandler(async (req, res, next) => {
-
-  const existingProjectCategory = await ProjectCategory.find({title: req.body.title})
+  const existingProjectCategory = await ProjectCategory.find({title: req.body.title});
 
   if (existingProjectCategory.length > 0) {
-    return new ErrorResponseJSON(res, "This projectCategory already exists, update it instead!", 400)
+    return new ErrorResponseJSON(res, "This projectCategory already exists, update it instead!", 400);
   }
 
-  const projectCategory = await ProjectCategory.create(req.body)
+  const projectCategory = await ProjectCategory.create(req.body);
 
   if (!projectCategory) {
-    return new ErrorResponseJSON(res, "ProjectCategory not created!", 404)
+    return new ErrorResponseJSON(res, "ProjectCategory not created!", 404);
   }
   res.status(200).json({
     success: true,
     data: projectCategory,
-  })
-})
+  });
+});
 
 
 // @desc    Get all ProjectCategorys
