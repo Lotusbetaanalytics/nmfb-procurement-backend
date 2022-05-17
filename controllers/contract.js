@@ -91,7 +91,7 @@ exports.deleteContract = asyncHandler(async (req, res, next) => {
 exports.getAllActiveContracts = asyncHandler(async (req, res, next) => {
   const contract = await Contract.find({isActive: true});
 
-  if (contract.length() < 1) {
+  if (contract.length < 1) {
     return new ErrorResponseJSON(res, "Contracts not found!", 404);
   }
   res.status(200).json({
@@ -107,7 +107,7 @@ exports.getAllActiveContracts = asyncHandler(async (req, res, next) => {
 exports.getAllTerminatedContracts = asyncHandler(async (req, res, next) => {
   const contract = await Contract.find({isActive: false});
 
-  if (contract.length() < 1) {
+  if (contract.length < 1) {
     return new ErrorResponseJSON(res, "Contracts not found!", 404);
   }
   res.status(200).json({
@@ -123,7 +123,7 @@ exports.getAllTerminatedContracts = asyncHandler(async (req, res, next) => {
 exports.getAllFailedContracts = asyncHandler(async (req, res, next) => {
   const contract = await Contract.find({score: {$lt: 70}});
 
-  if (contract.length() < 1) {
+  if (contract.length < 1) {
     return new ErrorResponseJSON(res, "Contracts not found!", 404);
   }
   res.status(200).json({

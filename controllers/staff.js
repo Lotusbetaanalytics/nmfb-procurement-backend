@@ -89,3 +89,99 @@ exports.deleteStaff = asyncHandler(async (req, res, next) => {
     data: staff,
   });
 });
+
+
+// @desc    Get all Staff in a team
+// @route  GET /api/v1/staff/team/:id
+// @access   Private
+exports.getTeamStaff = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.find({team: req.params.id});
+
+  if (staff.length < 1) {
+    return new ErrorResponseJSON(res, "Staff not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
+
+
+// @desc    Get all Staff with a role
+// @route  GET /api/v1/staff/role/:id
+// @access   Private
+exports.getRoleStaff = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.find({role: req.params.id});
+
+  if (staff.length < 1) {
+    return new ErrorResponseJSON(res, "Staff not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
+
+
+// @desc    Get all Team Head
+// @route  GET /api/v1/staff/teamHead
+// @access   Private
+exports.getTeamHeads = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.find({isTeamHead: true});
+
+  if (staff.length < 1) {
+    return new ErrorResponseJSON(res, "Staff not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
+
+
+// @desc    Get all Project Desk Officers (PDO)
+// @route  GET /api/v1/staff/PDO
+// @access   Private
+exports.getPDOs = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.find({isPDO: true});
+
+  if (staff.length < 1) {
+    return new ErrorResponseJSON(res, "Staff not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
+
+
+// @desc    Get all Admin (Front Desk Officers)
+// @route  GET /api/v1/staff/frontDesk
+// @access   Private
+exports.getAdmins = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.find({isAdmin: true});
+
+  if (staff.length < 1) {
+    return new ErrorResponseJSON(res, "Staff not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
+
+
+// @desc    Get Head of Procurement (HOP)
+// @route  GET /api/v1/staff/headOfProcurement
+// @access   Private
+exports.getHOP = asyncHandler(async (req, res, next) => {
+  const staff = await Staff.findOne({isHOP: true});
+
+  if (!staff) {
+    return new ErrorResponseJSON(res, "Staff not found!", 404);
+  }
+  res.status(200).json({
+    success: true,
+    data: staff,
+  });
+});
