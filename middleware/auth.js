@@ -41,7 +41,7 @@ exports.authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role.title)) {
       return next(
-        new ErrorResponseJSON(res, `User role ${req.user.role} is not authorized to access this route`, 403)
+        new ErrorResponseJSON(res, `User role ${req.user.role.title} is not authorized to access this route`, 403)
       )
     }
     next()
