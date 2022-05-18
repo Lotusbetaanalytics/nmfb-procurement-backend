@@ -20,7 +20,7 @@ router.post("/", createStaff); // create a staff
 router.get("/", advancedResults(Staff), getAllStaffs); // get all staffs
 router.get("/teamHead", verifyToken, getTeamHeads); // get all team heads
 router.get("/projectDeskOfficer", verifyToken, getPDOs); // get all project desk officers
-router.get("/frontDesk", verifyToken, getAdmins); // get all front desk officers
+router.get("/frontDeskOfficer", verifyToken, getAdmins); // get all front desk officers
 router.get("/headOfProcurement", verifyToken, getHOP); // get head of procurement
 router.get("/:id", verifyToken, getStaff); // get staff details by id
 router.patch("/:id", verifyToken, updateStaff); // update staff details by id
