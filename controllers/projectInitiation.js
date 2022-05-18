@@ -20,13 +20,13 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
     req.body.email = req.user.email;
     req.body.createdBy = req.user._id;
 
-    if (req.user.role.title == "HOP") {
-      req.body.headOfProcurement = req.user._id;
-    } else if (req.user.role.title == "Admin" || req.user.role.title == "Front Desk Officer") {
-      req.body.frontDeskOfficer = req.user._id;
-    } else {
-      return new ErrorResponseJSON(res, "You are not authorized to create projects!", 404);
-    }
+    // if (req.user.role.title == "HOP") {
+    //   req.body.headOfProcurement = req.user._id;
+    // } else if (req.user.role.title == "Admin" || req.user.role.title == "Front Desk Officer") {
+    //   req.body.frontDeskOfficer = req.user._id;
+    // } else {
+    //   return new ErrorResponseJSON(res, "You are not authorized to create projects!", 404);
+    // }
 
     const projectInitiation = await ProjectInitiation.create(req.body);
 
@@ -187,6 +187,44 @@ exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
 
 
 // TODO: Add update status endpoints
+// @desc    Update ProjectInitiation Status
+// @route  PATCH /api/v1/projectInitiation/:id/status
+// @access   Private
+exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
+  try {
+    existingProjectInitiation = await ProjectInitiation.findById(req.params.id)
+    
+    req.body.updatedBy = req.user._id;
+    req.body.updatedAt = Date.now();
+
+    const {status} = req.body
+
+    const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, {status}, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
+    }
+
+    /**
+     * TODO:
+     * Post-conditions (Depending on the ProjectInitiation status):
+     * • The PPC portal shall send successful update of project email notification to the head of procurement
+     * • The PPC portal shall send a update project email notification to the project desk officer
+     * • The system shall send email notification to the front office /admin to upload or review documents.
+     * */
+    await projectInitiationUpdateEmail(projectInitiation, req, res, next);
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
 
 
 // @desc    Get ProjectInitiation Tasks

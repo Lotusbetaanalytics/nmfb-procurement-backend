@@ -1,6 +1,7 @@
 const asyncHandler = require("../middleware/async");
 const Staff = require("../models/Staff");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {giveRolesAndTeams} = require("../utils/userManagement")
 
 
 // @desc    Create Staff
@@ -39,6 +40,7 @@ exports.createStaff = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/staff
 // @access   Public
 exports.getAllStaffs = asyncHandler(async (req, res, next) => {
+  await giveRolesAndTeams()
   return res.status(200).json(res.advancedResults);
 });
 
