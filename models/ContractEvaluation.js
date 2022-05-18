@@ -10,11 +10,13 @@ const ContractEvaluationSchema = new mongoose.Schema({
   },
   contract: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Contract"
+    ref: "Contract",
+    required: true,
   }, // Not Implemented
   project: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "ProjectInitiation"
+    ref: "ProjectInitiation",
+    required: true,
   },
   projectTitle: {
     type: String,

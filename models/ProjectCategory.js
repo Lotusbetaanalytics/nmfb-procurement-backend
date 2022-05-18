@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const ProjectCategorySchema = new mongoose.Schema({
     /**
-   * • A
-   * • B
-   * • C
+   * • A (MD) - managing director
+   * • B (ED) - executive director
+   * • C (HOP)
    * 
    * OR
    * 

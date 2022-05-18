@@ -11,10 +11,12 @@ const EvaluationResponseSchema = new mongoose.Schema({
   contract: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Contract",
+    required: true,
   },
   evaluationTemplate: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "EvaluationTemplate",
+    required: true,
   },
   response: {
     type: String,

@@ -39,6 +39,7 @@ const ProjectOnboardingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Team"
   },
+  // head of team
   responsibleOfficer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff"

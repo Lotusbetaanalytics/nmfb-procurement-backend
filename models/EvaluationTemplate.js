@@ -10,12 +10,14 @@ const EvaluationTemplateSchema = new mongoose.Schema({
   },
   question: {
     type: String,
+    required: true,
   },
   answerType: {
     type: String,
   },
   answer: {
     type: String,
+    required: true,
   },
   createdAt: {
     type: Date,

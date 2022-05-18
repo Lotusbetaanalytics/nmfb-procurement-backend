@@ -40,23 +40,15 @@ const StaffSchema = new mongoose.Schema({
   position: {
     type: String,
   },
-  // team: {
-  //   type: String,
-  //   enum: ["Front office", "Origination", "Evaluation", "Contract Management", "Pending"],
-  //   default: "Pending",
-  // },
   team: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Team",
+    // required: true,
   },
-  // role: {
-  //   type: String,
-  //   enum: ["HR", "Admin", "Head", "Manager", "Team Head", "Team Lead", "Staff"],
-  //   default: "Staff",
-  // },
   role: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Role",
+    required: true,
   },
   isTeamHead: {
     type: Boolean,

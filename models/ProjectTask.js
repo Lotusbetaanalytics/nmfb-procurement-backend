@@ -15,6 +15,7 @@ const ProjectTaskSchema = new mongoose.Schema({
   projectTitle: {
     type: String,
   },
+  // the same as responsible officer/ head of team
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff"

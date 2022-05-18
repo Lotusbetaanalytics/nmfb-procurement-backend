@@ -20,7 +20,7 @@ const RoleSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  is_unique: {
+  isUnique: {
     type: Boolean,
     default: false,
   },
