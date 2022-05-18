@@ -10,6 +10,10 @@ const ProjectInitiationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  // generated using the product category
+  projectId: {
+    type: String,
+  },
   projectTitle: {
     type: String,
     required: true,
@@ -18,7 +22,7 @@ const ProjectInitiationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "ContractType",
   },
-  contract: {
+  contract: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: "Contract",
   },
@@ -45,7 +49,7 @@ const ProjectInitiationSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["Pending", "Approved", "Declined", "Started", "On Hold", "Terminated", "Completed"],
-    default: "pending",
+    default: "Pending",
   },
   comment: {
     type: String,

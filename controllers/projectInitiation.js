@@ -20,15 +20,17 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
     req.body.email = req.user.email;
     req.body.createdBy = req.user._id;
 
-    // if (req.user.role.title == "HOP") {
-    //   req.body.headOfProcurement = req.user._id;
-    // } else if (req.user.role.title == "Admin" || req.user.role.title == "Front Desk Officer") {
-    //   req.body.frontDeskOfficer = req.user._id;
-    // } else {
-    //   return new ErrorResponseJSON(res, "You are not authorized to create projects!", 404);
-    // }
+    if (req.user.role.title == "HOP") {
+      req.body.headOfProcurement = req.user._id;
+    } else if (req.user.role.title == "Admin" || req.user.role.title == "Front Desk Officer") {
+      req.body.frontDeskOfficer = req.user._id;
+    } else {
+      return new ErrorResponseJSON(res, `You are not authorized to create projects!. Role is ${req.user.role.title}`, 404);
+    }
 
     const projectInitiation = await ProjectInitiation.create(req.body);
+
+    // TODO: Generate project ID
 
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not created!", 404);
