@@ -4,7 +4,7 @@ const EvaluationResponse = require("../models/EvaluationResponse");
 
 exports.contractEvaluationScore = asyncHandler( async(contract, req, res, next) => {
   const evaluationResponses = await EvaluationResponse.find({contract: contract._id})
-  const evaluationResponsesLength = evaluationResponses.length()
+  const evaluationResponsesLength = evaluationResponses.length
   let evaluationScore = 0
   let evaluationMaxScore  = 100 / evaluationResponsesLength
 
