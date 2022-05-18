@@ -3,6 +3,7 @@ const ProjectInitiation = require("../models/ProjectInitiation");
 const ProjectTask = require("../models/ProjectTask");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
 const {projectInitiationEmail, projectInitiationUpdateEmail} = require("../utils/projectEmail");
+const {generateProjectId} = require("../utils/projectUtils")
 
 
 // @desc    Create ProjectInitiation
@@ -32,11 +33,14 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
 
     const projectInitiation = await ProjectInitiation.create(req.body);
 
-    // TODO: Generate project ID
-
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not created!", 404);
     }
+    
+    // TODO: Generate project ID
+    projectInitiation.projectId = await generateProjectId(projectInitiation)
+    console.log(`projectInitiation.projectId: ${projectInitiation.projectId}`)
+    await projectInitiation.save()
 
     /**
      * TODO:
@@ -101,6 +105,11 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
     }
+
+    // TODO: Generate project ID
+    if (!projectInitiation.projectId)
+      projectInitiation.projectId = await generateProjectId(projectInitiation);
+      await projectInitiation.save()
 
     /**
      * TODO:

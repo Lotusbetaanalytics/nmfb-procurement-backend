@@ -1,7 +1,7 @@
 const asyncHandler = require("../middleware/async");
 const ProjectTask = require("../models/ProjectTask");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
-const {projectAssignmentEmail, projectReassignmentEmail} = require("../utils/projectEmail");
+const {projectTaskAssignmentEmail, projectTaskReassignmentEmail} = require("../utils/projectEmail");
 
 
 // @desc    Create ProjectTask
@@ -21,7 +21,7 @@ exports.createProjectTask = asyncHandler(async (req, res, next) => {
       return new ErrorResponseJSON(res, "ProjectTask not created!", 404);
     }
 
-    await projectAssignmentEmail(projectTask, req, res, next);
+    await projectTaskAssignmentEmail(projectTask, req, res, next);
 
     res.status(200).json({
       success: true,
@@ -76,7 +76,7 @@ exports.updateProjectTask = asyncHandler(async (req, res, next) => {
     }
 
     if ("reassignedTo" in req.body) {
-      await projectReassignmentEmail(projectTask, req, res, next);
+      await projectTaskReassignmentEmail(projectTask, req, res, next);
     }
 
     res.status(200).json({

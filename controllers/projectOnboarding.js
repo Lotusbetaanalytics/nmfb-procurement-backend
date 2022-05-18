@@ -2,7 +2,11 @@ const asyncHandler = require("../middleware/async");
 const ProjectInitiation = require("../models/ProjectInitiation");
 const ProjectOnboarding = require("../models/ProjectOnboarding");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
-const {projectOnboardingEmail, projectOnboardingUpdateEmail} = require("../utils/projectEmail");
+const {
+  projectOnboardingEmail, 
+  projectOnboardingUpdateEmail,
+  projectAssignmentEmail,
+} = require("../utils/projectEmail");
 
 
 // @desc    Create ProjectOnboarding
@@ -54,6 +58,12 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
      * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
      */
     await projectOnboardingEmail(projectOnboarding, req, res, next);
+
+    /**
+     * TODO:
+     * project assignment email
+     */
+    if (req.body.responsibleOfficer || projectOnboarding.responsibleOfficer) await projectAssignmentEmail(projectOnboarding)
 
     res.status(200).json({
       success: true,
@@ -131,6 +141,12 @@ exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
      */
     await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
 
+    /**
+     * TODO:
+     * project assignment email
+     */
+     if (req.body.responsibleOfficer) await projectAssignmentEmail(projectOnboarding)
+
     res.status(200).json({
       success: true,
       data: projectOnboarding,
@@ -160,6 +176,149 @@ exports.deleteProjectOnboarding = asyncHandler(async (req, res, next) => {
   }
 });
 
+
 // TODO: Add started and terminated endpoints
+// @desc    Get all Started ProjectOnboardings
+// @route  GET /api/v1/projectOnboarding/started
+// @access   Public
+exports.getAllStartedProjectOnboardings = asyncHandler(async (req, res, next) => {
+  try {
+    const startedProjectOnboarding = await ProjectOnboarding.find({status: "Started"});
+
+    if (startedProjectOnboarding.length < 1) {
+      return new ErrorResponseJSON(res, "Started ProjectOnboardings not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: startedProjectOnboarding,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Get all Terminated ProjectOnboardings
+// @route  GET /api/v1/projectOnboarding/terminated
+// @access   Public
+exports.getAllTerminatedProjectOnboardings = asyncHandler(async (req, res, next) => {
+  try {
+    const terminatedProjectOnboarding = await ProjectOnboarding.find({status: "Terminated"});
+
+    if (terminatedProjectOnboarding.length < 1) {
+      return new ErrorResponseJSON(res, "Terminated ProjectOnboardings not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: terminatedProjectOnboarding,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Get all Pending ProjectOnboardings
+// @route  GET /api/v1/projectOnboarding/pending
+// @access   Public
+exports.getAllPendingProjectOnboardings = asyncHandler(async (req, res, next) => {
+  try {
+    const pendingProjectOnboarding = await ProjectOnboarding.find({status: "Pending"});
+
+    if (pendingProjectOnboarding.length < 1) {
+      return new ErrorResponseJSON(res, "Pending ProjectOnboardings not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: pendingProjectOnboarding,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Get all Completed ProjectOnboardings
+// @route  GET /api/v1/projectOnboarding/completed
+// @access   Public
+exports.getAllCompletedProjectOnboardings = asyncHandler(async (req, res, next) => {
+  try {
+    const completedProjectOnboarding = await ProjectOnboarding.find({status: "Completed"});
+
+    if (completedProjectOnboarding.length < 1) {
+      return new ErrorResponseJSON(res, "Completed ProjectOnboardings not found!", 404);
+    }
+    res.status(200).json({
+      success: true,
+      data: completedProjectOnboarding,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// TODO: Add terminate project onboarding endpoint
+// @desc    Terminate ProjectOnboarding
+// @route  GET /api/v1/projectOnboarding/:id/terminate
+// @access   Private
+exports.terminateProjectOnboarding = asyncHandler(async (req, res, next) => {
+  try {
+    const projectOnboarding = await ProjectOnboarding.findById(req.params.id);
+
+    if (!projectOnboarding) {
+      return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
+    }
+
+    projectOnboarding.status = "Terminated";
+    projectOnboarding.save();
+
+    res.status(200).json({
+      success: true,
+      data: projectOnboarding,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
 
 // TODO: Add update status endpoints
+// @desc    Update ProjectOnboarding Status
+// @route  PATCH /api/v1/projectOnboarding/:id/status
+// @access   Private
+exports.updateProjectOnboardingStatus = asyncHandler(async (req, res, next) => {
+  try {
+    existingProjectOnboarding = await ProjectOnboarding.findById(req.params.id)
+    
+    req.body.updatedBy = req.user._id;
+    req.body.updatedAt = Date.now();
+
+    const {status} = req.body
+
+    const projectOnboarding = await ProjectOnboarding.findByIdAndUpdate(req.params.id, {status}, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!projectOnboarding) {
+      return new ErrorResponseJSON(res, "ProjectOnboarding not updated!", 400);
+    }
+
+    /**
+     * TODO:
+     * Post-conditions (Depending on the ProjectOnboarding status):
+     * • The PPC portal shall send successful update of project email notification to the head of procurement
+     * • The PPC portal shall send a update project email notification to the project desk officer
+     * • The system shall send email notification to the front office /admin to upload or review documents.
+     * */
+    await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
+
+    res.status(200).json({
+      success: true,
+      data: projectOnboarding,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});

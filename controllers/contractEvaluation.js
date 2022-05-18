@@ -2,7 +2,7 @@ const asyncHandler = require("../middleware/async");
 const ContractEvaluation = require("../models/ContractEvaluation");
 const ProjectInitiation = require("../models/ProjectInitiation");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
-const {contractEvaluationEmail} = require("../utils/projectEmail");
+const {contractEvaluationEmail} = require("../utils/contractEmail");
 
 
 // @desc    Create ContractEvaluation
