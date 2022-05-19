@@ -10,6 +10,6 @@ exports.generateProjectId = asyncHandler(async project => {
     return projectId;
   } catch (err) {
     console.log(err.message);
-    return false;
+    return null;
   }
 });

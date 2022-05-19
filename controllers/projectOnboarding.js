@@ -2,8 +2,9 @@ const asyncHandler = require("../middleware/async");
 const ProjectInitiation = require("../models/ProjectInitiation");
 const ProjectOnboarding = require("../models/ProjectOnboarding");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
+const { uploadProjectDocuments } = require("../utils/fileUtils");
 const {
-  projectOnboardingEmail, 
+  projectOnboardingEmail,
   projectOnboardingUpdateEmail,
   projectAssignmentEmail,
 } = require("../utils/projectEmail");
@@ -14,7 +15,9 @@ const {
 // @access   Private
 exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
   try {
-    const existingProjectOnboarding = await ProjectOnboarding.find({projectTitle: req.body.projectTitle});
+    const existingProjectOnboarding = await ProjectOnboarding.find({projectTitle: req.body.projectTitle}).populate(
+      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+    );
 
     if (existingProjectOnboarding.length > 0) {
       return new ErrorResponseJSON(res, "This projectOnboarding already exists, update it instead!", 400);
@@ -63,7 +66,8 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
      * TODO:
      * project assignment email
      */
-    if (req.body.responsibleOfficer || projectOnboarding.responsibleOfficer) await projectAssignmentEmail(projectOnboarding)
+    if (req.body.responsibleOfficer || projectOnboarding.responsibleOfficer)
+      await projectAssignmentEmail(projectOnboarding);
 
     res.status(200).json({
       success: true,
@@ -88,7 +92,9 @@ exports.getAllProjectOnboardings = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getProjectOnboarding = asyncHandler(async (req, res, next) => {
   try {
-    const projectOnboarding = await ProjectOnboarding.findById(req.params.id);
+    const projectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
+      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+    );
 
     if (!projectOnboarding) {
       return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
@@ -145,7 +151,7 @@ exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
      * TODO:
      * project assignment email
      */
-     if (req.body.responsibleOfficer) await projectAssignmentEmail(projectOnboarding)
+    if (req.body.responsibleOfficer) await projectAssignmentEmail(projectOnboarding);
 
     res.status(200).json({
       success: true,
@@ -183,7 +189,9 @@ exports.deleteProjectOnboarding = asyncHandler(async (req, res, next) => {
 // @access   Public
 exports.getAllStartedProjectOnboardings = asyncHandler(async (req, res, next) => {
   try {
-    const startedProjectOnboarding = await ProjectOnboarding.find({status: "Started"});
+    const startedProjectOnboarding = await ProjectOnboarding.find({status: "Started"}).populate(
+      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+    );
 
     if (startedProjectOnboarding.length < 1) {
       return new ErrorResponseJSON(res, "Started ProjectOnboardings not found!", 404);
@@ -203,7 +211,9 @@ exports.getAllStartedProjectOnboardings = asyncHandler(async (req, res, next) =>
 // @access   Public
 exports.getAllTerminatedProjectOnboardings = asyncHandler(async (req, res, next) => {
   try {
-    const terminatedProjectOnboarding = await ProjectOnboarding.find({status: "Terminated"});
+    const terminatedProjectOnboarding = await ProjectOnboarding.find({status: "Terminated"}).populate(
+      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+    );
 
     if (terminatedProjectOnboarding.length < 1) {
       return new ErrorResponseJSON(res, "Terminated ProjectOnboardings not found!", 404);
@@ -218,12 +228,45 @@ exports.getAllTerminatedProjectOnboardings = asyncHandler(async (req, res, next)
 });
 
 
+// TODO: add endpoint for uploading supporting documents
+// @desc    Upload ProjectOnboarding Documents
+// @route  PATCH /api/v1/projectOnboarding/:id/upload
+// @access   Private
+exports.uploadProjectOnboardingDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectOnboarding = await ProjectOnboarding.findById(req.params.id)
+      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+
+    if (!projectOnboarding) {
+      return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
+    }
+    const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project)
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, "onboarding")
+    projectOnboarding.files = documentLinks
+    await projectOnboarding.save()
+
+    res.status(200).json({
+      success: true,
+      data: projectOnboarding,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
 // @desc    Get all Pending ProjectOnboardings
 // @route  GET /api/v1/projectOnboarding/pending
 // @access   Public
 exports.getAllPendingProjectOnboardings = asyncHandler(async (req, res, next) => {
   try {
-    const pendingProjectOnboarding = await ProjectOnboarding.find({status: "Pending"});
+    const pendingProjectOnboarding = await ProjectOnboarding.find({status: "Pending"}).populate(
+      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+    );
 
     if (pendingProjectOnboarding.length < 1) {
       return new ErrorResponseJSON(res, "Pending ProjectOnboardings not found!", 404);
@@ -243,7 +286,9 @@ exports.getAllPendingProjectOnboardings = asyncHandler(async (req, res, next) =>
 // @access   Public
 exports.getAllCompletedProjectOnboardings = asyncHandler(async (req, res, next) => {
   try {
-    const completedProjectOnboarding = await ProjectOnboarding.find({status: "Completed"});
+    const completedProjectOnboarding = await ProjectOnboarding.find({status: "Completed"}).populate(
+      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+    );
 
     if (completedProjectOnboarding.length < 1) {
       return new ErrorResponseJSON(res, "Completed ProjectOnboardings not found!", 404);
@@ -264,7 +309,9 @@ exports.getAllCompletedProjectOnboardings = asyncHandler(async (req, res, next) 
 // @access   Private
 exports.terminateProjectOnboarding = asyncHandler(async (req, res, next) => {
   try {
-    const projectOnboarding = await ProjectOnboarding.findById(req.params.id);
+    const projectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
+      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+    );
 
     if (!projectOnboarding) {
       return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
@@ -289,17 +336,23 @@ exports.terminateProjectOnboarding = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.updateProjectOnboardingStatus = asyncHandler(async (req, res, next) => {
   try {
-    existingProjectOnboarding = await ProjectOnboarding.findById(req.params.id)
-    
+    existingProjectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
+      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+    );
+
     req.body.updatedBy = req.user._id;
     req.body.updatedAt = Date.now();
 
-    const {status} = req.body
+    const {status} = req.body;
 
-    const projectOnboarding = await ProjectOnboarding.findByIdAndUpdate(req.params.id, {status}, {
-      new: true,
-      runValidators: true,
-    });
+    const projectOnboarding = await ProjectOnboarding.findByIdAndUpdate(
+      req.params.id,
+      {status},
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!projectOnboarding) {
       return new ErrorResponseJSON(res, "ProjectOnboarding not updated!", 400);
