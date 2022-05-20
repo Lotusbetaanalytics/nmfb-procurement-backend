@@ -193,9 +193,9 @@ exports.getAllStartedProjectOnboardings = asyncHandler(async (req, res, next) =>
       "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
     );
 
-    if (startedProjectOnboarding.length < 1) {
-      return new ErrorResponseJSON(res, "Started ProjectOnboardings not found!", 404);
-    }
+    // if (startedProjectOnboarding.length < 1) {
+    //   return new ErrorResponseJSON(res, "Started ProjectOnboardings not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: startedProjectOnboarding,
@@ -215,9 +215,9 @@ exports.getAllTerminatedProjectOnboardings = asyncHandler(async (req, res, next)
       "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
     );
 
-    if (terminatedProjectOnboarding.length < 1) {
-      return new ErrorResponseJSON(res, "Terminated ProjectOnboardings not found!", 404);
-    }
+    // if (terminatedProjectOnboarding.length < 1) {
+    //   return new ErrorResponseJSON(res, "Terminated ProjectOnboardings not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: terminatedProjectOnboarding,
@@ -268,9 +268,9 @@ exports.getAllPendingProjectOnboardings = asyncHandler(async (req, res, next) =>
       "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
     );
 
-    if (pendingProjectOnboarding.length < 1) {
-      return new ErrorResponseJSON(res, "Pending ProjectOnboardings not found!", 404);
-    }
+    // if (pendingProjectOnboarding.length < 1) {
+    //   return new ErrorResponseJSON(res, "Pending ProjectOnboardings not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: pendingProjectOnboarding,
@@ -290,9 +290,9 @@ exports.getAllCompletedProjectOnboardings = asyncHandler(async (req, res, next) 
       "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
     );
 
-    if (completedProjectOnboarding.length < 1) {
-      return new ErrorResponseJSON(res, "Completed ProjectOnboardings not found!", 404);
-    }
+    // if (completedProjectOnboarding.length < 1) {
+    //   return new ErrorResponseJSON(res, "Completed ProjectOnboardings not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: completedProjectOnboarding,
