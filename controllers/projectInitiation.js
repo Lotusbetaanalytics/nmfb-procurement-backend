@@ -330,9 +330,9 @@ exports.getAllTerminatedProjectInitiations = asyncHandler(async (req, res, next)
     const terminatedProjectInitiation = await ProjectInitiation.find({status: "Terminated"})
       .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
 
-    if (terminatedProjectInitiation.length < 1) {
-      return new ErrorResponseJSON(res, "Terminated ProjectInitiations not found!", 404);
-    }
+    // if (terminatedProjectInitiation.length < 1) {
+    //   return new ErrorResponseJSON(res, "Terminated ProjectInitiations not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: terminatedProjectInitiation,
@@ -351,9 +351,9 @@ exports.getAllPendingProjectInitiations = asyncHandler(async (req, res, next) =>
     const pendingProjectInitiation = await ProjectInitiation.find({status: "Pending"})
       .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
 
-    if (pendingProjectInitiation.length < 1) {
-      return new ErrorResponseJSON(res, "Pending ProjectInitiations not found!", 404);
-    }
+    // if (pendingProjectInitiation.length < 1) {
+    //   return new ErrorResponseJSON(res, "Pending ProjectInitiations not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: pendingProjectInitiation,
@@ -372,9 +372,9 @@ exports.getAllCompletedProjectInitiations = asyncHandler(async (req, res, next) 
     const completedProjectInitiation = await ProjectInitiation.find({status: "Completed"})
       .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
 
-    if (completedProjectInitiation.length < 1) {
-      return new ErrorResponseJSON(res, "Completed ProjectInitiations not found!", 404);
-    }
+    // if (completedProjectInitiation.length < 1) {
+    //   return new ErrorResponseJSON(res, "Completed ProjectInitiations not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: completedProjectInitiation,
@@ -393,9 +393,9 @@ exports.getAllApprovedProjectInitiations = asyncHandler(async (req, res, next) =
     const approvedProjectInitiation = await ProjectInitiation.find({status: "Approved"})
       .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
 
-    if (approvedProjectInitiation.length < 1) {
-      return new ErrorResponseJSON(res, "Approved ProjectInitiations not found!", 404);
-    }
+    // if (approvedProjectInitiation.length < 1) {
+    //   return new ErrorResponseJSON(res, "Approved ProjectInitiations not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: approvedProjectInitiation,
@@ -414,9 +414,9 @@ exports.getAllDeclinedProjectInitiations = asyncHandler(async (req, res, next) =
     const declinedProjectInitiation = await ProjectInitiation.find({status: "Declined"})
       .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
 
-    if (declinedProjectInitiation.length < 1) {
-      return new ErrorResponseJSON(res, "Declined ProjectInitiations not found!", 404);
-    }
+    // if (declinedProjectInitiation.length < 1) {
+    //   return new ErrorResponseJSON(res, "Declined ProjectInitiations not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: declinedProjectInitiation,
@@ -435,9 +435,9 @@ exports.getAllOnHoldProjectInitiations = asyncHandler(async (req, res, next) => 
     const onHoldProjectInitiation = await ProjectInitiation.find({status: "On Hold"})
       .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
 
-    if (onHoldProjectInitiation.length < 1) {
-      return new ErrorResponseJSON(res, "On Hold ProjectInitiations not found!", 404);
-    }
+    // if (onHoldProjectInitiation.length < 1) {
+    //   return new ErrorResponseJSON(res, "On Hold ProjectInitiations not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: onHoldProjectInitiation,
