@@ -115,9 +115,9 @@ exports.getTeamStaff = asyncHandler(async (req, res, next) => {
   try {
     const staff = await Staff.find({team: req.params.id});
 
-    if (staff.length < 1) {
-      return new ErrorResponseJSON(res, "Staff not found!", 404);
-    }
+    // if (staff.length < 1) {
+    //   return new ErrorResponseJSON(res, "Staff not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: staff,
@@ -135,9 +135,9 @@ exports.getRoleStaff = asyncHandler(async (req, res, next) => {
   try {
     const staff = await Staff.find({role: req.params.id});
 
-    if (staff.length < 1) {
-      return new ErrorResponseJSON(res, "Staff not found!", 404);
-    }
+    // if (staff.length < 1) {
+    //   return new ErrorResponseJSON(res, "Staff not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: staff,
@@ -155,9 +155,9 @@ exports.getTeamHeads = asyncHandler(async (req, res, next) => {
   try {
     const staff = await Staff.find({isTeamHead: true});
 
-    if (staff.length < 1) {
-      return new ErrorResponseJSON(res, "Staff not found!", 404);
-    }
+    // if (staff.length < 1) {
+    //   return new ErrorResponseJSON(res, "Staff not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: staff,
@@ -175,9 +175,9 @@ exports.getPDOs = asyncHandler(async (req, res, next) => {
   try {
     const staff = await Staff.find({isPDO: true});
 
-    if (staff.length < 1) {
-      return new ErrorResponseJSON(res, "Staff not found!", 404);
-    }
+    // if (staff.length < 1) {
+    //   return new ErrorResponseJSON(res, "Staff not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: staff,
@@ -195,9 +195,9 @@ exports.getAdmins = asyncHandler(async (req, res, next) => {
   try {
     const staff = await Staff.find({isAdmin: true});
 
-    if (staff.length < 1) {
-      return new ErrorResponseJSON(res, "Staff not found!", 404);
-    }
+    // if (staff.length < 1) {
+    //   return new ErrorResponseJSON(res, "Staff not found!", 404);
+    // }
     res.status(200).json({
       success: true,
       data: staff,
