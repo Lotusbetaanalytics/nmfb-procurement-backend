@@ -484,3 +484,81 @@ exports.projectTechnicalSpecificationUploadEmail = asyncHandler(async (projectIn
 })
 
 
+/**
+ * Project Stages for Document Upload
+ */
+let stageNames = {
+  "SCOPE/TOR/TECHNICAL SPECIFICATION": [],
+  // "COST ESTIMATION": [],
+  "SELECTION METHOD": [],
+  "NO OBJECTION": [],
+  "ISSUANCE OF SPN": [],
+  "SUBMISSION OF PROPOSALS": [],
+  "BID OPENING EXERCISE": [],
+  "EVALUATION OF BID OPENING EXERCISE": [],
+  "CONTRACT RENEWAL / TERMINATION": [],
+}
+
+
+exports.projectCostEstimationEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+  /**
+   * TODO: 
+   * • PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+   */
+  // const contractEvaluation = await ProjectOnboarding.findById(contractEvaluationInstance._id).populate(
+  //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
+  //   // assignedTo assignedBy createdBy updatedBy"
+  // )
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(
+    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
+  )
+
+  // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
+  // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+  const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+  // const responsibleOfficer = await Staff.findById(projectInitiation.responsibleOfficer)
+  // const assignedBy = await Staff.findById(projectInitiation.assignedBy)
+  // // const assignedTo = await Staff.findById(projectInitiation.assignedTo)
+
+  // // For Assigned To Staff
+  // const Subject = `Project Task Assigned `
+  // const Salutation = `Hello,`
+  // const Message = `
+  //   Proposition testing
+  // `
+  // const Options = {
+  //   // to: [assignedTo.email], // email
+  //   // cc: [projectDeskOfficer.email, headOfProcurement.email], // cc
+  //   subject: Subject, // subject
+  //   text: Salutation, // message (salutation)
+  //   html: Message, // html
+  // }
+
+  // For Project Desk Officer
+  const projectDeskOfficerSubject = `Selection Method Stage`
+  const projectDeskOfficerSalutation = `Hello,`
+  const projectDeskOfficerMessage = `
+    Kindly take action on the ‘selection method‘ stage.
+  `
+  const projectDeskOfficerOptions = {
+    to: [projectDeskOfficer.email], // email
+    // cc: [headOfProcurement.email], // cc
+    subject: projectDeskOfficerSubject, // subject
+    text: projectDeskOfficerSalutation, // message (salutation)
+    html: projectDeskOfficerMessage, // html
+  }
+  try {
+    // const email = await sendEmail(Options)
+    const projectDeskOfficerEmail = await sendEmail(projectDeskOfficerOptions)
+    // console.log(`email: ${email}`)
+    console.log(`projectDeskOfficerEmail: ${projectDeskOfficerEmail}`)
+    return true
+  } catch (err) {
+    console.log(err)
+    return false
+  }
+  
+})
+
+
+// TODO: Use projectCostEstimationEmail as a template for all document upload emails 
