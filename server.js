@@ -81,8 +81,10 @@ app.use("/api/v1/evaluationTemplate", evaluationTemplate)
 app.use("/api/v1/projectCategory", projectCategory)
 app.use("/api/v1/projectInitiation", projectInitiation)
 app.use("/api/v1/projectOnboarding", projectOnboarding)
+app.use("/api/v1/projectStage", projectStage)
 app.use("/api/v1/projectTask", projectTask)
 app.use("/api/v1/projectType", projectType)
+app.use("/api/v1/supportingDocuments", supportingDocuments)
 app.use("/api/v1/log", log)
 
 app.use(errorHandler);
