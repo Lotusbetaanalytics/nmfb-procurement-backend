@@ -4,12 +4,15 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 const {giveRolesAndTeams} = require("../utils/userManagement")
 
 
+exports.populateStaffDetails = "manager team role photo"
+
+
 // @desc    Create Staff
 // @route  POST /api/v1/staff
 // @access   Private
 exports.createStaff = asyncHandler(async (req, res, next) => {
   try {
-    const existingStaff = await Staff.find({email: req.body.email});
+    const existingStaff = await Staff.find({email: req.body.email}).populate(this.populateStaffDetails);
     payload = {
       email: req.body.email,
       role: req.body.role,
@@ -40,7 +43,7 @@ exports.createStaff = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/staff
 // @access   Public
 exports.getAllStaffs = asyncHandler(async (req, res, next) => {
-  await giveRolesAndTeams()
+  // await giveRolesAndTeams()
   return res.status(200).json(res.advancedResults);
 });
 
@@ -113,7 +116,7 @@ exports.deleteStaff = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getTeamStaff = asyncHandler(async (req, res, next) => {
   try {
-    const staff = await Staff.find({team: req.params.id});
+    const staff = await Staff.find({team: req.params.id}).populate(this.populateStaffDetails);
 
     // if (staff.length < 1) {
     //   return new ErrorResponseJSON(res, "Staff not found!", 404);
@@ -133,7 +136,7 @@ exports.getTeamStaff = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getRoleStaff = asyncHandler(async (req, res, next) => {
   try {
-    const staff = await Staff.find({role: req.params.id});
+    const staff = await Staff.find({role: req.params.id}).populate(this.populateStaffDetails);
 
     // if (staff.length < 1) {
     //   return new ErrorResponseJSON(res, "Staff not found!", 404);
@@ -153,7 +156,7 @@ exports.getRoleStaff = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getTeamHeads = asyncHandler(async (req, res, next) => {
   try {
-    const staff = await Staff.find({isTeamHead: true});
+    const staff = await Staff.find({isTeamHead: true}).populate(this.populateStaffDetails);
 
     // if (staff.length < 1) {
     //   return new ErrorResponseJSON(res, "Staff not found!", 404);
@@ -173,7 +176,7 @@ exports.getTeamHeads = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getPDOs = asyncHandler(async (req, res, next) => {
   try {
-    const staff = await Staff.find({isPDO: true});
+    const staff = await Staff.find({isPDO: true}).populate(this.populateStaffDetails);
 
     // if (staff.length < 1) {
     //   return new ErrorResponseJSON(res, "Staff not found!", 404);
@@ -193,7 +196,7 @@ exports.getPDOs = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getAdmins = asyncHandler(async (req, res, next) => {
   try {
-    const staff = await Staff.find({isAdmin: true});
+    const staff = await Staff.find({isAdmin: true}).populate(this.populateStaffDetails);
 
     // if (staff.length < 1) {
     //   return new ErrorResponseJSON(res, "Staff not found!", 404);

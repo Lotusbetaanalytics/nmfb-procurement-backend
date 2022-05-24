@@ -3,6 +3,9 @@ const Contract = require("../models/Contract");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
 
 
+exports.populateContractDetails = "createdBy updatedBy deactivatedBy"
+
+
 // @desc    Create Contract
 // @route  POST /api/v1/contract
 // @access   Private
@@ -42,7 +45,7 @@ exports.getAllContracts = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getContract = asyncHandler(async (req, res, next) => {
   try {
-    const contract = await Contract.findById(req.params.id);
+    const contract = await Contract.findById(req.params.id).populate(this.populateContractDetails);
 
     if (!contract) {
       return new ErrorResponseJSON(res, "Contract not found!", 404);

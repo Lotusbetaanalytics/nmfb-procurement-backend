@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Contract = require("../models/Contract");
 const {
+  populateContractDetails,
   createContract,
   getAllContracts,
   getContract,
@@ -15,7 +16,7 @@ const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
 router.post("/", verifyToken, createContract); // create a contract
-router.get("/", advancedResults(Contract), getAllContracts); // get all contracts
+router.get("/", advancedResults(Contract, populateContractDetails), getAllContracts); // get all contracts
 router.get("/active", verifyToken, getAllActiveContracts); // get all active contracts
 router.get("/terminated", verifyToken, getAllTerminatedContracts); // get all terminated contracts
 router.get("/failed", verifyToken, getAllFailedContracts); // get all failed contracts

@@ -5,6 +5,9 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 const {contractEvaluationEmail} = require("../utils/contractEmail");
 
 
+exports.populateContractEvaluationDetails = "contract project projectType evaluatingOfficer businessUsersUnitName createdBy updatedBy"
+
+
 // @desc    Create ContractEvaluation
 // @route  POST /api/v1/contractEvaluation
 // @access   Private
@@ -65,7 +68,7 @@ exports.getAllContractEvaluations = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getContractEvaluation = asyncHandler(async (req, res, next) => {
   try {
-    const contractEvaluation = await ContractEvaluation.findById(req.params.id);
+    const contractEvaluation = await ContractEvaluation.findById(req.params.id).populate(this.populateContractEvaluationDetails);
 
     if (!contractEvaluation) {
       return new ErrorResponseJSON(res, "ContractEvaluation not found!", 404);

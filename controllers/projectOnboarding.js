@@ -10,13 +10,17 @@ const {
 } = require("../utils/projectEmail");
 
 
+exports.populateProjectOnboardingDetails = "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+
+
+
 // @desc    Create ProjectOnboarding
 // @route  POST /api/v1/projectOnboarding
 // @access   Private
 exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
   try {
     const existingProjectOnboarding = await ProjectOnboarding.find({projectTitle: req.body.projectTitle}).populate(
-      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+      this.populateProjectOnboardingDetails
     );
 
     if (existingProjectOnboarding.length > 0) {
@@ -93,7 +97,7 @@ exports.getAllProjectOnboardings = asyncHandler(async (req, res, next) => {
 exports.getProjectOnboarding = asyncHandler(async (req, res, next) => {
   try {
     const projectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
-      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+      this.populateProjectOnboardingDetails
     );
 
     if (!projectOnboarding) {
@@ -190,7 +194,7 @@ exports.deleteProjectOnboarding = asyncHandler(async (req, res, next) => {
 exports.getAllStartedProjectOnboardings = asyncHandler(async (req, res, next) => {
   try {
     const startedProjectOnboarding = await ProjectOnboarding.find({status: "Started"}).populate(
-      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+      this.populateProjectOnboardingDetails
     );
 
     // if (startedProjectOnboarding.length < 1) {
@@ -212,7 +216,7 @@ exports.getAllStartedProjectOnboardings = asyncHandler(async (req, res, next) =>
 exports.getAllTerminatedProjectOnboardings = asyncHandler(async (req, res, next) => {
   try {
     const terminatedProjectOnboarding = await ProjectOnboarding.find({status: "Terminated"}).populate(
-      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+      this.populateProjectOnboardingDetails
     );
 
     // if (terminatedProjectOnboarding.length < 1) {
@@ -239,7 +243,7 @@ exports.uploadProjectOnboardingDocuments = asyncHandler(async (req, res, next) =
     if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
 
     const projectOnboarding = await ProjectOnboarding.findById(req.params.id)
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectOnboardingDetails);
 
     if (!projectOnboarding) {
       return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
@@ -265,7 +269,7 @@ exports.uploadProjectOnboardingDocuments = asyncHandler(async (req, res, next) =
 exports.getAllPendingProjectOnboardings = asyncHandler(async (req, res, next) => {
   try {
     const pendingProjectOnboarding = await ProjectOnboarding.find({status: "Pending"}).populate(
-      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+      this.populateProjectOnboardingDetails
     );
 
     // if (pendingProjectOnboarding.length < 1) {
@@ -287,7 +291,7 @@ exports.getAllPendingProjectOnboardings = asyncHandler(async (req, res, next) =>
 exports.getAllCompletedProjectOnboardings = asyncHandler(async (req, res, next) => {
   try {
     const completedProjectOnboarding = await ProjectOnboarding.find({status: "Completed"}).populate(
-      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+      this.populateProjectOnboardingDetails
     );
 
     // if (completedProjectOnboarding.length < 1) {
@@ -310,7 +314,7 @@ exports.getAllCompletedProjectOnboardings = asyncHandler(async (req, res, next) 
 exports.terminateProjectOnboarding = asyncHandler(async (req, res, next) => {
   try {
     const projectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
-      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+      this.populateProjectOnboardingDetails
     );
 
     if (!projectOnboarding) {
@@ -337,7 +341,7 @@ exports.terminateProjectOnboarding = asyncHandler(async (req, res, next) => {
 exports.updateProjectOnboardingStatus = asyncHandler(async (req, res, next) => {
   try {
     existingProjectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
-      "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+      this.populateProjectOnboardingDetails
     );
 
     req.body.updatedBy = req.user._id;

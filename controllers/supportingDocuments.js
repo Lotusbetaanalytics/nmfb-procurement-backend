@@ -3,6 +3,9 @@ const SupportingDocuments = require("../models/SupportingDocuments");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
 
 
+exports.populateSupportingDocumentsDetails = "project projectStage createdBy"
+
+
 // @desc    Create SupportingDocuments
 // @route  POST /api/v1/supportingDocuments
 // @access   Private

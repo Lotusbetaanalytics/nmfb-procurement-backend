@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Staff = require("../models/Staff");
 const {
+  populateStaffDetails,
   createStaff,
   getAllStaffs,
   getStaff,
@@ -17,7 +18,7 @@ const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
 router.post("/", createStaff); // create a staff
-router.get("/", advancedResults(Staff), getAllStaffs); // get all staffs
+router.get("/", advancedResults(Staff, populateStaffDetails), getAllStaffs); // get all staffs
 router.get("/teamHead", verifyToken, getTeamHeads); // get all team heads
 router.get("/projectDeskOfficer", verifyToken, getPDOs); // get all project desk officers
 router.get("/frontDeskOfficer", verifyToken, getAdmins); // get all front desk officers

@@ -4,6 +4,9 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 const {projectTaskAssignmentEmail, projectTaskReassignmentEmail} = require("../utils/projectEmail");
 
 
+exports.populateProjectTaskDetails = "project assignedBy assignedTo reassignedTo responsibleOfficer responsibleUnit createdBy"
+
+
 // @desc    Create ProjectTask
 // @route  POST /api/v1/projectTask
 // @access   Private
@@ -46,7 +49,7 @@ exports.getAllProjectTasks = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getProjectTask = asyncHandler(async (req, res, next) => {
   try {
-    const projectTask = await ProjectTask.findById(req.params.id);
+    const projectTask = await ProjectTask.findById(req.params.id).populate(populateProjectTaskDetails);
 
     if (!projectTask) {
       return new ErrorResponseJSON(res, "ProjectTask not found!", 404);

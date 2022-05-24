@@ -3,6 +3,9 @@ const EvaluationResponse = require("../models/EvaluationResponse");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
 
 
+exports.populateEvaluationResponseDetails = "contract evaluationTemplate createdBy"
+
+
 // @desc    Create EvaluationResponse
 // @route  POST /api/v1/evaluationResponse
 // @access   Private
@@ -41,7 +44,7 @@ exports.getAllEvaluationResponses = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/evaluationResponse/:id
 // @access   Private
 exports.getEvaluationResponse = asyncHandler(async (req, res, next) => {
-  const evaluationResponse = await EvaluationResponse.findById(req.params.id);
+  const evaluationResponse = await EvaluationResponse.findById(req.params.id).populate(this.populateEvaluationResponseDetails);
 
   if (!evaluationResponse) {
     return new ErrorResponseJSON(res, "EvaluationResponse not found!", 404);

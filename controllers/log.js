@@ -3,6 +3,7 @@ const BudgetLineItem = require("../models/BudgetLineItem");
 const Contract = require("../models/Contract");
 const ContractEvaluation = require("../models/ContractEvaluation");
 const ContractType = require("../models/ContractType");
+const EvaluationResponse = require("../models/EvaluationResponse");
 const EvaluationTemplate = require("../models/EvaluationTemplate");
 const ProjectCategory = require("../models/ProjectCategory");
 const ProjectInitiation = require("../models/ProjectInitiation");
@@ -12,6 +13,15 @@ const ProjectType = require("../models/ProjectType");
 const Role = require("../models/Role");
 const Staff = require("../models/Staff");
 const Team = require("../models/Team");
+
+const {populateContractDetails} = require("./contract")
+const {populateContractEvaluationDetails} = require("./contractEvaluation")
+const {populateEvaluationResponseDetails} = require("./evaluationResponse")
+const {populateProjectInitiationDetails} = require("./projectInitiation")
+const {populateProjectOnboardingDetails} = require("./projectOnboarding")
+const {populateProjectTaskDetails} = require("./projectTask")
+const {populateStaffDetails} = require("./staff")
+
 const {ErrorResponseJSON} = require("../utils/errorResponse");
 
 
@@ -20,46 +30,47 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 // @access   Private
 exports.getAllLogs = asyncHandler(async (req, res, next) => {
   try {
-    const staff = await Staff.find();
+    const staff = await Staff.find().populate(populateStaffDetails);
     const roles = await Role.find();
     const teams = await Team.find();
 
-    const contracts = await Contract.find();
+    const contracts = await Contract.find().populate(populateContractDetails);
     const contractTypes = await ContractType.find();
     const budgetLineItems = await BudgetLineItem.find();
+    const evaluationResponses = await EvaluationResponse.find().populate(populateEvaluationResponseDetails);
     const evaluationTemplates = await EvaluationTemplate.find();
 
     const projectTypes = await ProjectType.find();
     const projectCategories = await ProjectCategory.find();
 
-    const projectInitiation = await ProjectInitiation.find();
-    const projectInitiationPending = await ProjectInitiation.find({status: "Pending"});
-    const projectInitiationApproved = await ProjectInitiation.find({status: "Approved"});
-    const projectInitiationDeclined = await ProjectInitiation.find({status: "Declined"});
-    const projectInitiationStarted = await ProjectInitiation.find({status: "Started"});
-    const projectInitiationOnHold = await ProjectInitiation.find({status: "Hold"});
-    const projectInitiationTerminated = await ProjectInitiation.find({status: "Terminated"});
-    const projectInitiationCompleted = await ProjectInitiation.find({status: "Completed"});
-    const projectInitiationOnboarded = await ProjectInitiation.find({isOnboarded: true});
+    const contractEvaluation = await ContractEvaluation.find().populate(populateContractEvaluationDetails);
+    const contractEvaluationPending = await ContractEvaluation.find({status: "Pending"}).populate(populateContractEvaluationDetails);
+    const contractEvaluationStarted = await ContractEvaluation.find({status: "Started"}).populate(populateContractEvaluationDetails);
+    const contractEvaluationCompleted = await ContractEvaluation.find({status: "Completed"}).populate(populateContractEvaluationDetails);
 
-    const projectOnboarding = await ProjectOnboarding.find();
-    const projectOnboardingPending = await ProjectOnboarding.find({status: "Pending"});
-    const projectOnboardingStarted = await ProjectOnboarding.find({status: "Started"});
-    const projectOnboardingTerminated = await ProjectOnboarding.find({status: "Terminated"});
-    const projectOnboardingCompleted = await ProjectOnboarding.find({status: "Completed"});
+    const projectInitiation = await ProjectInitiation.find().populate(populateProjectInitiationDetails);
+    const projectInitiationPending = await ProjectInitiation.find({status: "Pending"}).populate(populateProjectInitiationDetails);
+    const projectInitiationApproved = await ProjectInitiation.find({status: "Approved"}).populate(populateProjectInitiationDetails);
+    const projectInitiationDeclined = await ProjectInitiation.find({status: "Declined"}).populate(populateProjectInitiationDetails);
+    const projectInitiationStarted = await ProjectInitiation.find({status: "Started"}).populate(populateProjectInitiationDetails);
+    const projectInitiationOnHold = await ProjectInitiation.find({status: "Hold"}).populate(populateProjectInitiationDetails);
+    const projectInitiationTerminated = await ProjectInitiation.find({status: "Terminated"}).populate(populateProjectInitiationDetails);
+    const projectInitiationCompleted = await ProjectInitiation.find({status: "Completed"}).populate(populateProjectInitiationDetails);
+    const projectInitiationOnboarded = await ProjectInitiation.find({isOnboarded: true}).populate(populateProjectInitiationDetails);
 
-    const projectTask = await ProjectTask.find();
-    const projectTaskPending = await ProjectTask.find({status: "Pending"});
-    const projectTaskStarted = await ProjectTask.find({status: "Started"});
-    const projectTaskReassigned = await ProjectTask.find({status: "Reassigned"});
-    const projectTaskOnHold = await ProjectTask.find({status: "On Hold"});
-    const projectTaskTerminated = await ProjectTask.find({status: "Terminated"});
-    const projectTaskCompleted = await ProjectTask.find({status: "Completed"});
+    const projectOnboarding = await ProjectOnboarding.find().populate(populateProjectOnboardingDetails);
+    const projectOnboardingPending = await ProjectOnboarding.find({status: "Pending"}).populate(populateProjectOnboardingDetails);
+    const projectOnboardingStarted = await ProjectOnboarding.find({status: "Started"}).populate(populateProjectOnboardingDetails);
+    const projectOnboardingTerminated = await ProjectOnboarding.find({status: "Terminated"}).populate(populateProjectOnboardingDetails);
+    const projectOnboardingCompleted = await ProjectOnboarding.find({status: "Completed"}).populate(populateProjectOnboardingDetails);
 
-    const contractEvaluation = await ContractEvaluation.find();
-    const contractEvaluationPending = await ContractEvaluation.find({status: "Pending"});
-    const contractEvaluationStarted = await ContractEvaluation.find({status: "Started"});
-    const contractEvaluationCompleted = await ContractEvaluation.find({status: "Completed"});
+    const projectTask = await ProjectTask.find().populate(populateProjectTaskDetails);
+    const projectTaskPending = await ProjectTask.find({status: "Pending"}).populate(populateProjectTaskDetails);
+    const projectTaskStarted = await ProjectTask.find({status: "Started"}).populate(populateProjectTaskDetails);
+    const projectTaskReassigned = await ProjectTask.find({status: "Reassigned"}).populate(populateProjectTaskDetails);
+    const projectTaskOnHold = await ProjectTask.find({status: "On Hold"}).populate(populateProjectTaskDetails);
+    const projectTaskTerminated = await ProjectTask.find({status: "Terminated"}).populate(populateProjectTaskDetails);
+    const projectTaskCompleted = await ProjectTask.find({status: "Completed"}).populate(populateProjectTaskDetails);
 
     // if (!projectInitiation) {
     //   return new ErrorResponseJSON(res, "Logs not found!", 404);
@@ -74,6 +85,7 @@ exports.getAllLogs = asyncHandler(async (req, res, next) => {
         contracts,
         contractTypes,
         budgetLineItems,
+        evaluationResponses,
         evaluationTemplates,
         projectTypes,
         projectCategories,

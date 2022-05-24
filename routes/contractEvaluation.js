@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const ContractEvaluation = require("../models/ContractEvaluation");
 const {
+  populateContractEvaluationDetails,
   createContractEvaluation,
   getAllContractEvaluations,
   getContractEvaluation,
@@ -11,7 +12,7 @@ const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
 router.post("/", verifyToken, createContractEvaluation); // create a contractEvaluation
-router.get("/", advancedResults(ContractEvaluation), getAllContractEvaluations); // get all contractEvaluation
+router.get("/", advancedResults(ContractEvaluation, populateContractEvaluationDetails), getAllContractEvaluations); // get all contractEvaluation
 router.get("/:id", verifyToken, getContractEvaluation); // get contractEvaluation details by id
 router.patch("/:id", verifyToken, updateContractEvaluation); // update contractEvaluation details by id
 router.delete("/:id", verifyToken, deleteContractEvaluation); // delete contractEvaluation by id

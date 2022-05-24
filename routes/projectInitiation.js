@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const ProjectInitiation = require("../models/ProjectInitiation");
 const {
+  populateProjectInitiationDetails,
   createProjectInitiation,
   getAllProjectInitiations,
   getProjectInitiation,
@@ -24,7 +25,7 @@ const {multerUploadConfig} = require("../utils/fileUtils")
 const advancedResults = require("../middleware/advancedResults");
 
 router.post("/", verifyToken, authorize("Super Admin", "HOP"), createProjectInitiation); // create a projectInitiation
-router.get("/", verifyToken, advancedResults(ProjectInitiation), getAllProjectInitiations); // get all projectInitiations
+router.get("/", verifyToken, advancedResults(ProjectInitiation, populateProjectInitiationDetails), getAllProjectInitiations); // get all projectInitiations
 router.get("/started", verifyToken, getAllStartedProjectInitiations); // get all projectInitiations
 router.get("/terminated", verifyToken, getAllTerminatedProjectInitiations); // get all projectInitiations
 router.get("/pending", verifyToken, getAllPendingProjectInitiations); // get all projectInitiations

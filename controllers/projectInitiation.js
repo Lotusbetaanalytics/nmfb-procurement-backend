@@ -1,10 +1,20 @@
 const asyncHandler = require("../middleware/async");
+// const CostEstimationDocuments = require("../models/CostEstimationDocuments");
 const ProjectInitiation = require("../models/ProjectInitiation");
+const ProjectStage = require("../models/ProjectStage");
 const ProjectTask = require("../models/ProjectTask");
+const SupportingDocuments = require("../models/SupportingDocuments");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
 const { uploadProjectDocuments } = require("../utils/fileUtils");
-const {projectInitiationEmail, projectInitiationUpdateEmail} = require("../utils/projectEmail");
+const {
+  projectInitiationEmail, 
+  projectInitiationUpdateEmail,
+  projectCostEstimationEmail,
+} = require("../utils/projectEmail");
 const {generateProjectId} = require("../utils/projectUtils")
+
+
+exports.populateProjectInitiationDetails = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
 
 
 // @desc    Create ProjectInitiation
@@ -13,7 +23,7 @@ const {generateProjectId} = require("../utils/projectUtils")
 exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
   try {
     const existingProjectInitiation = await ProjectInitiation.find({projectTitle: req.body.projectTitle})
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     if (existingProjectInitiation.length > 0) {
       return new ErrorResponseJSON(res, "This projectInitiation already exists, update it instead!", 400);
@@ -39,13 +49,13 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
       return new ErrorResponseJSON(res, "ProjectInitiation not created!", 404);
     }
     
-    // // TODO: Generate project ID
+    // // DONE: Generate project ID
     // projectInitiation.projectId = await generateProjectId(projectInitiation)
     // console.log(`projectInitiation.projectId: ${projectInitiation.projectId}`)
     // await projectInitiation.save()
 
     /**
-     * TODO:
+     * DONE:
      * Post-conditions:
      * • The PPC portal shall send successful initiation project email notification to the head of procurement
      * • The PPC portal shall send a new project email notification to the project desk officer
@@ -77,7 +87,7 @@ exports.getAllProjectInitiations = asyncHandler(async (req, res, next) => {
 exports.getProjectInitiation = asyncHandler(async (req, res, next) => {
   try {
     const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
@@ -109,13 +119,14 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
       return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
     }
 
-    // TODO: Generate project ID
+    // DONE: Generate project ID
+    // TODO: Fix naming bug in project ID
     if (!projectInitiation.projectId)
       projectInitiation.projectId = await generateProjectId(projectInitiation);
       await projectInitiation.save()
 
     /**
-     * TODO:
+     * DONE:
      * Post-conditions (Depending on the ProjectInitiation status):
      * • The PPC portal shall send successful update of project email notification to the head of procurement
      * • The PPC portal shall send a update project email notification to the project desk officer
@@ -159,7 +170,7 @@ exports.deleteProjectInitiation = asyncHandler(async (req, res, next) => {
 exports.approveProjectInitiation = asyncHandler(async (req, res, next) => {
   try {
     const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
@@ -185,7 +196,7 @@ exports.approveProjectInitiation = asyncHandler(async (req, res, next) => {
 exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
   try {
     const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
@@ -204,14 +215,14 @@ exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
 });
 
 
-// TODO: Add update status endpoints
+// DONE: Add update status endpoints
 // @desc    Update ProjectInitiation Status
 // @route  PATCH /api/v1/projectInitiation/:id/status
 // @access   Private
 exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
   try {
     existingProjectInitiation = await ProjectInitiation.findById(req.params.id
-        .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"))
+        .populate(this.populateProjectInitiationDetails))
     
     req.body.updatedBy = req.user._id;
     req.body.updatedAt = Date.now();
@@ -228,7 +239,7 @@ exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
     }
 
     /**
-     * TODO:
+     * DONE:
      * Post-conditions (Depending on the ProjectInitiation status):
      * • The PPC portal shall send successful update of project email notification to the head of procurement
      * • The PPC portal shall send a update project email notification to the project desk officer
@@ -246,6 +257,7 @@ exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
 });
 
 
+// TODO: Update this to use supporting documents
 // @desc    Upload ProjectInitiation Documents
 // @route  PATCH /api/v1/projectInitiation/:id/upload
 // @access   Private
@@ -256,7 +268,7 @@ exports.uploadProjectInitiationDocuments = asyncHandler(async (req, res, next) =
     if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
 
     const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
@@ -276,13 +288,73 @@ exports.uploadProjectInitiationDocuments = asyncHandler(async (req, res, next) =
 });
 
 
+// TODO: Update this to use supporting documents
+// @desc    Upload ProjectInitiation CostEstimationDocuments
+// @route  POST /api/v1/projectInitiation/:id/costEstimation
+// @access   Private
+exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectInitiation = await ProjectInitiation.findById(req.params.id)
+      .populate(this.populateProjectInitiationDetails);
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    const projectStage = await ProjectStage.findOne({title: "COST ESTIMATION"})
+
+    const payload = {
+      employeeName: req.user.fullname,
+      employeeEmail: req.user.email,
+      project: projectInitiation._id,
+      projectTitle: projectInitiation.title,
+      projectStage: projectStage,
+      documentType: req.body.documentType,
+      documentName: req.body.documentName,
+      files: req.body.files,
+      memo: req.body.memo,
+      description: req.body.description,
+
+    }
+    const costEstimation = await SupportingDocuments.create(payload)
+
+    if (!costEstimation) {
+      return new ErrorResponseJSON(res, "Cost Estimation not created!", 400 );
+    }
+
+    const folder = "Cost Estimation"
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    projectInitiation.files = documentLinks
+    await projectInitiation.save()
+
+    /**
+     * TODO:
+     * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+     */
+
+    await projectCostEstimationEmail(projectInitiation, req, res, next)
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
 // @desc    Get ProjectInitiation Tasks
 // @route  GET /api/v1/projectInitiation/:id/tasks
 // @access   Private
 exports.getProjectInitiationTasks = asyncHandler(async (req, res, next) => {
   try {
     const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
@@ -307,7 +379,7 @@ exports.getProjectInitiationTasks = asyncHandler(async (req, res, next) => {
 exports.getAllStartedProjectInitiations = asyncHandler(async (req, res, next) => {
   try {
     const startedProjectInitiation = await ProjectInitiation.find({status: "Started"})
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     if (startedProjectInitiation.length < 1) {
       return new ErrorResponseJSON(res, "Started ProjectInitiations not found!", 404);
@@ -328,7 +400,7 @@ exports.getAllStartedProjectInitiations = asyncHandler(async (req, res, next) =>
 exports.getAllTerminatedProjectInitiations = asyncHandler(async (req, res, next) => {
   try {
     const terminatedProjectInitiation = await ProjectInitiation.find({status: "Terminated"})
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     // if (terminatedProjectInitiation.length < 1) {
     //   return new ErrorResponseJSON(res, "Terminated ProjectInitiations not found!", 404);
@@ -349,7 +421,7 @@ exports.getAllTerminatedProjectInitiations = asyncHandler(async (req, res, next)
 exports.getAllPendingProjectInitiations = asyncHandler(async (req, res, next) => {
   try {
     const pendingProjectInitiation = await ProjectInitiation.find({status: "Pending"})
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     // if (pendingProjectInitiation.length < 1) {
     //   return new ErrorResponseJSON(res, "Pending ProjectInitiations not found!", 404);
@@ -370,7 +442,7 @@ exports.getAllPendingProjectInitiations = asyncHandler(async (req, res, next) =>
 exports.getAllCompletedProjectInitiations = asyncHandler(async (req, res, next) => {
   try {
     const completedProjectInitiation = await ProjectInitiation.find({status: "Completed"})
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     // if (completedProjectInitiation.length < 1) {
     //   return new ErrorResponseJSON(res, "Completed ProjectInitiations not found!", 404);
@@ -391,7 +463,7 @@ exports.getAllCompletedProjectInitiations = asyncHandler(async (req, res, next) 
 exports.getAllApprovedProjectInitiations = asyncHandler(async (req, res, next) => {
   try {
     const approvedProjectInitiation = await ProjectInitiation.find({status: "Approved"})
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     // if (approvedProjectInitiation.length < 1) {
     //   return new ErrorResponseJSON(res, "Approved ProjectInitiations not found!", 404);
@@ -412,7 +484,7 @@ exports.getAllApprovedProjectInitiations = asyncHandler(async (req, res, next) =
 exports.getAllDeclinedProjectInitiations = asyncHandler(async (req, res, next) => {
   try {
     const declinedProjectInitiation = await ProjectInitiation.find({status: "Declined"})
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     // if (declinedProjectInitiation.length < 1) {
     //   return new ErrorResponseJSON(res, "Declined ProjectInitiations not found!", 404);
@@ -433,7 +505,7 @@ exports.getAllDeclinedProjectInitiations = asyncHandler(async (req, res, next) =
 exports.getAllOnHoldProjectInitiations = asyncHandler(async (req, res, next) => {
   try {
     const onHoldProjectInitiation = await ProjectInitiation.find({status: "On Hold"})
-      .populate("contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy");
+      .populate(this.populateProjectInitiationDetails);
 
     // if (onHoldProjectInitiation.length < 1) {
     //   return new ErrorResponseJSON(res, "On Hold ProjectInitiations not found!", 404);

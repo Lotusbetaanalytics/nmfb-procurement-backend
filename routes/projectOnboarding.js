@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const ProjectOnboarding = require("../models/ProjectOnboarding");
 const {
+  populateProjectOnboardingDetails,
   createProjectOnboarding,
   getAllProjectOnboardings,
   getProjectOnboarding,
@@ -19,7 +20,7 @@ const {multerUploadConfig} = require("../utils/fileUtils")
 const advancedResults = require("../middleware/advancedResults");
 
 router.post("/", verifyToken, createProjectOnboarding); // create a projectOnboarding
-router.get("/", verifyToken, advancedResults(ProjectOnboarding), getAllProjectOnboardings); // get all projectOnboardings
+router.get("/", verifyToken, advancedResults(ProjectOnboarding, populateProjectOnboardingDetails), getAllProjectOnboardings); // get all projectOnboardings
 router.get("/started", verifyToken, getAllStartedProjectOnboardings); // get all started projectOnboardings
 router.get("/terminated", verifyToken, getAllTerminatedProjectOnboardings); // get all terminated projectOnboardings
 router.get("/pending", verifyToken, getAllPendingProjectOnboardings); // get all pending projectOnboardings
