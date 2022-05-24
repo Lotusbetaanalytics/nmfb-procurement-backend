@@ -30,8 +30,10 @@ const evaluationTemplate  = require("./routes/evaluationTemplate")
 const projectCategory  = require("./routes/projectCategory")
 const projectInitiation  = require("./routes/projectInitiation")
 const projectOnboarding  = require("./routes/projectOnboarding")
+const projectStage  = require("./routes/projectStage")
 const projectTask  = require("./routes/projectTask")
 const projectType  = require("./routes/projectType")
+const supportingDocuments  = require("./routes/supportingDocuments")
 const log  = require("./routes/log")
 
 // configure express
