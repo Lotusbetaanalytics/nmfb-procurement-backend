@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const ProjectOnboarding = require("../models/ProjectOnboarding");
 const {
+  assignOnboardedProject,
   populateProjectOnboardingDetails,
   createProjectOnboarding,
   getAllProjectOnboardings,
@@ -31,5 +32,6 @@ router.delete("/:id", verifyToken, deleteProjectOnboarding); // delete projectOn
 router.get("/:id/terminate", verifyToken, terminateProjectOnboarding); // terminate projectOnboarding by id
 router.patch("/:id/status", verifyToken, updateProjectOnboardingStatus); // update projectOnboarding status by id
 router.patch("/:id/upload", verifyToken, multerUploadConfig, uploadProjectOnboardingDocuments); // upload projectOnboarding documents by id
+router.patch("/:id/assign", verifyToken, assignOnboardedProject); // assign onboarded project to responsible officer
 
 module.exports = router;
