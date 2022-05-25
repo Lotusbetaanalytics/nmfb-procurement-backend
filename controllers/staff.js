@@ -4,7 +4,7 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 const {giveRolesAndTeams} = require("../utils/userManagement")
 
 
-exports.populateStaffDetails = "manager team role photo"
+exports.populateStaffDetails = "team role photo"
 
 
 // @desc    Create Staff
