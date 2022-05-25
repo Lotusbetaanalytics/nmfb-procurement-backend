@@ -53,7 +53,7 @@ exports.getAllStaffs = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.getStaff = asyncHandler(async (req, res, next) => {
   try {
-    const staff = await Staff.findById(req.params.id).populate("manager, role, team");
+    const staff = await Staff.findById(req.params.id).populate(this.populateStaffDetails);
 
     if (!staff) {
       return new ErrorResponseJSON(res, "Staff not found!", 404);
