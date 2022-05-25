@@ -4,6 +4,9 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 const {configureHeadRoles} = require("../utils/userManagement");
 
 
+exports.populateTeamDetails = "role head"
+
+
 // @desc    Create Team
 // @route  POST /api/v1/team
 // @access   Private
@@ -64,7 +67,7 @@ exports.getAllTeams = asyncHandler(async (req, res, next) => {
 exports.getTeam = asyncHandler(async (req, res, next) => {
   try {
     
-  const team = await Team.findById(req.params.id);
+  const team = await Team.findById(req.params.id).populate(this.populateTeamDetails);
 
   if (!team) {
     return new ErrorResponseJSON(res, "Team not found!", 404);
