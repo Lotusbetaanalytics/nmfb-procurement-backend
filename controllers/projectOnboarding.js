@@ -66,12 +66,12 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
      */
     await projectOnboardingEmail(projectOnboarding, req, res, next);
 
-    /**
-     * TODO:
-     * project assignment email
-     */
-    if (req.body.responsibleOfficer || projectOnboarding.responsibleOfficer)
-      await projectAssignmentEmail(projectOnboarding);
+    // /**
+    //  * TODO:
+    //  * project assignment email
+    //  */
+    // if (req.body.responsibleOfficer || projectOnboarding.responsibleOfficer)
+    //   await projectAssignmentEmail(projectOnboarding);
 
     res.status(200).json({
       success: true,
@@ -151,11 +151,11 @@ exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
      */
     await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
 
-    /**
-     * TODO:
-     * project assignment email
-     */
-    if (req.body.responsibleOfficer) await projectAssignmentEmail(projectOnboarding);
+    // /**
+    //  * TODO:
+    //  * project assignment email
+    //  */
+    // if (req.body.responsibleOfficer) await projectAssignmentEmail(projectOnboarding);
 
     res.status(200).json({
       success: true,

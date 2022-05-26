@@ -229,8 +229,8 @@ exports.assignProject = asyncHandler(async (req, res, next) => {
       return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
     }
 
-    req.body.assignedBy = req.user._id;
-    req.body.assignedTo = req.body.responsibleOfficer;
+    // req.body.assignedBy = req.user._id;
+    // req.body.assignedTo = req.body.responsibleOfficer;
 
     const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
       new: true,

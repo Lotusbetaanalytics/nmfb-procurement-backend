@@ -15,7 +15,7 @@ exports.generateProjectId = asyncHandler(async project => {
   }
 });
 
-exports.stageNames = {
+exports.projectStages = {
   "SCOPE/TOR/TECHNICAL SPECIFICATION": {
     "pathA": [
       "Signed ToR Checklist with Relevant/participating Bus",
@@ -83,10 +83,13 @@ exports.stageNames = {
   },
 }
 
-exports.createProjectStages = async (stageNames = Object.Keys(this.stageNames)) => {
-  for (const name in stageNames) {
-    try {await ProjectStage.create({title: name})}
-    catch (err) {console.log(`error: ${err}, during project stage creation`)}
+exports.createProjectStages = async (projectStages = Object.entries(this.projectStages)) => {
+  // for (const name in projectStages) {
+  for (const [key, name] in projectStages) {
+    console.log(`key: ${key}`)
+    console.log(`name: ${name}`)
+    // try {await ProjectStage.create({title: name})}
+    // catch (err) {console.log(`error: ${err}, during project stage creation`)}
   }
   return true
 }
