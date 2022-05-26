@@ -79,17 +79,103 @@ exports.projectStages = {
     ],
   },
   "CONTRACT RENEWAL / TERMINATION": {
-    "pathA": [],
+    // "pathA": [],
   },
 }
 
 exports.createProjectStages = async (projectStages = Object.entries(this.projectStages)) => {
-  // for (const name in projectStages) {
-  for (const [key, name] in projectStages) {
-    console.log(`key: ${key}`)
-    console.log(`name: ${name}`)
-    // try {await ProjectStage.create({title: name})}
-    // catch (err) {console.log(`error: ${err}, during project stage creation`)}
+  // for (const name of projectStages) {
+  for (const [key, name] of projectStages) {
+    // console.log(`key: ${key}`)
+    // // console.log(`name: ${name}`) // [object Object]
+    // console.log(`name["pathA"]: ${name.pathA}`)
+    // console.log(`name["pathB"]: ${name.pathB}`)
+
+    const payload = {title: key}
+    if (name.pathA) payload.requiredDocuments = name.pathA
+    if (name.pathB) payload.alternativeDocuments = name.pathB
+
+    // for (const [key, item] of Object.entries(payload)) 
+    //   console.log(`payload.${key}: ${item}`)
+
+    try {await ProjectStage.create(payload)}
+    catch (err) {console.log(`error: ${err}, during project stage creation`)}
   }
+  console.log("All stages created")
   return true
+}
+
+exports.createModelInstances = async (model=ProjectStage, object=this.projectStages) => {
+  if (typeof object != "object") {
+    console.log(`type of parameter is not object`)
+    return false
+  }
+  try {
+    const instances = object
+    for (const [key, instance] of Object.entries(instances)) {
+      console.log(`key, instance:${key}, ${instance}`)
+      const payload = {}
+
+      for (const [index, item] of Object.entries(instance)) {
+        console.log(`index, item:${key}, ${instance}`)
+        payload[index] = item
+      }
+      try {await model.create(payload)}
+      catch (err) {console.log(`error: ${err}, during ${model} creation`)}
+    }
+  } catch (err) {
+    console.log(`Error creating ${model} instances: ${err}`)
+  }
+}
+
+exports.deleteAllProjectStages = async () => {
+  allProjectStages = await ProjectStage.find()
+
+  for (const [key, stage] of Object.entries(allProjectStages))
+    await ProjectStage.findByIdAndDelete(stage._id)
+  console.log("All stages deleted")
+}
+
+// exports.asyncHandler =  fn => async (...args) => {
+//   try {
+//     return await fn(...args)
+//   } catch (err) {
+//     console.log(`Error: ${err}`)
+//     return false
+//   }
+// }
+
+// TODO: Test this, likely to have errors
+exports.createModelInstances = async (model=ProjectStage, object=this.projectStages) => {
+  if (typeof object != "object") {
+    console.log(`type of parameter is not object`)
+    return false
+  }
+  try {
+    const instances = object
+    for (const [key, instance] of Object.entries(instances)) {
+      console.log(`key, instance:${key}, ${instance}`)
+      const payload = {}
+
+      for (const [index, item] of Object.entries(instance)) {
+        console.log(`index, item:${key}, ${instance}`)
+        payload[index] = item
+      }
+      try {await model.create(payload)}
+      catch (err) {console.log(`error: ${err}, during model creation`)}
+    }
+  } catch (err) {
+    console.log(`Error creating model instances: ${err}`)
+  }
+}
+
+exports.deleteAllModelInstances = async (model=ProjectStage) => {
+  const instances = await model.find()
+  try {
+    for (const [key, instance] of Object.entries(instances))
+      await model.findByIdAndDelete(instance._id)
+    console.log(`All model instances deleted`)
+  } catch (err) {
+    console.log(`Error deleting model instances: ${err}`)
+  }
 }

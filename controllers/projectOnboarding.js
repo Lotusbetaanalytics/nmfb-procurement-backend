@@ -8,6 +8,7 @@ const {
   projectOnboardingUpdateEmail,
   projectAssignmentEmail,
 } = require("../utils/projectEmail");
+const { createProjectStages, deleteAllProjectStages, deleteAllModelInstances } = require("../utils/projectUtils");
 
 
 exports.populateProjectOnboardingDetails = "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
@@ -87,6 +88,9 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectOnboarding
 // @access   Public
 exports.getAllProjectOnboardings = asyncHandler(async (req, res, next) => {
+  // await createProjectStages()
+  // await deleteAllProjectStages()
+  // await deleteAllModelInstances()
   return res.status(200).json(res.advancedResults);
 });
 

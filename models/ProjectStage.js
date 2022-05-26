@@ -22,7 +22,7 @@ const ProjectStageSchema = new mongoose.Schema({
   requiredDocuments: {
     type: Array
   },
-  alternateDocuments: {
+  alternativeDocuments: {
     type: Array
   },
   createdAt: {
