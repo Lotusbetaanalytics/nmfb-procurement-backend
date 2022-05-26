@@ -187,43 +187,6 @@ exports.deleteProjectOnboarding = asyncHandler(async (req, res, next) => {
 });
 
 
-// @desc    Assign Project to Responsible officer
-// @route  PATCH /api/v1/projectOnboarding/:id/assign
-// @access   Private
-exports.assignOnboardedProject = asyncHandler(async (req, res, next) => {
-  try {
-    const existingProjectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
-      this.populateProjectOnboardingDetails
-    );
-
-    if (!existingProjectOnboarding) {
-      return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
-    }
-
-    req.body.assignedBy = req.user._id;
-    req.body.assignedTo = req.body.responsibleOfficer;
-
-    const projectOnboarding = await ProjectOnboarding.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!projectOnboarding) {
-      return new ErrorResponseJSON(res, "ProjectOnboarding not updated!", 400);
-    }
-
-    await projectAssignmentEmail(projectOnboarding);
-
-    res.status(200).json({
-      success: true,
-      data: projectOnboarding,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
-});
-
-
 // TODO: Add started and terminated endpoints
 // @desc    Get all Started ProjectOnboardings
 // @route  GET /api/v1/projectOnboarding/started

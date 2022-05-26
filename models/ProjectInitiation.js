@@ -58,6 +58,25 @@ const ProjectInitiationSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  responsibleUnit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Team"
+  },
+  // head of team
+  responsibleOfficer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  // // head of procurement
+  // assignedBy: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Staff"
+  // },
+  // // responsible officer
+  // assignedTo: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Staff"
+  // },
   isOnboarded: {
     type: Boolean,
     default: false,

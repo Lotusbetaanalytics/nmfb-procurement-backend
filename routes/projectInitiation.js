@@ -2,6 +2,7 @@ const router = require("express").Router();
 const ProjectInitiation = require("../models/ProjectInitiation");
 const {
   populateProjectInitiationDetails,
+  assignProject,
   createProjectInitiation,
   getAllProjectInitiations,
   getProjectInitiation,
@@ -41,5 +42,6 @@ router.get("/:id/decline", verifyToken, declineProjectInitiation); // approve pr
 router.patch("/:id/status", verifyToken, updateProjectInitiationStatus); // update projectInitiation status by id
 router.patch("/:id/upload", verifyToken, multerUploadConfig, uploadProjectInitiationDocuments); // upload projectInitiation documents by id
 router.get("/:id/tasks", verifyToken, getProjectInitiationTasks); // get projectInitiation details by id
+router.patch("/:id/assign", verifyToken, assignProject); // assign project to responsible officer
 
 module.exports = router;

@@ -35,23 +35,23 @@ const ProjectOnboardingSchema = new mongoose.Schema({
   vendorName: {
     type: String,
   },
-  responsibleUnit: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Team"
-  },
-  // head of team
-  responsibleOfficer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Staff"
-  },
-  assignedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Staff"
-  },
-  assignedTo: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Staff"
-  },
+  // responsibleUnit: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Team"
+  // },
+  // // head of team
+  // responsibleOfficer: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Staff"
+  // },
+  // assignedBy: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Staff"
+  // },
+  // assignedTo: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Staff"
+  // },
   files: {
     type: Array,
   },

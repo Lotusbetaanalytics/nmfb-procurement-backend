@@ -7,6 +7,7 @@ const SupportingDocuments = require("../models/SupportingDocuments");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
 const { uploadProjectDocuments } = require("../utils/fileUtils");
 const {
+  projectAssignmentEmail,
   projectInitiationEmail, 
   projectInitiationUpdateEmail,
   projectCostEstimationEmail,
@@ -204,6 +205,43 @@ exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
 
     projectInitiation.status = "Declined";
     projectInitiation.save();
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Assign Project to Responsible officer
+// @route  PATCH /api/v1/projectInitiation/:id/assign
+// @access   Private
+exports.assignProject = asyncHandler(async (req, res, next) => {
+  try {
+    const existingProjectInitiation = await ProjectInitiation.findById(req.params.id).populate(
+      this.populateProjectInitiation
+    );
+
+    if (!existingProjectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    req.body.assignedBy = req.user._id;
+    req.body.assignedTo = req.body.responsibleOfficer;
+
+    const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
+    }
+
+    await projectAssignmentEmail(projectInitiation);
 
     res.status(200).json({
       success: true,

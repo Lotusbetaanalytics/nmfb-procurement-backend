@@ -239,7 +239,7 @@ exports.projectOnboardingUpdateEmail = asyncHandler(async (projectOnboardingInst
 })
 
 
-exports.projectAssignmentEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
+exports.projectAssignmentEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
   /**
    * TODO: 
    * • PPC portal forwards project to the responsible officer and send email notification to the responsible officer and head of procurement.
@@ -248,16 +248,16 @@ exports.projectAssignmentEmail = asyncHandler(async (projectOnboardingInstance, 
   //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
   //   // assignedTo assignedBy createdBy updatedBy"
   // )
-  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance._id).populate(
     "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
   )
 
   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
   // const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
-  const responsibleOfficer = await Staff.findById(projectOnboardingInstance.responsibleOfficer)
-  // const assignedBy = await Staff.findById(projectOnboardingInstance.assignedBy)
-  // // const assignedTo = await Staff.findById(projectOnboardingInstance.assignedTo)
+  const responsibleOfficer = await Staff.findById(projectInitiationInstance.responsibleOfficer)
+  // const assignedBy = await Staff.findById(projectInitiationInstance.assignedBy)
+  // // const assignedTo = await Staff.findById(projectInitiationInstance.assignedTo)
 
   // // For Assigned To Staff
   // const Subject = `Project Task Assigned `
