@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
+const {defaultBase64Image} = require("../utils/generic")
 
 const PhotoSchema = new mongoose.Schema({
   image: {
     type: String,
-    default: "user.png",
+    default: defaultBase64Image,
     required: true,
   },
   createdAt: {

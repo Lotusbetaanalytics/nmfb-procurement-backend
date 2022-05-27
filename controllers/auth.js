@@ -87,7 +87,8 @@ exports.postUserDetails = async (req, res, next) => {
               await checkStaff.save();
             }
           } catch (err) {
-            return new ErrorResponseJSON(res, "Error handling images from azure AD", 400)
+            console.log("Error handling images from azure AD")
+            // return new ErrorResponseJSON(res, "Error handling images from azure AD", 400)
           }
           // When limiting accounts to pre created ones
           let payload
