@@ -171,9 +171,14 @@ exports.createModelInstances = async (model=ProjectStage, object=this.projectSta
 
 exports.deleteAllModelInstances = async (model=ProjectStage) => {
   const instances = await model.find()
+  console.log(instances)
   try {
-    for (const [key, instance] of Object.entries(instances))
+    // let item;
+    for (const [key, instance] of Object.entries(instances)) {
+      // var item = await model.findById(instance._id)
+      // await item.save()
       await model.findByIdAndDelete(instance._id)
+    }
     console.log(`All model instances deleted`)
   } catch (err) {
     console.log(`Error deleting model instances: ${err}`)
