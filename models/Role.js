@@ -16,6 +16,7 @@ const RoleSchema = new mongoose.Schema({
    */
   title: {
     type: String,
+    unique: true,
     required: true
   },
   description: {
@@ -24,6 +25,10 @@ const RoleSchema = new mongoose.Schema({
   slug: {
     type: String,
   },
+  permissions: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Permission"
+  }],
   isUnique: {
     type: Boolean,
     default: false,

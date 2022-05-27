@@ -8,7 +8,7 @@ const {
   projectOnboardingUpdateEmail,
   projectAssignmentEmail,
 } = require("../utils/projectEmail");
-const { createProjectStages, deleteAllProjectStages, deleteAllModelInstances } = require("../utils/projectUtils");
+const { createProjectStages, deleteAllProjectStages, deleteAllModelInstances, createModelInstanceWithList, addPermissionsToRole } = require("../utils/projectUtils");
 
 
 exports.populateProjectOnboardingDetails = "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
@@ -91,6 +91,16 @@ exports.getAllProjectOnboardings = asyncHandler(async (req, res, next) => {
   // await createProjectStages()
   // await deleteAllProjectStages()
   // await deleteAllModelInstances()
+  // await createModelInstanceWithList()
+  // const frontDeskOfficerPermissions = [
+  //   "6290ba53c0ab37daf3a5120f",
+  //   "6290ba53c0ab37daf3a51211",
+  //   "6290ba53c0ab37daf3a51213",
+  //   "6290ba54c0ab37daf3a51215",
+  //   "6290ba54c0ab37daf3a51217",
+  //   "6290ba54c0ab37daf3a51219",
+  // ]
+  // await addPermissionsToRole()
   return res.status(200).json(res.advancedResults);
 });
 

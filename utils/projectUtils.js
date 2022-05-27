@@ -1,7 +1,10 @@
 const asyncHandler = require("../middleware/async");
+const Permission = require("../models/Permission");
 const ProjectStage = require("../models/ProjectStage");
 const ProjectType = require("../models/ProjectType");
+const Role = require("../models/Role");
 const {token} = require("./scripts");
+const {permissionTitles} = require("../utils/utilStore")
 
 
 exports.generateProjectId = asyncHandler(async project => {
@@ -145,6 +148,17 @@ exports.deleteAllProjectStages = async () => {
 //   }
 // }
 
+
+exports.createModelInstanceWithList = async (model=Permission, list=permissionTitles) => {
+  for (const item of list) {
+    console.log(item)
+    const payload = {title: item} 
+    try {await model.create(payload)}
+    catch (err) {console.log(`error: ${err}, during ${model} creation`)}
+  }
+  console.log(`All model instances created successfully.`)
+}
+
 // TODO: Test this, likely to have errors
 exports.createModelInstances = async (model=ProjectStage, object=this.projectStages) => {
   if (typeof object != "object") {
@@ -184,3 +198,41 @@ exports.deleteAllModelInstances = async (model=ProjectStage) => {
     console.log(`Error deleting model instances: ${err}`)
   }
 }
+
+exports.addPermissionsToRole = async (roleID, permissions) => {
+  let permissionIDs = [];
+  if (!permissions) {
+    permissions = await Permission.find()
+    for (const [key, permission] of Object.entries(permissions)) {
+      console.log(permission.title + "" + permissions._id)
+      permissionIDs.push(permission._id)
+    }
+    permissions = permissionIDs
+  } 
+
+  try{
+    const updatedRole = await Role.findById(roleID)
+    updatedRole.permissions = permissions
+    await updatedRole.save()
+    console.log(updatedRole)
+    console.log("All roles updated with permissions")
+  } catch (err) {
+    console.log(`error updating role: ${err}`)
+  }
+}
+
+
+// exports.rolePermissions = async(roleID, permissions) => {
+//   let permissionIDs = [];
+//   if (!permissions) {
+//     permissions = await Permission.find()
+//     for (const [key, permission] of Object.entries(permissions)) {
+//       console.log(permission._id)
+//       permissionIDs.push(permission._id)
+//     }
+//     permissions = permissionIDs
+//   } 
+
+//   const role = await Role.findById(roleID)
+
+// }
