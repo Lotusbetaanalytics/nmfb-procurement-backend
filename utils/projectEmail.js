@@ -767,10 +767,10 @@ exports.projectSubmissionOfProposalsEmail = asyncHandler(async (projectInitiatio
   // }
 
   // For Front Desk Officer
-  const headOfProcurementSubject = `Submission of Proposals Stage`
+  const headOfProcurementSubject = `Evaluation of Proposals Stage`
   const headOfProcurementSalutation = `Hello,`
   const headOfProcurementMessage = `
-    Kindly take action on the ‘Submission of Proposals‘ stage.
+    Kindly take action on the ‘Evaluation of Proposals‘ stage.
   `
   const headOfProcurementOptions = {
     to: [headOfProcurement.email], // email
