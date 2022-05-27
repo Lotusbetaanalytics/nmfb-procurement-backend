@@ -25,7 +25,7 @@ const {verifyToken, authorize} = require("../middleware/auth");
 const {multerUploadConfig} = require("../utils/fileUtils")
 const advancedResults = require("../middleware/advancedResults");
 
-router.post("/", verifyToken, authorize("Super Admin", "HOP"), createProjectInitiation); // create a projectInitiation
+router.post("/", verifyToken, authorize("Super Admin", "Head of Procurement", "Frontdesk"), createProjectInitiation); // create a projectInitiation
 router.get("/", verifyToken, advancedResults(ProjectInitiation, populateProjectInitiationDetails), getAllProjectInitiations); // get all projectInitiations
 router.get("/started", verifyToken, getAllStartedProjectInitiations); // get all projectInitiations
 router.get("/terminated", verifyToken, getAllTerminatedProjectInitiations); // get all projectInitiations
