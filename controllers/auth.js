@@ -74,14 +74,20 @@ exports.postUserDetails = async (req, res, next) => {
       const checkStaff = await Staff.findOne({ email: email }).populate("photo"); //check if there is a staff with the email in the db
       console.log("Tried 1")
       if (checkStaff) {
+        // console.log("!!!important!!!")
+        // console.log(checkStaff.photo.image)
         try {
           let staffPhoto = false
-          if (avatar && !checkStaff.photo || checkStaff.photo.image != avatar) {
-            staffPhoto = new Photo({image: avatar});
-            await staffPhoto.save()
-  
-            checkStaff.photo = staffPhoto.id;
-            await checkStaff.save();
+          try {
+            if (avatar && !checkStaff.photo || checkStaff.photo.image != avatar) {
+              staffPhoto = new Photo({image: avatar});
+              await staffPhoto.save()
+    
+              checkStaff.photo = staffPhoto.id;
+              await checkStaff.save();
+            }
+          } catch (err) {
+            return new ErrorResponseJSON(res, "Error handling images from azure AD", 400)
           }
           // When limiting accounts to pre created ones
           let payload
