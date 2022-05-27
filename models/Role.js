@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify")
 
 const RoleSchema = new mongoose.Schema({
   /**
@@ -20,6 +21,9 @@ const RoleSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  slug: {
+    type: String,
+  },
   isUnique: {
     type: Boolean,
     default: false,
@@ -28,6 +32,10 @@ const RoleSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+});
+
+RoleSchema.pre("save", async function (next) {
+  this.slug = slugify(this.title)
 });
 
 module.exports = mongoose.model("Role", RoleSchema);
