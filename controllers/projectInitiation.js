@@ -313,7 +313,8 @@ exports.uploadProjectInitiationDocuments = asyncHandler(async (req, res, next) =
     }
 
     const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file)
-    projectInitiation.files = documentLinks
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
 
     res.status(200).json({
@@ -327,7 +328,67 @@ exports.uploadProjectInitiationDocuments = asyncHandler(async (req, res, next) =
 
 
 // TODO: Update this to use supporting documents
-// @desc    Upload ProjectInitiation CostEstimationDocuments
+// @desc    Upload ProjectInitiation TechnicalSpecification Documents
+// @route  POST /api/v1/projectInitiation/:id/technicalSpecification
+// @access   Private
+exports.uploadProjectInitiationTechnicalSpecificationDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectInitiation = await ProjectInitiation.findById(req.params.id)
+      .populate(this.populateProjectInitiationDetails);
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    const projectStage = await ProjectStage.findOne({title: "SCOPE/TOR/TECHNICAL SPECIFICATION"})
+
+    const payload = {
+      employeeName: req.user.fullname,
+      employeeEmail: req.user.email,
+      project: projectInitiation._id,
+      projectTitle: projectInitiation.title,
+      projectStage: projectStage,
+      documentType: req.body.documentType,
+      documentName: req.body.documentName,
+      files: req.body.files,
+      memo: req.body.memo,
+      description: req.body.description,
+
+    }
+    const technicalSpecification = await SupportingDocuments.create(payload)
+
+    if (!technicalSpecification) {
+      return new ErrorResponseJSON(res, "Technical Specification Documents not uploaded!", 400 );
+    }
+
+    const folder = "Technical Specification"
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
+    await projectInitiation.save()
+
+    /**
+     * TODO:
+     * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+     */
+
+    await projectTechnicalSpecificationEmail(projectInitiation, req, res, next)
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Upload ProjectInitiation CostEstimation Documents
 // @route  POST /api/v1/projectInitiation/:id/costEstimation
 // @access   Private
 exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req, res, next) => {
@@ -361,12 +422,13 @@ exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req
     const costEstimation = await SupportingDocuments.create(payload)
 
     if (!costEstimation) {
-      return new ErrorResponseJSON(res, "Cost Estimation not created!", 400 );
+      return new ErrorResponseJSON(res, "Cost Estimation Documents not uploaded!", 400 );
     }
 
     const folder = "Cost Estimation"
     const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
-    projectInitiation.files = documentLinks
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
 
     /**
@@ -375,6 +437,366 @@ exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req
      */
 
     await projectCostEstimationEmail(projectInitiation, req, res, next)
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Upload ProjectInitiation SelectionMethod Documents
+// @route  POST /api/v1/projectInitiation/:id/selectionMethod
+// @access   Private
+exports.uploadProjectInitiationSelectionMethodDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectInitiation = await ProjectInitiation.findById(req.params.id)
+      .populate(this.populateProjectInitiationDetails);
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    const projectStage = await ProjectStage.findOne({title: "SELECTION METHOD"})
+
+    const payload = {
+      employeeName: req.user.fullname,
+      employeeEmail: req.user.email,
+      project: projectInitiation._id,
+      projectTitle: projectInitiation.title,
+      projectStage: projectStage,
+      documentType: req.body.documentType,
+      documentName: req.body.documentName,
+      files: req.body.files,
+      memo: req.body.memo,
+      description: req.body.description,
+
+    }
+    const selectionMethod = await SupportingDocuments.create(payload)
+
+    if (!selectionMethod) {
+      return new ErrorResponseJSON(res, "Selection Method Documents not uploaded!", 400 );
+    }
+
+    const folder = "Selection Method"
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
+    await projectInitiation.save()
+
+    /**
+     * TODO:
+     * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+     */
+
+    await projectSelectionMethodEmail(projectInitiation, req, res, next)
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Upload ProjectInitiation NoObjection Documents
+// @route  POST /api/v1/projectInitiation/:id/noObjection
+// @access   Private
+exports.uploadProjectInitiationNoObjectionDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectInitiation = await ProjectInitiation.findById(req.params.id)
+      .populate(this.populateProjectInitiationDetails);
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    const projectStage = await ProjectStage.findOne({title: "NO OBJECTION"})
+
+    const payload = {
+      employeeName: req.user.fullname,
+      employeeEmail: req.user.email,
+      project: projectInitiation._id,
+      projectTitle: projectInitiation.title,
+      projectStage: projectStage,
+      documentType: req.body.documentType,
+      documentName: req.body.documentName,
+      files: req.body.files,
+      memo: req.body.memo,
+      description: req.body.description,
+
+    }
+    const noObjection = await SupportingDocuments.create(payload)
+
+    if (!noObjection) {
+      return new ErrorResponseJSON(res, "No Objection Documents not uploaded!", 400 );
+    }
+
+    const folder = "No Objection"
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
+    await projectInitiation.save()
+
+    /**
+     * TODO:
+     * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+     */
+
+    await projectNoObjectionEmail(projectInitiation, req, res, next)
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Upload ProjectInitiation IssuanceOfSPN Documents
+// @route  POST /api/v1/projectInitiation/:id/issuanceOfSPN
+// @access   Private
+exports.uploadProjectInitiationIssuanceOfSPNDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectInitiation = await ProjectInitiation.findById(req.params.id)
+      .populate(this.populateProjectInitiationDetails);
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    const projectStage = await ProjectStage.findOne({title: "ISSUANCE OF SPN"})
+
+    const payload = {
+      employeeName: req.user.fullname,
+      employeeEmail: req.user.email,
+      project: projectInitiation._id,
+      projectTitle: projectInitiation.title,
+      projectStage: projectStage,
+      documentType: req.body.documentType,
+      documentName: req.body.documentName,
+      files: req.body.files,
+      memo: req.body.memo,
+      description: req.body.description,
+
+    }
+    const issuanceOfSPN = await SupportingDocuments.create(payload)
+
+    if (!issuanceOfSPN) {
+      return new ErrorResponseJSON(res, "Issuance Of SPN Documents not uploaded!", 400 );
+    }
+
+    const folder = "Issuance Of SPN"
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
+    await projectInitiation.save()
+
+    /**
+     * TODO:
+     * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+     */
+
+    await projectIssuanceOfSPNEmail(projectInitiation, req, res, next)
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Upload ProjectInitiation SubmissionOfProposals Documents
+// @route  POST /api/v1/projectInitiation/:id/submissionOfProposals
+// @access   Private
+exports.uploadProjectInitiationSubmissionOfProposalsDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectInitiation = await ProjectInitiation.findById(req.params.id)
+      .populate(this.populateProjectInitiationDetails);
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    const projectStage = await ProjectStage.findOne({title: "SUBMISSION OF PROPOSALS"})
+
+    const payload = {
+      employeeName: req.user.fullname,
+      employeeEmail: req.user.email,
+      project: projectInitiation._id,
+      projectTitle: projectInitiation.title,
+      projectStage: projectStage,
+      documentType: req.body.documentType,
+      documentName: req.body.documentName,
+      files: req.body.files,
+      memo: req.body.memo,
+      description: req.body.description,
+
+    }
+    const submissionOfProposals = await SupportingDocuments.create(payload)
+
+    if (!submissionOfProposals) {
+      return new ErrorResponseJSON(res, "Submission Of Proposals Documents not uploaded!", 400 );
+    }
+
+    const folder = "Submission Of Proposals"
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
+    await projectInitiation.save()
+
+    /**
+     * TODO:
+     * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+     */
+
+    await projectSubmissionOfProposalsEmail(projectInitiation, req, res, next)
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Upload ProjectInitiation BidOpeningExercise Documents
+// @route  POST /api/v1/projectInitiation/:id/bidOpeningExercise
+// @access   Private
+exports.uploadProjectInitiationBidOpeningExerciseDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectInitiation = await ProjectInitiation.findById(req.params.id)
+      .populate(this.populateProjectInitiationDetails);
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    const projectStage = await ProjectStage.findOne({title: "BID OPENING EXERCISE"})
+
+    const payload = {
+      employeeName: req.user.fullname,
+      employeeEmail: req.user.email,
+      project: projectInitiation._id,
+      projectTitle: projectInitiation.title,
+      projectStage: projectStage,
+      documentType: req.body.documentType,
+      documentName: req.body.documentName,
+      files: req.body.files,
+      memo: req.body.memo,
+      description: req.body.description,
+
+    }
+    const bidOpeningExercise = await SupportingDocuments.create(payload)
+
+    if (!bidOpeningExercise) {
+      return new ErrorResponseJSON(res, "Bid Opening Exercise Documents not uploaded!", 400 );
+    }
+
+    const folder = "Bid Opening Exercise"
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
+    await projectInitiation.save()
+
+    /**
+     * TODO:
+     * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+     */
+
+    await projectBidOpeningExerciseEmail(projectInitiation, req, res, next)
+
+    res.status(200).json({
+      success: true,
+      data: projectInitiation,
+    });
+  } catch (err) {
+    return new ErrorResponseJSON(res, err.message, 500);
+  }
+});
+
+
+// @desc    Upload ProjectInitiation BidEvaluation Documents
+// @route  POST /api/v1/projectInitiation/:id/bidEvaluation
+// @access   Private
+exports.uploadProjectInitiationBidEvaluationDocuments = asyncHandler(async (req, res, next) => {
+  try {
+
+    const {file} = req
+    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+    const projectInitiation = await ProjectInitiation.findById(req.params.id)
+      .populate(this.populateProjectInitiationDetails);
+
+    if (!projectInitiation) {
+      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    }
+
+    const projectStage = await ProjectStage.findOne({title: "EVALUATION OF BID OPENING EXERCISE"})
+
+    const payload = {
+      employeeName: req.user.fullname,
+      employeeEmail: req.user.email,
+      project: projectInitiation._id,
+      projectTitle: projectInitiation.title,
+      projectStage: projectStage,
+      documentType: req.body.documentType,
+      documentName: req.body.documentName,
+      files: req.body.files,
+      memo: req.body.memo,
+      description: req.body.description,
+
+    }
+    const bidEvaluation = await SupportingDocuments.create(payload)
+
+    if (!bidEvaluation) {
+      return new ErrorResponseJSON(res, "Bid Evaluation Documents not uploaded!", 400 );
+    }
+
+    const folder = "Bid Evaluation"
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    // projectInitiation.files = documentLinks
+    projectInitiation.files.append(documentLinks)
+    await projectInitiation.save()
+
+    /**
+     * TODO:
+     * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
+     */
+
+    await projectBidEvaluationEmail(projectInitiation, req, res, next)
 
     res.status(200).json({
       success: true,
