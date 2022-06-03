@@ -3,6 +3,15 @@ const ContractEvaluation = require("../models/ContractEvaluation")
 const ProjectInitiation = require("../models/ProjectInitiation")
 const ProjectOnboarding = require("../models/ProjectOnboarding")
 const Staff = require("../models/Staff")
+const {
+  populateProjectInitiationDetails,
+  populateProjectOnboardingDetails,
+  populateProjectTaskDetails,
+} = require("./projectUtils")
+const {
+  populateContractDetails,
+  populateContractEvaluationDetails,
+} = require("./contractUtils")
 const sendEmail = require("./sendEmail")
 
 
@@ -137,13 +146,8 @@ exports.projectOnboardingEmail = asyncHandler(async (projectOnboardingInstance, 
    * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’ 
    * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
    */
-  const projectOnboarding = await ProjectOnboarding.findById(projectOnboardingInstance._id).populate(
-    "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
-    assignedTo assignedBy createdBy updatedBy"
-  )
-  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectOnboarding = await ProjectOnboarding.findById(projectOnboardingInstance._id).populate(populateProjectOnboardingDetails)
+  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(populateProjectInitiationDetails)
 
   // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -208,9 +212,7 @@ exports.projectOnboardingEmail = asyncHandler(async (projectOnboardingInstance, 
 
 
 exports.projectOnboardingUpdateEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
-  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(populateProjectInitiationDetails)
   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -281,9 +283,7 @@ exports.projectTaskAssignmentEmail = asyncHandler(async (projectTaskInstance, re
   //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
   //   // assignedTo assignedBy createdBy updatedBy"
   // )
-  const projectInitiation = await ProjectInitiation.findById(projectTaskInstance.project).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectInitiation = await ProjectInitiation.findById(projectTaskInstance.project).populate(populateProjectInitiationDetails)
 
   // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -342,9 +342,7 @@ exports.projectTaskReassignmentEmail = asyncHandler(async (projectTaskInstance, 
   //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
   //   // assignedTo assignedBy createdBy updatedBy"
   // )
-  const projectInitiation = await ProjectInitiation.findById(projectTaskInstance.project).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectInitiation = await ProjectInitiation.findById(projectTaskInstance.project).populate(populateProjectInitiationDetails)
 
   // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -395,7 +393,7 @@ exports.projectTaskReassignmentEmail = asyncHandler(async (projectTaskInstance, 
 })
 
 
-exports.projectTechnicalSpecificationUploadEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+exports.projectTechnicalSpecificationEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
   /**
    * TODO: 
    * • PPC portal forwards project to the responsible officer and send email notification to the responsible officer and head of procurement.
@@ -404,9 +402,7 @@ exports.projectTechnicalSpecificationUploadEmail = asyncHandler(async (projectIn
   //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
   //   // assignedTo assignedBy createdBy updatedBy"
   // )
-  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(populateProjectInitiationDetails)
 
   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -481,9 +477,7 @@ exports.projectCostEstimationEmail = asyncHandler(async (projectInitiationInstan
   //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
   //   // assignedTo assignedBy createdBy updatedBy"
   // )
-  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(populateProjectInitiationDetails)
 
   // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -544,9 +538,7 @@ exports.projectSelectionMethodEmail = asyncHandler(async (projectInitiationInsta
   //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
   //   // assignedTo assignedBy createdBy updatedBy"
   // )
-  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(populateProjectInitiationDetails)
 
   // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -604,9 +596,7 @@ exports.projectNoObjectionEmail = asyncHandler(async (projectInitiationInstance,
   //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
   //   // assignedTo assignedBy createdBy updatedBy"
   // )
-  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(populateProjectInitiationDetails)
 
   // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -680,9 +670,7 @@ exports.projectIssuanceOfSPNEmail = asyncHandler(async (projectInitiationInstanc
   //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
   //   // assignedTo assignedBy createdBy updatedBy"
   // )
-  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(populateProjectInitiationDetails)
 
   // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
@@ -737,53 +725,27 @@ exports.projectSubmissionOfProposalsEmail = asyncHandler(async (projectInitiatio
    * TODO: 
    * • PPC portal sends email notification notifying the HOP to take action on the ‘Evaluation ‘stage
    */
-  // const contractEvaluation = await ProjectOnboarding.findById(contractEvaluationInstance._id).populate(
-  //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
-  //   // assignedTo assignedBy createdBy updatedBy"
-  // )
-  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
 
-  const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
-  const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-  const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
-  // const responsibleOfficer = await Staff.findById(projectInitiation.responsibleOfficer)
-  // const assignedBy = await Staff.findById(projectInitiation.assignedBy)
-  // // const assignedTo = await Staff.findById(projectInitiation.assignedTo)
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(populateProjectInitiationDetails)
 
-  // // For Assigned To Staff
-  // const Subject = `Project Task Assigned `
-  // const Salutation = `Hello,`
-  // const Message = `
-  //   Proposition testing
-  // `
-  // const Options = {
-  //   // to: [assignedTo.email], // email
-  //   // cc: [projectDeskOfficer.email, headOfProcurement.email], // cc
-  //   subject: Subject, // subject
-  //   text: Salutation, // message (salutation)
-  //   html: Message, // html
-  // }
-
-  // For Front Desk Officer
-  const headOfProcurementSubject = `Evaluation Stage`
-  const headOfProcurementSalutation = `Hello,`
-  const headOfProcurementMessage = `
+  // For Head of Procurement
+  const Subject = `Evaluation Stage`
+  const Salutation = `Hello,`
+  const Message = `
     Kindly take action on the ‘Evaluation‘ stage.
   `
-  const headOfProcurementOptions = {
-    to: [headOfProcurement.email], // email
-    cc: [frontDeskOfficer.email], // cc
-    subject: headOfProcurementSubject, // subject
-    text: headOfProcurementSalutation, // message (salutation)
-    html: headOfProcurementMessage, // html
+  const Options = {
+    to: [projectInitiation.headOfProcurement.email], // email
+    cc: [projectInitiation.frontDeskOfficer.email], // cc
+    subject: Subject, // subject
+    text: Salutation, // message (salutation)
+    html: Message, // html
   }
   try {
     // const email = await sendEmail(Options)
-    const headOfProcurementEmail = await sendEmail(headOfProcurementOptions)
+    const Email = await sendEmail(Options)
     // console.log(`email: ${email}`)
-    console.log(`headOfProcurementEmail: ${headOfProcurementEmail}`)
+    console.log(`Email: ${Email}`)
     return true
   } catch (err) {
     console.log(err)
@@ -798,57 +760,27 @@ exports.projectBidOpeningExerciseEmail = asyncHandler(async (projectInitiationIn
    * TODO: 
    * • PPC portal sends email notification notifying the HOP to take action on the ‘Evaluation ‘stage
    */
-  // const contractEvaluation = await ProjectOnboarding.findById(contractEvaluationInstance._id).populate(
-  //   // "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
-  //   // assignedTo assignedBy createdBy updatedBy"
-  // )
-  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(
-    "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-  )
-  const projectOnboarding = await ProjectOnboarding.find({project: projectOnboardingInstance._id}).populate(
-    "project contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer \
-    assignedTo assignedBy createdBy updatedBy"
-  )
 
-  const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
-  // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-  // const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
-  // const responsibleOfficer = await Staff.findById(projectInitiation.responsibleOfficer)
-  // const assignedBy = await Staff.findById(projectInitiation.assignedBy)
-  // // const assignedTo = await Staff.findById(projectInitiation.assignedTo)
+  const projectInitiation = await ProjectInitiation.findById(projectInitiationInstance.id).populate(populateProjectInitiationDetails)
+  const projectOnboarding = await ProjectOnboarding.find({project: projectOnboardingInstance._id}).populate(populateProjectOnboardingDetails)
+  const contractEvaluation = await ContractEvaluation.find({project: projectOnboardingInstance._id}).populate(populateContractEvaluationDetails)
 
-  // // For Assigned To Staff
-  // const Subject = `Project Task Assigned `
-  // const Salutation = `Hello,`
-  // const Message = `
-  //   Proposition testing
-  // `
-  // const Options = {
-  //   // to: [assignedTo.email], // email
-  //   // cc: [projectDeskOfficer.email, headOfProcurement.email], // cc
-  //   subject: Subject, // subject
-  //   text: Salutation, // message (salutation)
-  //   html: Message, // html
-  // }
-
-  // For Front Desk Officer
-  const headOfProcurementSubject = `Evaluation of Bids Stage`
-  const headOfProcurementSalutation = `Hello,`
-  const headOfProcurementMessage = `
+  // For Head of Procurement
+  const Subject = `Evaluation of Bids Stage`
+  const Salutation = `Hello,`
+  const Message = `
     Kindly take action on the ‘Evaluation of Bids‘ stage.
   `
-  const headOfProcurementOptions = {
-    to: [headOfProcurement.email], // email
-    // cc: [frontDeskOfficer.email], // cc
-    subject: headOfProcurementSubject, // subject
-    text: headOfProcurementSalutation, // message (salutation)
-    html: headOfProcurementMessage, // html
+  const Options = {
+    to: [projectInitiation.headOfProcurement.email], // email
+    cc: [contractEvaluation.evaluatingOfficer.email], // cc
+    subject: Subject, // subject
+    text: Salutation, // message (salutation)
+    html: Message, // html
   }
   try {
-    // const email = await sendEmail(Options)
-    const headOfProcurementEmail = await sendEmail(headOfProcurementOptions)
-    // console.log(`email: ${email}`)
-    console.log(`headOfProcurementEmail: ${headOfProcurementEmail}`)
+    const Email = await sendEmail(Options)
+    console.log(`Email: ${Email}`)
     return true
   } catch (err) {
     console.log(err)
@@ -856,3 +788,48 @@ exports.projectBidOpeningExerciseEmail = asyncHandler(async (projectInitiationIn
   }
 })
 
+
+exports.projectBidEvaluationEmail = asyncHandler(async (contractEvaluationInstance, req, res, next) => {
+  /**
+   * TODO: 
+   * • PPC portal sends email notification notifying the evaluation team member to take action on the ‘Prepare contract award ‘stage
+   */
+
+  const evaluatingOfficer = await Staff.findById(contractEvaluationInstance.evaluatingOfficer)    
+
+  // For Evaluating Officer
+  let subject, message;
+  let salutation = `Hello,`
+  if (contractEvaluationInstance.score > 70) {
+    subject = `Prepare Contract Award Stage`
+    message = `Kindly take action on the ‘Prepare Contract Award‘ stage.`
+  } else {
+    subject = `Prepare Contract Termination Stage`
+    message = `Kindly take action on the ‘Prepare Contract Termination‘ stage.`
+  }
+  
+  const options = {
+    to: [evaluatingOfficer.email], // email
+    // cc: [frontDeskOfficer.email], // cc
+    subject: subject, // subject
+    text: salutation, // message (salutation)
+    html: message, // html
+  }
+  try {
+    const email = await sendEmail(options)
+    console.log(`email: ${email}`)
+    return true
+  } catch (err) {
+    console.log(err)
+    return false
+  }
+})
+
+// Technical Specification
+// Cost Estimation
+// Selection Method
+// No Objection
+// Issuance Of SPN
+// Submission Of Proposals
+// Bid Opening Exercise
+// Bid Evaluation

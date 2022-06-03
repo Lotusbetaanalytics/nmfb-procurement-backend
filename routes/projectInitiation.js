@@ -20,6 +20,15 @@ const {
   getAllApprovedProjectInitiations,
   getAllDeclinedProjectInitiations,
   getAllOnHoldProjectInitiations,
+  // File upload controllers
+  uploadProjectInitiationTechnicalSpecificationDocuments,
+  uploadProjectInitiationCostEstimationDocuments,
+  uploadProjectInitiationSelectionMethodDocuments,
+  uploadProjectInitiationNoObjectionDocuments,
+  uploadProjectInitiationIssuanceOfSPNDocuments,
+  uploadProjectInitiationSubmissionOfProposalsDocuments,
+  uploadProjectInitiationBidOpeningExerciseDocuments,
+  uploadProjectInitiationBidEvaluationDocuments,
 } = require("../controllers/projectInitiation");
 const {verifyToken, authorize, hasPermission} = require("../middleware/auth");
 const {multerUploadConfig} = require("../utils/fileUtils")
@@ -49,5 +58,14 @@ router.patch("/:id/status", verifyToken, hasPermission("CreateAndModifyProjectIn
 router.patch("/:id/upload", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationDocuments); // upload projectInitiation documents by id
 router.get("/:id/tasks", verifyToken, getProjectInitiationTasks); // get projectInitiation details by id
 router.patch("/:id/assign", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), assignProject); // assign project to responsible officer
+
+router.patch("/:id/technicalSpecification", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationTechnicalSpecificationDocuments); // upload projectInitiation documents by id
+router.patch("/:id/costEstimation", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationCostEstimationDocuments); // upload projectInitiation documents by id
+router.patch("/:id/selectionMethod", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationSelectionMethodDocuments); // upload projectInitiation documents by id
+router.patch("/:id/noObjection", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationNoObjectionDocuments); // upload projectInitiation documents by id
+router.patch("/:id/issuanceOfSPN", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationIssuanceOfSPNDocuments); // upload projectInitiation documents by id
+router.patch("/:id/submissionOfProposals", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationSubmissionOfProposalsDocuments); // upload projectInitiation documents by id
+router.patch("/:id/bidOpeningExercise", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationBidOpeningExerciseDocuments); // upload projectInitiation documents by id
+router.patch("/:id/bidEvaluation", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), multerUploadConfig, uploadProjectInitiationBidEvaluationDocuments); // upload projectInitiation documents by id
 
 module.exports = router;

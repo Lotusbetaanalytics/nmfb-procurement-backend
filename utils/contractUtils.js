@@ -2,6 +2,11 @@ const asyncHandler = require("../middleware/async");
 const EvaluationResponse = require("../models/EvaluationResponse");
 
 
+exports.populateContractDetails = "createdBy updatedBy deactivatedBy"
+
+exports.populateContractEvaluationDetails = "contract project projectType evaluatingOfficer businessUsersUnitName createdBy updatedBy"
+
+
 exports.contractEvaluationScore = asyncHandler( async(contract, req, res, next) => {
   const evaluationResponses = await EvaluationResponse.find({contract: contract._id})
   const evaluationResponsesLength = evaluationResponses.length

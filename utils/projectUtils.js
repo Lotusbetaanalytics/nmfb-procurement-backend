@@ -7,6 +7,13 @@ const {token} = require("./scripts");
 const {permissionTitles} = require("../utils/utilStore")
 
 
+exports.populateProjectInitiationDetails = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
+
+exports.populateProjectOnboardingDetails = "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+
+exports.populateProjectTaskDetails = "project assignedBy assignedTo reassignedTo responsibleOfficer responsibleUnit createdBy"
+
+
 exports.generateProjectId = asyncHandler(async project => {
   try {
     const projectType = await ProjectType.findById(project.projectType);

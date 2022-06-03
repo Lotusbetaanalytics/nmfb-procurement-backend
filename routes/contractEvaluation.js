@@ -8,13 +8,13 @@ const {
   updateContractEvaluation,
   deleteContractEvaluation,
 } = require("../controllers/contractEvaluation");
-const {verifyToken} = require("../middleware/auth");
+const {verifyToken, hasPermission} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
-router.post("/", verifyToken, createContractEvaluation); // create a contractEvaluation
+router.post("/", verifyToken, hasPermission("CreateAndModifyContractEvaluation"), createContractEvaluation); // create a contractEvaluation
 router.get("/", advancedResults(ContractEvaluation, populateContractEvaluationDetails), getAllContractEvaluations); // get all contractEvaluation
 router.get("/:id", verifyToken, getContractEvaluation); // get contractEvaluation details by id
-router.patch("/:id", verifyToken, updateContractEvaluation); // update contractEvaluation details by id
-router.delete("/:id", verifyToken, deleteContractEvaluation); // delete contractEvaluation by id
+router.patch("/:id", verifyToken, hasPermission("CreateAndModifyContractEvaluation"), updateContractEvaluation); // update contractEvaluation details by id
+router.delete("/:id", verifyToken, hasPermission("DeleteContractEvaluation"), deleteContractEvaluation); // delete contractEvaluation by id
 
 module.exports = router;
