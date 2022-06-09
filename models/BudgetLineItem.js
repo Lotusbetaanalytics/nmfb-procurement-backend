@@ -9,6 +9,10 @@ const BudgetLineItemSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  number: {
+    type: Number,
+    default: 1,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),

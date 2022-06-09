@@ -23,6 +23,10 @@ const PermissionSchema = new mongoose.Schema({
 });
 
 PermissionSchema.pre("save", async function (next) {
+  // Format permission title from pascal case to title case
+  const text = this.title.replace(/([A-Z])/g, " $1");
+  this.title = text
+
   if (!this.slug)
     this.slug = slugify(this.title, "")
 });
