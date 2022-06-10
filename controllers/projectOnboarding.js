@@ -8,7 +8,8 @@ const {
   projectOnboardingUpdateEmail,
   projectAssignmentEmail,
 } = require("../utils/projectEmail");
-const { createProjectStages, deleteAllProjectStages, deleteAllModelInstances, createModelInstanceWithList, addPermissionsToRole } = require("../utils/projectUtils");
+// const { createProjectStages, deleteAllProjectStages, deleteAllModelInstances, createModelInstanceWithList, addPermissionsToRole } = require("../utils/projectUtils");
+const {generateProjectId} = require("../utils/projectUtils");
 
 
 exports.populateProjectOnboardingDetails = "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
@@ -59,6 +60,10 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
       await projectInitiation.save();
     }
 
+    const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project);
+    if (!projectInitiation.projectId) {
+      projectInitiation.projectId = await generateProjectId(projectInitiation._id)
+    }
     /**
      * TODO:
      * Post-conditions:

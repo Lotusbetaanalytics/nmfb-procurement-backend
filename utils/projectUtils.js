@@ -39,7 +39,7 @@ exports.generateProjectId = asyncHandler(async projectId => {
     return generatedId;
   } catch (err) {
     console.log(err.message);
-    return null;
+    return undefined;
   }
 });
 
