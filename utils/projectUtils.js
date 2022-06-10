@@ -4,7 +4,9 @@ const ProjectStage = require("../models/ProjectStage");
 const ProjectType = require("../models/ProjectType");
 const Role = require("../models/Role");
 const {token} = require("./scripts");
-const {permissionTitles} = require("../utils/utilStore")
+const {permissionTitles} = require("../utils/utilStore");
+const ProjectInitiation = require("../models/ProjectInitiation");
+const ProjectOnboarding = require("../models/ProjectOnboarding");
 
 
 exports.populateProjectInitiationDetails = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
@@ -14,11 +16,27 @@ exports.populateProjectOnboardingDetails = "project projectType contractType bud
 exports.populateProjectTaskDetails = "project assignedBy assignedTo reassignedTo responsibleOfficer responsibleUnit createdBy"
 
 
-exports.generateProjectId = asyncHandler(async project => {
+exports.generateProjectId = asyncHandler(async projectId => {
   try {
-    const projectType = await ProjectType.findById(project.projectType);
-    const projectId = `${projectType.title}-${project.title}-${token(10)}`;
-    return projectId;
+    const projectInitiation = await ProjectInitiation.findById(projectId).populate(this.populateProjectInitiationDetails);
+    const projectOnboarding = await ProjectOnboarding.findOne({project: projectId}).populate(this.populateProjectOnboardingDetails);
+    // const projectType = await ProjectType.findById(project.projectType);
+
+    let projectTypeFirstLetter = projectOnboarding.projectType.title.slice(0, 1);
+
+    let projectPathFirstLetter = "" 
+    if (!projectOnboarding.projectType.requiredDocumentSetOne) {
+      projectPathFirstLetter = "A"
+    } else if (!projectOnboarding.projectType.requiredDocumentSetTwo) {
+      projectPathFirstLetter = "B"
+    }
+    let projectCategoryFirstTwoLetters = projectOnboarding.projectCategory.title.slice(0, 2); 
+    let budgetLineItemNumber = projectOnboarding.budgetLineItem.title 
+    let serialNumber = token(5) //5-digit
+    const generatedId = `${projectTypeFirstLetter}${projectPathFirstLetter}${projectCategoryFirstTwoLetters}${budgetLineItemNumber}${serialNumber}`;
+    console.log(generatedId)
+    // Todo: check if a project already has this generated id, if yes, generated new id
+    return generatedId;
   } catch (err) {
     console.log(err.message);
     return null;

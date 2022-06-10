@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=node
 
 modelFileNames.js
+test.js
 store.ts
 store.js
 todo.md
