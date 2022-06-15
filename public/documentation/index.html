@@ -93,8 +93,29 @@ https://procurement-api-052022.herokuapp.com/api/v1/role</h4></a></div><div id=c
 <strong class="request-method border-success">POST</strong>
 &nbsp;
 https://procurement-api-052022.herokuapp.com/api/v1/role</h4></a></div><div id=collapse-RolesandTeams-CreateaRole class="panel-collapse collapse"><div class=panel-body><h5 class="label label-default">Description</h5><br><small><p>Create a Role</small><br><br><h5 class="label label-primary">Body</h5><span class=resp-prettyprint>{
-&#34;title&#34;: &#34;Project Development Officer&#34;,
-&#34;description&#34;: &#34;Project Development Officer Role Description&#34;,
+&#34;title&#34;: &#34;Test Development Officer&#34;,
+&#34;description&#34;: &#34;Test Development Officer Role Description&#34;,
+&#34;permissions&#34;: [
+&#34;6290ba52c0ab37daf3a511ff&#34;,
+&#34;6290ba52c0ab37daf3a51201&#34;,
+&#34;6290ba52c0ab37daf3a51203&#34;,
+&#34;6290ba52c0ab37daf3a51205&#34;,
+&#34;6290ba53c0ab37daf3a51207&#34;,
+&#34;6290ba53c0ab37daf3a51209&#34;,
+&#34;6290ba53c0ab37daf3a5120b&#34;,
+&#34;6290ba53c0ab37daf3a5120d&#34;,
+&#34;6290ba53c0ab37daf3a5120f&#34;,
+&#34;6290ba53c0ab37daf3a51211&#34;,
+&#34;6290ba53c0ab37daf3a51213&#34;,
+&#34;6290ba54c0ab37daf3a51215&#34;,
+&#34;6290ba54c0ab37daf3a51217&#34;,
+&#34;6290ba54c0ab37daf3a51219&#34;,
+&#34;6290ba54c0ab37daf3a5121b&#34;,
+&#34;6290ba54c0ab37daf3a5121d&#34;,
+&#34;6290ba54c0ab37daf3a5121f&#34;,
+&#34;6290ba55c0ab37daf3a51221&#34;,
+&#34;6290ba55c0ab37daf3a51223&#34;
+],
 &#34;is_unique&#34;: false
 }</span><div class=clearfix></div></div></div></div><div class="panel panel-info" id=jump-RolesandTeams-GetRole><div class=panel-heading><small class="pull-right text-muted"></small><a class=text-info data-toggle=collapse data-parent=#accordion-RolesandTeams href=#collapse-RolesandTeams-GetRole><h4 class=panel-title><span class="glyphicon glyphicon-plus"></span><strong>Get Role</strong> &nbsp;|&nbsp;
 <strong class="request-method border-info">GET</strong>
@@ -103,8 +124,29 @@ https://procurement-api-052022.herokuapp.com/api/v1/role/:id</h4></a></div><div 
 <a class=text-warning data-toggle=collapse data-parent=#accordion-RolesandTeams href=#collapse-RolesandTeams-UpdateRole><h4 class=panel-title><span class="glyphicon glyphicon-plus"></span><strong>Update Role</strong> &nbsp;|&nbsp;
 <strong class="request-method border-warning">PATCH</strong>
 &nbsp;
-https://procurement-api-052022.herokuapp.com/api/v1/role/:id</h4></a></div><div id=collapse-RolesandTeams-UpdateRole class="panel-collapse collapse"><div class=panel-body><h5 class="label label-default">Description</h5><br><small><p>Update Role</small><br><br><h5 class="label label-info">URL Variables</h5><table class="table table-hover"><thead><tr><th>Key<th>Value<th>Description<tbody><tr><td>id<td>627d024e6ec91b73d8b41a69<td></table><h5 class="label label-primary">Body</h5><span class=resp-prettyprint>{
-&#34;isUnique&#34;: true
+https://procurement-api-052022.herokuapp.com/api/v1/role/:id</h4></a></div><div id=collapse-RolesandTeams-UpdateRole class="panel-collapse collapse"><div class=panel-body><h5 class="label label-default">Description</h5><br><small><p>Update Role</small><br><br><h5 class="label label-info">URL Variables</h5><table class="table table-hover"><thead><tr><th>Key<th>Value<th>Description<tbody><tr><td>id<td>62a998178057deb5755834b0<td></table><h5 class="label label-primary">Body</h5><span class=resp-prettyprint>{
+&#34;permissions&#34;: [
+&#34;6290ba52c0ab37daf3a511ff&#34;,
+&#34;6290ba52c0ab37daf3a51201&#34;,
+&#34;6290ba52c0ab37daf3a51203&#34;,
+&#34;6290ba52c0ab37daf3a51205&#34;,
+&#34;6290ba53c0ab37daf3a51207&#34;,
+&#34;6290ba53c0ab37daf3a51209&#34;,
+&#34;6290ba53c0ab37daf3a5120b&#34;,
+&#34;6290ba53c0ab37daf3a5120d&#34;,
+&#34;6290ba53c0ab37daf3a5120f&#34;,
+&#34;6290ba53c0ab37daf3a51211&#34;,
+&#34;6290ba53c0ab37daf3a51213&#34;,
+&#34;6290ba54c0ab37daf3a51215&#34;,
+&#34;6290ba54c0ab37daf3a51217&#34;,
+&#34;6290ba54c0ab37daf3a51219&#34;,
+&#34;6290ba54c0ab37daf3a5121b&#34;,
+&#34;6290ba54c0ab37daf3a5121d&#34;,
+&#34;6290ba54c0ab37daf3a5121f&#34;,
+&#34;6290ba55c0ab37daf3a51221&#34;,
+&#34;6290ba55c0ab37daf3a51223&#34;
+],
+&#34;isUnique&#34;: false
 }</span><div class=clearfix></div></div></div></div><div class="panel panel-danger" id=jump-RolesandTeams-DeleteRole><div class=panel-heading><small class="pull-right text-muted"></small><a class=text-danger data-toggle=collapse data-parent=#accordion-RolesandTeams href=#collapse-RolesandTeams-DeleteRole><h4 class=panel-title><span class="glyphicon glyphicon-plus"></span><strong>Delete Role</strong> &nbsp;|&nbsp;
 <strong class="request-method border-danger">DELETE</strong>
 &nbsp;
@@ -683,4 +725,4 @@ if(IsJsonString(html)){var obj=JSON.parse(html);var formattedJson=JSON.stringify
 function IsJsonString(str){try{JSON.parse(str);}catch(e){return false;}
 return true;}
 String.prototype.replaceAll=function(replaceThis,withThis){var re=new RegExp(RegExp.quote(replaceThis),"g");return this.replace(re,withThis);};RegExp.quote=function(str){return str.replace(/([.?*+^$[\]\\(){}-])/g,"\\$1");};function syntaxHighlight(json){json=json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,function(match){var cls='number';if(/^"/.test(match)){if(/:$/.test(match)){cls='key';}else{cls='string';}}else if(/true|false/.test(match)){cls='boolean';}else if(/null/.test(match)){cls='null';}
-return '<span class="'+cls+'">'+match+'</span>';});}</script><br><br><footer class="navbar-default navbar-fixed-bottom"><div class=container-fluid><div class="span12 text-center"><span data-toggle=tooltip title="If the application help you, please feel free to give a star to the project in github. Your star inspire me to work more on open-source projects like this!">Generated at 2022-06-03 08:19:52 by <a href=https://github.com/thedevsaddam/docgen target=_blank class=text-muted>docgen</a></span></div></div></footer>
+return '<span class="'+cls+'">'+match+'</span>';});}</script><br><br><footer class="navbar-default navbar-fixed-bottom"><div class=container-fluid><div class="span12 text-center"><span data-toggle=tooltip title="If the application help you, please feel free to give a star to the project in github. Your star inspire me to work more on open-source projects like this!">Generated at 2022-06-15 09:33:05 by <a href=https://github.com/thedevsaddam/docgen target=_blank class=text-muted>docgen</a></span></div></div></footer>
