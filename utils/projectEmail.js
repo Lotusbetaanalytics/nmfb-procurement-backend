@@ -35,28 +35,32 @@ exports.projectInitiationEmail = asyncHandler(async (projectInitiation, req, res
     
     // For PDO and Front Desk Officer / Admin
     const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+    const projectDeskOfficerEmail = projectDeskOfficer ? projectDeskOfficer.email : undefined
     const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+    const frontDeskOfficerEmail = frontDeskOfficer ? frontDeskOfficer.email : undefined
     const frontDeskOfficerSubject = `Project Initiation`
     const frontDeskOfficerSalutation = `Hello,`
     const frontDeskOfficerMessage = `
       Proposition testing
     `
-    const frontDeskOfficerOptions = {
-      to: [frontDeskOfficer.email, projectDeskOfficer.email], // email
-      // cc: [headOfProcurement.email], // cc
-      subject: frontDeskOfficerSubject, // subject
-      text: frontDeskOfficerSalutation, // message (salutation)
-      html: frontDeskOfficerMessage, // html
-    }
-    try {
-      const emailHOP = await sendEmail(headOfProcurementOptions)
-      const emailFDO = await sendEmail(frontDeskOfficerOptions)
-      console.log(`emailHOP: ${emailHOP}`)
-      console.log(`emailFDO: ${emailFDO}`)
-      return true
-    } catch (err) {
-      console.log(err)
-      return false
+    if (projectDeskOfficerEmail || frontDeskOfficerEmail) {
+      const frontDeskOfficerOptions = {
+        to: [frontDeskOfficer.email, projectDeskOfficer.email], // email
+        // cc: [headOfProcurement.email], // cc
+        subject: frontDeskOfficerSubject, // subject
+        text: frontDeskOfficerSalutation, // message (salutation)
+        html: frontDeskOfficerMessage, // html
+      }
+      try {
+        const emailHOP = await sendEmail(headOfProcurementOptions)
+        const emailFDO = await sendEmail(frontDeskOfficerOptions)
+        console.log(`emailHOP: ${emailHOP}`)
+        console.log(`emailFDO: ${emailFDO}`)
+        return true
+      } catch (err) {
+        console.log(err)
+        return false
+      }
     }
 
   } else if (projectInitiation.createdBy == projectInitiation.frontDeskOfficer) {
@@ -78,30 +82,33 @@ exports.projectInitiationEmail = asyncHandler(async (projectInitiation, req, res
     
     // For PDO and Front Desk Officer / Admin
     const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+    const projectDeskOfficerEmail = projectDeskOfficer ? projectDeskOfficer.email : undefined
     const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+    const frontDeskOfficerEmail = frontDeskOfficer ? frontDeskOfficer.email : undefined
     const frontDeskOfficerSubject = `Project Initiation`
     const frontDeskOfficerSalutation = `Hello,`
     const frontDeskOfficerMessage = `
       Proposition testing
     `
-    const frontDeskOfficerOptions = {
-      to: [frontDeskOfficer.email, projectDeskOfficer.email], // email
-      // cc: [headOfProcurement.email], // cc
-      subject: frontDeskOfficerSubject, // subject
-      text: frontDeskOfficerSalutation, // message (salutation)
-      html: frontDeskOfficerMessage, // html
+    if (projectDeskOfficerEmail || frontDeskOfficerEmail) {
+      const frontDeskOfficerOptions = {
+        to: [frontDeskOfficer.email, projectDeskOfficer.email], // email
+        // cc: [headOfProcurement.email], // cc
+        subject: frontDeskOfficerSubject, // subject
+        text: frontDeskOfficerSalutation, // message (salutation)
+        html: frontDeskOfficerMessage, // html
+      }
+      try {
+        const emailHOP = await sendEmail(headOfProcurementOptions)
+        const emailFDO = await sendEmail(frontDeskOfficerOptions)
+        console.log(`emailHOP: ${emailHOP}`)
+        console.log(`emailFDO: ${emailFDO}`)
+        return true
+      } catch (err) {
+        console.log(err)
+        return false
+      }
     }
-    try {
-      const emailHOP = await sendEmail(headOfProcurementOptions)
-      const emailFDO = await sendEmail(frontDeskOfficerOptions)
-      console.log(`emailHOP: ${emailHOP}`)
-      console.log(`emailFDO: ${emailFDO}`)
-      return true
-    } catch (err) {
-      console.log(err)
-      return false
-    }
-
 
   } else {
     console.log(`Project Initiated Improperly`)
