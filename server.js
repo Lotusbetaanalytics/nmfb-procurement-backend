@@ -10,6 +10,7 @@ const cors = require("cors");
 const errorHandler = require("./middleware/error");
 const rateLimit = require("express-rate-limit");
 const express = require("express");
+const fileUpload = require("express-fileupload")
 const connectDB = require("./config/db");
 
 // // //load env vars
@@ -47,6 +48,7 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("tiny"))
+app.use(fileUpload())
 
 //Sanitize data
 app.use(mongoSanitize());
