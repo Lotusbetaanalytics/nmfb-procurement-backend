@@ -53,7 +53,7 @@ exports.authorize = (...roles) => {
 // Grant access to specific roles using permissions
 exports.hasPermission = (requiredPermission, userPermissions) => {
   return async (req, res, next) => {
-    const permission = await Permission.findOne({title: requiredPermission})
+    const permission = await Permission.findOne({slug: requiredPermission})
     if (!permission) return new ErrorResponseJSON(res, `Invalid Permissions`, 401)
     if (!req.user) return new ErrorResponseJSON(res, `You are not authorized to access this route`, 401)
     if (!userPermissions) userPermissions = req.user.role.permissions
