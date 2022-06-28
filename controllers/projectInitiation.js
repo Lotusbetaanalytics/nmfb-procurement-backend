@@ -23,6 +23,7 @@ exports.populateProjectInitiationDetails = "contractType contract projectDeskOff
 // @access   Private
 exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
   try {
+    console.log(req.body)
     const existingProjectInitiation = await ProjectInitiation.find({projectTitle: req.body.projectTitle})
       .populate(this.populateProjectInitiationDetails);
 
@@ -33,7 +34,7 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
     req.body.name = req.user.fullname;
     req.body.email = req.user.email;
     req.body.createdBy = req.user._id;
-
+    console.log(request.body)
     if (req.user.role.title == "Head of Procurement") {
       req.body.headOfProcurement = req.user._id;
     } else if (req.user.role.title == "Admin" || req.user.role.title == "Frontdesk") {
@@ -41,9 +42,9 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
     } else if (req.user.role.title == "Super Admin") {
       // do nothing
     } else {
-      return new ErrorResponseJSON(res, `You are not authorized to create projects!. Role is ${req.user.role.title}`, 404);
+      return new ErrorResponseJSON(res, `You are not authorized to initiate projects!. Role is ${req.user.role.title}`, 404);
     }
-
+    console.log(request.body)
     const projectInitiation = await ProjectInitiation.create(req.body);
 
     if (!projectInitiation) {
