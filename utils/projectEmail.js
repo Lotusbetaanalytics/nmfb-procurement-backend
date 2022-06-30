@@ -15,129 +15,50 @@ const {
 const sendEmail = require("./sendEmail")
 
 
-exports.projectInitiationEmail = asyncHandler(async (projectInitiation, req, res, next) => {
-  if (projectInitiation.createdBy == projectInitiation.headOfProcurement) {
-    // TODO: Send mail to the HOP, PDO and Front desk officer
-    // For HOP
-    const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
-    const headOfProcurementSubject = `Project Initiation`
-    const headOfProcurementSalutation = `Hello,`
-    const headOfProcurementMessage = `
-      Proposition testing
-    `
-    const headOfProcurementOptions = {
-      to: [headOfProcurement.email], // email
-      // cc: [frontDeskOfficer.email, projectDeskOfficer.email], // cc
-      subject: headOfProcurementSubject, // subject
-      text: headOfProcurementSalutation, // message (salutation)
-      html: headOfProcurementMessage, // html
-    }
-    
-    // For PDO and Front Desk Officer / Admin
-    const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
-    const projectDeskOfficerEmail = projectDeskOfficer ? projectDeskOfficer.email : undefined
-    const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-    const frontDeskOfficerEmail = frontDeskOfficer ? frontDeskOfficer.email : undefined
-    const frontDeskOfficerSubject = `Project Initiation`
-    const frontDeskOfficerSalutation = `Hello,`
-    const frontDeskOfficerMessage = `
-      Proposition testing
-    `
-    if (projectDeskOfficerEmail || frontDeskOfficerEmail) {
-      const frontDeskOfficerOptions = {
-        to: [frontDeskOfficer.email, projectDeskOfficer.email], // email
-        // cc: [headOfProcurement.email], // cc
-        subject: frontDeskOfficerSubject, // subject
-        text: frontDeskOfficerSalutation, // message (salutation)
-        html: frontDeskOfficerMessage, // html
-      }
-      try {
-        const emailHOP = await sendEmail(headOfProcurementOptions)
-        const emailFDO = await sendEmail(frontDeskOfficerOptions)
-        console.log(`emailHOP: ${emailHOP}`)
-        console.log(`emailFDO: ${emailFDO}`)
-        return true
-      } catch (err) {
-        console.log(err)
-        return false
-      }
-    }
-
-  } else if (projectInitiation.createdBy == projectInitiation.frontDeskOfficer) {
-    // TODO: Send different mail to the HOP, PDO and Front desk officer
-    // For HOP
-    const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
-    const headOfProcurementSubject = `Project Initiation`
-    const headOfProcurementSalutation = `Hello,`
-    const headOfProcurementMessage = `
-      Proposition testing
-    `
-    const headOfProcurementOptions = {
-      to: [headOfProcurement.email], // email
-      // cc: [frontDeskOfficer.email, projectDeskOfficer.email], // cc
-      subject: headOfProcurementSubject, // subject
-      text: headOfProcurementSalutation, // message (salutation)
-      html: headOfProcurementMessage, // html
-    }
-    
-    // For PDO and Front Desk Officer / Admin
-    const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
-    const projectDeskOfficerEmail = projectDeskOfficer ? projectDeskOfficer.email : undefined
-    const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-    const frontDeskOfficerEmail = frontDeskOfficer ? frontDeskOfficer.email : undefined
-    const frontDeskOfficerSubject = `Project Initiation`
-    const frontDeskOfficerSalutation = `Hello,`
-    const frontDeskOfficerMessage = `
-      Proposition testing
-    `
-    if (projectDeskOfficerEmail || frontDeskOfficerEmail) {
-      const frontDeskOfficerOptions = {
-        to: [frontDeskOfficer.email, projectDeskOfficer.email], // email
-        // cc: [headOfProcurement.email], // cc
-        subject: frontDeskOfficerSubject, // subject
-        text: frontDeskOfficerSalutation, // message (salutation)
-        html: frontDeskOfficerMessage, // html
-      }
-      try {
-        const emailHOP = await sendEmail(headOfProcurementOptions)
-        const emailFDO = await sendEmail(frontDeskOfficerOptions)
-        console.log(`emailHOP: ${emailHOP}`)
-        console.log(`emailFDO: ${emailFDO}`)
-        return true
-      } catch (err) {
-        console.log(err)
-        return false
-      }
-    }
-
-  } else {
-    console.log(`Project Initiated Improperly`)
-    // Do stuff to the project initiation
-    return false
-  }
-})
+exports.getStaffEmail = (staff = undefined) => {
+  return staff ? staff.email : undefined
+}
 
 
-exports.projectInitiationUpdateEmail = asyncHandler(async (projectInitiation, req, res, next) => {
+exports.projectInitiationEmail = asyncHandler(async (projectInitiation, updated = false, req, res, next) => {
+  // Send mail to the HOP, PDO and Front desk officer when project is initiated and when initiation is updated
   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+  const projectDeskOfficerEmail = this.getStaffEmail(projectDeskOfficer)
+  // const projectDeskOfficerEmail = projectDeskOfficer ? projectDeskOfficer.email : undefined
   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-  const updatedBy = await Staff.findById(projectInitiation.updatedBy)
+  const frontDeskOfficerEmail = this.getStaffEmail(frontDeskOfficer)
+  // const frontDeskOfficerEmail = frontDeskOfficer ? frontDeskOfficer.email : undefined
 
-  const subject = `Project Initiation Update`
-  const salutation = `Hello,`
-  const message = `
-    Proposition testing
+  const EmailSubject = `Project Initiation`
+  const EmailSalutation = `Hello,`
+  let EmailMessage = `
+  Project Initiation Started by Head of Procurement
   `
-  const options = {
-    to: [headOfProcurement.email, frontDeskOfficer.email, projectDeskOfficer.email], // email
-    cc: [updatedBy.email], // cc
-    subject: subject, // subject
-    text: salutation, // message (salutation)
-    html: message, // html
+  if (projectInitiation.createdBy == projectInitiation.frontDeskOfficer) {
+    EmailMessage = `
+    Project Initiation Started by Front Desk
+    `
+  }
+  const EmailOptions = {
+    to: [headOfProcurement.email], // email
+    cc: [projectDeskOfficerEmail, frontDeskOfficerEmail], // cc
+    subject: EmailSubject, // subject
+    text: EmailSalutation, // message (salutation)
+    html: EmailMessage, // html
+  }
+
+  if (updated) {
+    const updatedBy = await Staff.findById(projectInitiation.updatedBy)
+    EmailOptions.cc.push(this.getStaffEmail(updatedBy))
+
+    EmailOptions.html = `Project Initiation Update Email`
+  } else {
+    const createdBy = await Staff.findById(projectInitiation.createdBy)
+    EmailOptions.cc.push(this.getStaffEmail(createdBy))
   }
   try {
-    const email = await sendEmail(options)
+    const email = await sendEmail(EmailOptions)
     console.log(`email: ${email}`)
     return true
   } catch (err) {
@@ -145,6 +66,138 @@ exports.projectInitiationUpdateEmail = asyncHandler(async (projectInitiation, re
     return false
   }
 })
+
+
+// exports.projectInitiationEmailDepreciated = asyncHandler(async (projectInitiation, req, res, next) => {
+//   if (projectInitiation.createdBy == projectInitiation.headOfProcurement) {
+//     // TODO: Send mail to the HOP, PDO and Front desk officer
+//     // For HOP
+//     const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
+//     const headOfProcurementSubject = `Project Initiation`
+//     const headOfProcurementSalutation = `Hello,`
+//     const headOfProcurementMessage = `
+//       Proposition testing
+//     `
+//     const headOfProcurementOptions = {
+//       to: [headOfProcurement.email], // email
+//       // cc: [frontDeskOfficer.email, projectDeskOfficer.email], // cc
+//       subject: headOfProcurementSubject, // subject
+//       text: headOfProcurementSalutation, // message (salutation)
+//       html: headOfProcurementMessage, // html
+//     }
+    
+//     // For PDO and Front Desk Officer / Admin
+//     const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+//     const projectDeskOfficerEmail = projectDeskOfficer ? projectDeskOfficer.email : undefined
+//     const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+//     const frontDeskOfficerEmail = frontDeskOfficer ? frontDeskOfficer.email : undefined
+//     const frontDeskOfficerSubject = `Project Initiation`
+//     const frontDeskOfficerSalutation = `Hello,`
+//     const frontDeskOfficerMessage = `
+//       Proposition testing
+//     `
+//     if (projectDeskOfficerEmail || frontDeskOfficerEmail) {
+//       const frontDeskOfficerOptions = {
+//         to: [frontDeskOfficer.email, projectDeskOfficer.email], // email
+//         // cc: [headOfProcurement.email], // cc
+//         subject: frontDeskOfficerSubject, // subject
+//         text: frontDeskOfficerSalutation, // message (salutation)
+//         html: frontDeskOfficerMessage, // html
+//       }
+//       try {
+//         const emailHOP = await sendEmail(headOfProcurementOptions)
+//         const emailFDO = await sendEmail(frontDeskOfficerOptions)
+//         console.log(`emailHOP: ${emailHOP}`)
+//         console.log(`emailFDO: ${emailFDO}`)
+//         return true
+//       } catch (err) {
+//         console.log(err)
+//         return false
+//       }
+//     }
+
+//   } else if (projectInitiation.createdBy == projectInitiation.frontDeskOfficer) {
+//     // TODO: Send different mail to the HOP, PDO and Front desk officer
+//     // For HOP
+//     const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
+//     const headOfProcurementSubject = `Project Initiation`
+//     const headOfProcurementSalutation = `Hello,`
+//     const headOfProcurementMessage = `
+//       Proposition testing
+//     `
+//     const headOfProcurementOptions = {
+//       to: [headOfProcurement.email], // email
+//       // cc: [frontDeskOfficer.email, projectDeskOfficer.email], // cc
+//       subject: headOfProcurementSubject, // subject
+//       text: headOfProcurementSalutation, // message (salutation)
+//       html: headOfProcurementMessage, // html
+//     }
+    
+//     // For PDO and Front Desk Officer / Admin
+//     const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+//     const projectDeskOfficerEmail = projectDeskOfficer ? projectDeskOfficer.email : undefined
+//     const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+//     const frontDeskOfficerEmail = frontDeskOfficer ? frontDeskOfficer.email : undefined
+//     const frontDeskOfficerSubject = `Project Initiation`
+//     const frontDeskOfficerSalutation = `Hello,`
+//     const frontDeskOfficerMessage = `
+//       Proposition testing
+//     `
+//     if (projectDeskOfficerEmail || frontDeskOfficerEmail) {
+//       const frontDeskOfficerOptions = {
+//         to: [frontDeskOfficer.email, projectDeskOfficer.email], // email
+//         // cc: [headOfProcurement.email], // cc
+//         subject: frontDeskOfficerSubject, // subject
+//         text: frontDeskOfficerSalutation, // message (salutation)
+//         html: frontDeskOfficerMessage, // html
+//       }
+//       try {
+//         const emailHOP = await sendEmail(headOfProcurementOptions)
+//         const emailFDO = await sendEmail(frontDeskOfficerOptions)
+//         console.log(`emailHOP: ${emailHOP}`)
+//         console.log(`emailFDO: ${emailFDO}`)
+//         return true
+//       } catch (err) {
+//         console.log(err)
+//         return false
+//       }
+//     }
+
+//   } else {
+//     console.log(`Project Initiated Improperly`)
+//     // Do stuff to the project initiation
+//     return false
+//   }
+// })
+
+
+// exports.projectInitiationUpdateEmailDepreciated = asyncHandler(async (projectInitiation, req, res, next) => {
+//   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
+//   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+//   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+//   const updatedBy = await Staff.findById(projectInitiation.updatedBy)
+
+//   const subject = `Project Initiation Update`
+//   const salutation = `Hello,`
+//   const message = `
+//     Proposition testing
+//   `
+//   const options = {
+//     to: [headOfProcurement.email, frontDeskOfficer.email, projectDeskOfficer.email], // email
+//     cc: [updatedBy.email], // cc
+//     subject: subject, // subject
+//     text: salutation, // message (salutation)
+//     html: message, // html
+//   }
+//   try {
+//     const email = await sendEmail(options)
+//     console.log(`email: ${email}`)
+//     return true
+//   } catch (err) {
+//     console.log(err)
+//     return false
+//   }
+// })
 
 
 exports.projectOnboardingEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {

@@ -134,7 +134,7 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
      * • The PPC portal shall send a update project email notification to the project desk officer
      * • The system shall send email notification to the front office /admin to upload or review documents.
      * */
-    await projectInitiationUpdateEmail(projectInitiation, req, res, next);
+    await projectInitiationEmail(projectInitiation, true, req, res, next);
 
     res.status(200).json({
       success: true,
@@ -284,7 +284,7 @@ exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
      * • The PPC portal shall send a update project email notification to the project desk officer
      * • The system shall send email notification to the front office /admin to upload or review documents.
      * */
-    await projectInitiationUpdateEmail(projectInitiation, req, res, next);
+    await projectInitiationEmail(projectInitiation, true, req, res, next);
 
     res.status(200).json({
       success: true,
