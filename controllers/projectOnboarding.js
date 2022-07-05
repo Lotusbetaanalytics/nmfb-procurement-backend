@@ -5,7 +5,7 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 const { uploadProjectDocuments } = require("../utils/fileUtils");
 const {
   projectOnboardingEmail,
-  projectOnboardingUpdateEmail,
+  // projectOnboardingUpdateEmail,
   projectAssignmentEmail,
 } = require("../utils/projectEmail");
 // const { createProjectStages, deleteAllProjectStages, deleteAllModelInstances, createModelInstanceWithList, addPermissionsToRole } = require("../utils/projectUtils");
@@ -70,7 +70,8 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
      * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
      * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
      */
-    await projectOnboardingEmail(projectOnboarding, req, res, next);
+    // await projectOnboardingEmail(projectOnboarding, req, res, next);
+    await projectOnboardingEmail(projectOnboarding);
 
     // /**
     //  * TODO:
@@ -168,7 +169,8 @@ exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
      * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
      * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
      */
-    await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
+    // await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
+    await projectOnboardingEmail(projectOnboarding, true);
 
     // /**
     //  * TODO:
@@ -388,7 +390,8 @@ exports.updateProjectOnboardingStatus = asyncHandler(async (req, res, next) => {
      * • The PPC portal shall send a update project email notification to the project desk officer
      * • The system shall send email notification to the front office /admin to upload or review documents.
      * */
-    await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
+    // await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
+    await projectOnboardingEmail(projectOnboarding, true);
 
     res.status(200).json({
       success: true,

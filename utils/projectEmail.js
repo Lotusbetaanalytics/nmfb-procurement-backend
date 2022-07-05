@@ -20,42 +20,47 @@ exports.getStaffEmail = (staff = undefined) => {
 }
 
 
-exports.projectInitiationEmail = asyncHandler(async (projectInitiation, updated = false, req, res, next) => {
+exports.projectInitiationEmail = async (projectInitiation, updated = false) => {
   // Send mail to the HOP, PDO and Front desk officer when project is initiated and when initiation is updated
   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
   const projectDeskOfficerEmail = this.getStaffEmail(projectDeskOfficer)
-  // const projectDeskOfficerEmail = projectDeskOfficer ? projectDeskOfficer.email : undefined
   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
   const frontDeskOfficerEmail = this.getStaffEmail(frontDeskOfficer)
-  // const frontDeskOfficerEmail = frontDeskOfficer ? frontDeskOfficer.email : undefined
 
-  const EmailSubject = `Project Initiation`
-  const EmailSalutation = `Hello,`
-  let EmailMessage = `
+  const reciepients = []
+  if (headOfProcurement) {reciepients.push(headOfProcurement.email)}
+  const cc = []
+  if (projectDeskOfficerEmail) {cc.push(projectDeskOfficerEmail)}
+  if (frontDeskOfficerEmail) {cc.push(frontDeskOfficerEmail)}
+  const emailSubject = `Project Initiation`
+  const emailSalutation = `Hello,`
+  let emailMessage = `
   Project Initiation Started by Head of Procurement
   `
   if (projectInitiation.createdBy == projectInitiation.frontDeskOfficer) {
-    EmailMessage = `
+    emailMessage = `
     Project Initiation Started by Front Desk
     `
   }
-  const EmailOptions = {
-    to: [headOfProcurement.email], // email
-    cc: [projectDeskOfficerEmail, frontDeskOfficerEmail], // cc
-    subject: EmailSubject, // subject
-    text: EmailSalutation, // message (salutation)
-    html: EmailMessage, // html
+  const emailOptions = {
+    to: reciepients, // email
+    cc: cc, // cc
+    subject: emailSubject, // subject
+    text: emailSalutation, // message (salutation)
+    html: emailMessage, // html
   }
 
   if (updated) {
-    const updatedBy = await Staff.findById(projectInitiation.updatedBy)
-    EmailOptions.cc.push(this.getStaffEmail(updatedBy))
+    emailOptions.subject = `Project Initiation Update`
 
-    EmailOptions.html = `Project Initiation Update Email`
+    const updatedBy = await Staff.findById(projectInitiation.updatedBy)
+    emailOptions.cc.push(this.getStaffEmail(updatedBy))
+
+    emailOptions.html = `Project Initiation Update Email`
   } else {
     const createdBy = await Staff.findById(projectInitiation.createdBy)
-    EmailOptions.cc.push(this.getStaffEmail(createdBy))
+    emailOptions.cc.push(this.getStaffEmail(createdBy))
   }
   try {
     const email = await sendEmail(EmailOptions)
@@ -65,7 +70,72 @@ exports.projectInitiationEmail = asyncHandler(async (projectInitiation, updated 
     console.log(err)
     return false
   }
-})
+}
+
+
+exports.projectOnboardingEmail = async (projectOnboarding, updated = false) => {
+  /** 
+   * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’ 
+   * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
+   */
+  projectOnboarding = await projectOnboarding.populate(populateProjectOnboardingDetails)
+
+  const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project).populate(populateProjectInitiationDetails)
+
+  const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
+  const headOfProcurementEmail = this.getStaffEmail(headOfProcurement)
+  const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+  const frontDeskOfficerEmail = this.getStaffEmail(frontDeskOfficer)
+  const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+  const projectDeskOfficerEmail = this.getStaffEmail(projectDeskOfficer)
+
+  const contractTypeTitle = projectOnboarding.contractType.title
+
+  const reciepients = []
+  if (projectDeskOfficerEmail) {reciepients.push(projectDeskOfficerEmail)}
+  const cc = []
+  if (headOfProcurementEmail) {cc.push(headOfProcurementEmail)}
+  if (frontDeskOfficerEmail) {cc.push(frontDeskOfficerEmail)}
+  const emailSubject = `Project Onboarding with ${contractTypeTitle} and Scope`
+  const emailSalutation = `Hello,`
+  // Default message is for New Contract
+  const emailMessage = `
+    Project Onboarding Email for New Contract
+  `
+  const emailOptions = {
+    to: [projectDeskOfficerEmail], // email
+    cc: [frontDeskOfficerEmail, headOfProcurementEmail], // cc
+    subject: emailSubject, // subject
+    text: emailSalutation, // message (salutation)
+    html: emailMessage, // html
+  }
+
+  if (contractTypeTitle == "Existing Contract") {
+    emailOptions.html = `
+    Project Onboarding Email for Existing Contract`
+  }
+
+  if (updated) {
+    emailOptions.subject = `Project Onboarding Update`
+
+    const updatedBy = await Staff.findById(projectOnboarding.updatedBy)
+    emailOptions.cc.push(this.getStaffEmail(updatedBy))
+
+    emailOptions.html = `Project Onboarding Update Email`
+  } else {
+    const createdBy = await Staff.findById(projectOnboarding.createdBy)
+    emailOptions.cc.push(this.getStaffEmail(createdBy))
+  }
+
+  try {
+    const email = await sendEmail(emailOptions)
+    console.log(`email: ${email}`)
+    // return true
+  } catch (err) {
+    console.log(err)
+    // return false
+  }
+}
 
 
 // exports.projectInitiationEmailDepreciated = asyncHandler(async (projectInitiation, req, res, next) => {
@@ -200,105 +270,107 @@ exports.projectInitiationEmail = asyncHandler(async (projectInitiation, updated 
 // })
 
 
-exports.projectOnboardingEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
-  /**
-   * TODO: 
-   * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’ 
-   * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
-   */
-  const projectOnboarding = await ProjectOnboarding.findById(projectOnboardingInstance._id).populate(populateProjectOnboardingDetails)
-  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(populateProjectInitiationDetails)
 
-  // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
-  // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-  const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+
+// exports.projectOnboardingEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
+//   /**
+//    * TODO: 
+//    * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’ 
+//    * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
+//    */
+//   const projectOnboarding = await ProjectOnboarding.findById(projectOnboardingInstance._id).populate(populateProjectOnboardingDetails)
+//   const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(populateProjectInitiationDetails)
+
+//   // const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)    
+//   // const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+//   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
   
-  if (projectOnboarding.contractType.title == "Existing Contract") {
-    // TODO: Send mail to the HOP, PDO and Front desk officer
-    // For HOP, PDO and Front Desk Officer / Admin
+//   if (projectOnboarding.contractType.title == "Existing Contract") {
+//     // TODO: Send mail to the HOP, PDO and Front desk officer
+//     // For HOP, PDO and Front Desk Officer / Admin
     
-    const Subject = `Project Onboarding and Contract Evaluation `
-    const Salutation = `Hello,`
-    const Message = `
-      Proposition testing
-    `
-    const Options = {
-      to: [projectDeskOfficer.email], // email
-      // cc: [frontDeskOfficer.email, headOfProcurement.email], // cc
-      subject: Subject, // subject
-      text: Salutation, // message (salutation)
-      html: Message, // html
-    }
-    try {
-      const email = await sendEmail(Options)
-      console.log(`email: ${email}`)
-      return true
-    } catch (err) {
-      console.log(err)
-      return false
-    }
+//     const Subject = `Project Onboarding and Contract Evaluation `
+//     const Salutation = `Hello,`
+//     const Message = `
+//       Proposition testing
+//     `
+//     const Options = {
+//       to: [projectDeskOfficer.email], // email
+//       // cc: [frontDeskOfficer.email, headOfProcurement.email], // cc
+//       subject: Subject, // subject
+//       text: Salutation, // message (salutation)
+//       html: Message, // html
+//     }
+//     try {
+//       const email = await sendEmail(Options)
+//       console.log(`email: ${email}`)
+//       return true
+//     } catch (err) {
+//       console.log(err)
+//       return false
+//     }
 
-  } else if (projectOnboarding.contractType.title == "New Contract") {
-    // TODO: Send mail to the HOP, PDO and Front desk officer
-    // For HOP, PDO and Front Desk Officer / Admin
+//   } else if (projectOnboarding.contractType.title == "New Contract") {
+//     // TODO: Send mail to the HOP, PDO and Front desk officer
+//     // For HOP, PDO and Front Desk Officer / Admin
     
-    const Subject = `Project Onboarding with New Contract and Scope`
-    const Salutation = `Hello,`
-    const Message = `
-      Proposition testing
-    `
-    const Options = {
-      to: [projectDeskOfficer.email], // email
-      // cc: [frontDeskOfficer.email, headOfProcurement.email], // cc
-      subject: Subject, // subject
-      text: Salutation, // message (salutation)
-      html: Message, // html
-    }
-    try {
-      const email = await sendEmail(Options)
-      console.log(`email: ${email}`)
-      return true
-    } catch (err) {
-      console.log(err)
-      return false
-    }
+//     const Subject = `Project Onboarding with New Contract and Scope`
+//     const Salutation = `Hello,`
+//     const Message = `
+//       Proposition testing
+//     `
+//     const Options = {
+//       to: [projectDeskOfficer.email], // email
+//       // cc: [frontDeskOfficer.email, headOfProcurement.email], // cc
+//       subject: Subject, // subject
+//       text: Salutation, // message (salutation)
+//       html: Message, // html
+//     }
+//     try {
+//       const email = await sendEmail(Options)
+//       console.log(`email: ${email}`)
+//       return true
+//     } catch (err) {
+//       console.log(err)
+//       return false
+//     }
 
-  } else {
-    console.log(`Project Onboarded Improperly`)
-    // Do stuff to the project initiation
-    return false
-  }
-})
+//   } else {
+//     console.log(`Project Onboarded Improperly`)
+//     // Do stuff to the project initiation
+//     return false
+//   }
+// })
 
 
-exports.projectOnboardingUpdateEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
-  const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(populateProjectInitiationDetails)
-  const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
-  const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
-  const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-  const updatedBy = await Staff.findById(projectOnboardingInstance.updatedBy)
+// exports.projectOnboardingUpdateEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
+//   const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(populateProjectInitiationDetails)
+//   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
+//   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
+//   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
+//   const updatedBy = await Staff.findById(projectOnboardingInstance.updatedBy)
 
-  const subject = `Project Onboarding Update`
-  const salutation = `Hello,`
-  const message = `
-    Proposition testing
-  `
-  const options = {
-    to: [headOfProcurement.email, frontDeskOfficer.email, projectDeskOfficer.email], // email
-    cc: [updatedBy.email], // cc
-    subject: subject, // subject
-    text: salutation, // message (salutation)
-    html: message, // html
-  }
-  try {
-    const email = await sendEmail(options)
-    console.log(`email: ${email}`)
-    return true
-  } catch (err) {
-    console.log(err)
-    return false
-  }
-})
+//   const subject = `Project Onboarding Update`
+//   const salutation = `Hello,`
+//   const message = `
+//     Proposition testing
+//   `
+//   const options = {
+//     to: [headOfProcurement.email, frontDeskOfficer.email, projectDeskOfficer.email], // email
+//     cc: [updatedBy.email], // cc
+//     subject: subject, // subject
+//     text: salutation, // message (salutation)
+//     html: message, // html
+//   }
+//   try {
+//     const email = await sendEmail(options)
+//     console.log(`email: ${email}`)
+//     return true
+//   } catch (err) {
+//     console.log(err)
+//     return false
+//   }
+// })
 
 
 exports.projectAssignmentEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {

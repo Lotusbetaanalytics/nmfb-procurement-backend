@@ -33,9 +33,18 @@ exports.generateProjectId = asyncHandler(async projectId => {
     let projectCategoryFirstTwoLetters = projectOnboarding.projectCategory.title.slice(0, 2); 
     let budgetLineItemNumber = projectOnboarding.budgetLineItem.title 
     let serialNumber = token(5) //5-digit
+    let fullIdPrefix = `${projectTypeFirstLetter}${projectPathFirstLetter}${projectCategoryFirstTwoLetters}${budgetLineItemNumber}`;
     const generatedId = `${projectTypeFirstLetter}${projectPathFirstLetter}${projectCategoryFirstTwoLetters}${budgetLineItemNumber}${serialNumber}`;
     console.log(generatedId)
+    
     // Todo: check if a project already has this generated id, if yes, generated new id
+    let projectWithGeneratedId = await ProjectInitiation.findOne({projectId: generatedId})
+    while (projectWithGeneratedId) {
+      serialNumber = token(5)
+      generatedId = `${fullIdPrefix}${serialNumber}`
+      projectWithGeneratedId = await ProjectInitiation.findOne({projectId: generatedId})
+    }
+
     return generatedId;
   } catch (err) {
     console.log(err.message);

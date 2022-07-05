@@ -5,7 +5,7 @@ const ProjectStage = require("../models/ProjectStage");
 const ProjectTask = require("../models/ProjectTask");
 const SupportingDocuments = require("../models/SupportingDocuments");
 const {ErrorResponseJSON} = require("../utils/errorResponse");
-const { uploadProjectDocuments } = require("../utils/fileUtils");
+const { uploadProjectDocuments, uploadDocument } = require("../utils/fileUtils");
 const {
   projectAssignmentEmail,
   projectInitiationEmail, 
@@ -64,6 +64,14 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
      * • The system shall send email notification to the front office /admin to upload or review documents.
      * */
     await projectInitiationEmail(projectInitiation, req, res, next);
+
+    const documentLinks = await uploadDocument(req, res, projectInitiation)
+    if (!projectInitiation.files) {
+      projectInitiation.files = []
+    } 
+
+    projectInitiation.files = projectInitiation.files.concat(documentLinks)
+    await projectInitiation.save()
 
     res.status(200).json({
       success: true,
@@ -135,6 +143,15 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
      * • The system shall send email notification to the front office /admin to upload or review documents.
      * */
     await projectInitiationEmail(projectInitiation, true, req, res, next);
+
+    const documentLinks = await uploadDocument(req, res, projectInitiation)
+    if (!projectInitiation.files) {
+      projectInitiation.files = []
+    } 
+    console.log("Project Initiation Files", projectInitiation.files)
+    projectInitiation.files = projectInitiation.files.concat(documentLinks)
+    console.log("Project Initiation Files, documentLinks", projectInitiation.files, documentLinks)
+    await projectInitiation.save()
 
     res.status(200).json({
       success: true,
@@ -366,10 +383,14 @@ exports.uploadProjectInitiationTechnicalSpecificationDocuments = asyncHandler(as
       return new ErrorResponseJSON(res, "Technical Specification Documents not uploaded!", 400 );
     }
 
-    const folder = "Technical Specification"
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    const folderPath = `${projectInitiation.title}/Technical Specification`
+    // const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
     // projectInitiation.files = documentLinks
-    projectInitiation.files.append(documentLinks)
+    // projectInitiation.files.append(documentLinks)
+
+    const documentLinks = await uploadDocument(req, res, projectInitiation, req.files, folderPath)
+    projectInitiation.files = projectInitiation.files.concat(documentLinks)
+
     await projectInitiation.save()
 
     /**
