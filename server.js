@@ -37,6 +37,7 @@ const projectTask  = require("./routes/projectTask")
 const projectType  = require("./routes/projectType")
 const supportingDocuments  = require("./routes/supportingDocuments")
 const log  = require("./routes/log")
+const blob  = require("./routes/blob")
 
 // configure express
 const app = express();
@@ -92,6 +93,7 @@ app.use("/api/v1/projectTask", projectTask)
 app.use("/api/v1/projectType", projectType)
 app.use("/api/v1/supportingDocuments", supportingDocuments)
 app.use("/api/v1/log", log)
+app.use("/api/v1/blob", blob)
 
 app.use(errorHandler);
 
