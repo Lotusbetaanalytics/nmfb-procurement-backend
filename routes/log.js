@@ -6,5 +6,6 @@ const {
 
 
 router.get("/all", getAllLogs); // get all logs
+router.get("", getAllLogs); // get all logs
 
 module.exports = router;
