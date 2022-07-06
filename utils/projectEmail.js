@@ -63,7 +63,7 @@ exports.projectInitiationEmail = async (projectInitiation, updated = false) => {
     emailOptions.cc.push(this.getStaffEmail(createdBy))
   }
   try {
-    const email = await sendEmail(EmailOptions)
+    const email = await sendEmail(emailOptions)
     console.log(`email: ${email}`)
     return true
   } catch (err) {

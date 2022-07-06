@@ -68,6 +68,12 @@ exports.postUserDetails = async (req, res, next) => {
         return new ErrorResponseJSON(res, "Improperly configured account, could not get mail and displayName", 400)
       }
 
+      const checkEmail = mail.split("@");
+      // if (checkEmail[1] !== "lotusbetaanalytics.com" || !checkEmail.includes("lotusbetaanalytics.com")) {
+      if (!checkEmail.includes("lotusbetaanalytics.com")) {
+        return new ErrorResponseJSON(res, "Improper Email Address", 400)
+      }
+
       // console.log(`AD Data: ${data.keys()}`) // Will break the code if uncommented
       let email = mail.toLowerCase()
       console.log(email)

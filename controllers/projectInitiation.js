@@ -65,11 +65,11 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
      * */
     await projectInitiationEmail(projectInitiation, req, res, next);
 
-    const documentLinks = await uploadDocument(req, res, projectInitiation)
-    if (!projectInitiation.files) {
-      projectInitiation.files = []
-    } 
-
+    const documentLinks = await uploadDocument(req, projectInitiation)
+    // if (!projectInitiation.files) {
+    //   projectInitiation.files = []
+    // } 
+    projectInitiation.files = projectInitiation.files || []
     projectInitiation.files = projectInitiation.files.concat(documentLinks)
     await projectInitiation.save()
 
