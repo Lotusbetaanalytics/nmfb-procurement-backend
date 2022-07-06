@@ -4,6 +4,7 @@ const {
   populateBlobDetails,
   createBlob,
   getAllBlobs,
+  getContainerBlobs,
   getBlob,
   updateBlob,
   deleteBlob,
@@ -14,9 +15,10 @@ const advancedResults = require("../middleware/advancedResults");
 
 router.post("/", createBlob); // create a blob
 router.get("/", advancedResults(Blob, populateBlobDetails), getAllBlobs); // get all blobs
+router.get("/container", getContainerBlobs); // get all container blobs
 router.get("/:id", getBlob); // get blob details by id
 router.patch("/:id", updateBlob); // update blob details by id
 router.delete("/:id", deleteBlob); // delete blob by id
-router.delete("", deleteAllBlobs); // delete all blobs
+router.delete("/", deleteAllBlobs); // delete all blobs
 
 module.exports = router;

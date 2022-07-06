@@ -6,8 +6,6 @@ const {uploadBlob, getBlobs} = require("../utils/fileUtils")
 
 exports.populateBlob = undefined
 
-const folder = "Technical Specification"
-
 
 // @desc    Create Blob
 // @route  POST /api/v1/blob
@@ -36,9 +34,18 @@ exports.createBlob = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/blob
 // @access   Public
 exports.getAllBlobs = asyncHandler(async (req, res, next) => {
-  const blobs = await getBlobs(req, res, next)
-  console.log("blobs", blobs)
-  return new SuccessResponseJSON(res, "blobs")
+  // const blobs = await getBlobs()
+  // return new SuccessResponseJSON(res, blobs)
+  return res.status(200).json(res.advancedResults)
+})
+
+
+// @desc    Get all Container Blobs
+// @route  GET /api/v1/blob/container
+// @access   Public
+exports.getContainerBlobs = asyncHandler(async (req, res, next) => {
+  const blobs = await getBlobs()
+  return new SuccessResponseJSON(res, blobs)
   // return res.status(200).json(res.advancedResults)
 })
 
