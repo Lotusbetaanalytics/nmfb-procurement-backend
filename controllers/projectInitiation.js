@@ -4,8 +4,9 @@ const ProjectInitiation = require("../models/ProjectInitiation");
 const ProjectStage = require("../models/ProjectStage");
 const ProjectTask = require("../models/ProjectTask");
 const SupportingDocuments = require("../models/SupportingDocuments");
-const {ErrorResponseJSON} = require("../utils/errorResponse");
-const { uploadProjectDocuments, uploadDocument } = require("../utils/fileUtils");
+const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse");
+const {uploadProjectDocuments, uploadDocument} = require("../utils/fileUtils");
+const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 const {
   projectAssignmentEmail,
   projectInitiationEmail, 
@@ -13,6 +14,7 @@ const {
   projectCostEstimationEmail,
 } = require("../utils/projectEmail");
 const {generateProjectId} = require("../utils/projectUtils")
+const titleCaps = require("../utils/titleCaps")
 
 
 exports.populateProjectInitiationDetails = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
@@ -22,19 +24,30 @@ exports.populateProjectInitiationDetails = "contractType contract projectDeskOff
 // @route  POST /api/v1/projectInitiation
 // @access   Private
 exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
-  try {
-    console.log(req.body)
-    const existingProjectInitiation = await ProjectInitiation.find({projectTitle: req.body.projectTitle})
-      .populate(this.populateProjectInitiationDetails);
+  // try {
+    // console.log(req.body)
+    // const existingProjectInitiation = await ProjectInitiation.find({projectTitle: req.body.projectTitle})
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (existingProjectInitiation.length > 0) {
-      return new ErrorResponseJSON(res, "This projectInitiation already exists, update it instead!", 400);
-    }
+    // if (existingProjectInitiation.length > 0) {
+    //   return new ErrorResponseJSON(res, "This projectInitiation already exists, update it instead!", 400);
+    // }
 
-    req.body.name = req.user.fullname;
-    req.body.email = req.user.email;
-    req.body.createdBy = req.user._id;
-    console.log(req.body)
+    // check for existing project initiation
+    await this.checkProjectInitiation(req, res, {projectTitle: req.body.projectTitle})
+
+    // req.body.name = req.user.fullname;
+    // req.body.email = req.user.email;
+    // req.body.createdBy = req.user._id;
+
+    // console.log("req.body before addUserDetails", req.body)
+    // add user details to req.body
+    addUserDetails(req)
+    // console.log("req.body after addUserDetails", req.body)
+
+    // console.log(req.body)
+
+    // check user role and fill relevant field
     if (req.user.role.title == "Head of Procurement") {
       req.body.headOfProcurement = req.user._id;
     } else if (req.user.role.title == "Admin" || req.user.role.title == "Frontdesk") {
@@ -44,9 +57,10 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
     } else {
       return new ErrorResponseJSON(res, `You are not authorized to initiate projects!. Role is ${req.user.role.title}`, 404);
     }
-    console.log(req.body)
-    const projectInitiation = await ProjectInitiation.create(req.body);
+    console.log("req.body after checking for role", req.body)
 
+    // create project initiation
+    const projectInitiation = await ProjectInitiation.create(req.body);
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not created!", 404);
     }
@@ -63,9 +77,12 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
      * • The PPC portal shall send a new project email notification to the project desk officer
      * • The system shall send email notification to the front office /admin to upload or review documents.
      * */
-    await projectInitiationEmail(projectInitiation, req, res, next);
+    // send project initiation mail
+    // await projectInitiationEmail(projectInitiation, req, res, next);
+    await projectInitiationEmail(projectInitiation);
 
-    const documentLinks = await uploadDocument(req, projectInitiation)
+    // upload files
+    const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.title)
     // if (!projectInitiation.files) {
     //   projectInitiation.files = []
     // } 
@@ -73,13 +90,14 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
     projectInitiation.files = projectInitiation.files.concat(documentLinks)
     await projectInitiation.save()
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -87,6 +105,7 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectInitiation
 // @access   Public
 exports.getAllProjectInitiations = asyncHandler(async (req, res, next) => {
+  // console.log(req.query)
   return res.status(200).json(res.advancedResults);
 });
 
@@ -95,20 +114,23 @@ exports.getAllProjectInitiations = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectInitiation/:id
 // @access   Private
 exports.getProjectInitiation = asyncHandler(async (req, res, next) => {
-  try {
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+  // try {
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -116,9 +138,14 @@ exports.getProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id
 // @access   Private
 exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
-  try {
-    req.body.updatedBy = req.user._id;
-    req.body.updatedAt = Date.now();
+  // try {
+    // req.body.updatedBy = req.user._id;
+    // req.body.updatedAt = Date.now();
+
+    // console.log("req.body before addUserDetails", req.body)
+    // add user details to req.body
+    addUserDetails(req, true)
+    // console.log("req.body after addUserDetails", req.body)
 
     const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -142,24 +169,28 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
      * • The PPC portal shall send a update project email notification to the project desk officer
      * • The system shall send email notification to the front office /admin to upload or review documents.
      * */
+    // send project initiation mail
     await projectInitiationEmail(projectInitiation, true, req, res, next);
 
-    const documentLinks = await uploadDocument(req, res, projectInitiation)
-    if (!projectInitiation.files) {
-      projectInitiation.files = []
-    } 
-    console.log("Project Initiation Files", projectInitiation.files)
+    // upload files
+    const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.title)
+    // if (!projectInitiation.files) {
+    //   projectInitiation.files = []
+    // } 
+    // console.log("Project Initiation Files", projectInitiation.files)
+    projectInitiation.files = projectInitiation.files || []
     projectInitiation.files = projectInitiation.files.concat(documentLinks)
-    console.log("Project Initiation Files, documentLinks", projectInitiation.files, documentLinks)
+    // console.log("Project Initiation Files, documentLinks", projectInitiation.files, documentLinks)
     await projectInitiation.save()
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -167,19 +198,20 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/projectInitiation
 // @access   Private
 exports.deleteProjectInitiation = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
     const projectInitiation = await ProjectInitiation.findByIdAndDelete(req.params.id);
 
     if (!projectInitiation) {
       return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
     }
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -187,25 +219,29 @@ exports.deleteProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectInitiation/:id/approve
 // @access   Private
 exports.approveProjectInitiation = asyncHandler(async (req, res, next) => {
-  try {
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+  // try {
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     projectInitiation.status = "Approved";
-    projectInitiation.isOnboarede = true;
+    projectInitiation.isOnboarded = true;
     projectInitiation.save();
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -213,24 +249,28 @@ exports.approveProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectInitiation/:id/decline
 // @access   Private
 exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
-  try {
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+  // try {
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     projectInitiation.status = "Declined";
     projectInitiation.save();
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -238,14 +278,17 @@ exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id/assign
 // @access   Private
 exports.assignProject = asyncHandler(async (req, res, next) => {
-  try {
-    const existingProjectInitiation = await ProjectInitiation.findById(req.params.id).populate(
-      this.populateProjectInitiation
-    );
+  // try {
+    // const existingProjectInitiation = await ProjectInitiation.findById(req.params.id).populate(
+    //   this.populateProjectInitiation
+    // );
 
-    if (!existingProjectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!existingProjectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    await this.checkProjectInitiation(req, res)
 
     // req.body.assignedBy = req.user._id;
     // req.body.assignedTo = req.body.responsibleOfficer;
@@ -261,13 +304,14 @@ exports.assignProject = asyncHandler(async (req, res, next) => {
 
     await projectAssignmentEmail(projectInitiation);
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -276,12 +320,15 @@ exports.assignProject = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id/status
 // @access   Private
 exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
-  try {
-    existingProjectInitiation = await ProjectInitiation.findById(req.params.id
-        .populate(this.populateProjectInitiationDetails))
+  // try {
+    // existingProjectInitiation = await ProjectInitiation.findById(req.params.id
+    //     .populate(this.populateProjectInitiationDetails))
     
-    req.body.updatedBy = req.user._id;
-    req.body.updatedAt = Date.now();
+    // req.body.updatedBy = req.user._id;
+    // req.body.updatedAt = Date.now();
+
+    // add user details to req.body
+    await addUserDetails(req, true)
 
     const {status} = req.body
 
@@ -303,13 +350,14 @@ exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
      * */
     await projectInitiationEmail(projectInitiation, true, req, res, next);
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -318,30 +366,34 @@ exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id/upload
 // @access   Private
 exports.uploadProjectInitiationDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
 
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file)
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
+
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files)
     // projectInitiation.files = documentLinks
     projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -350,17 +402,20 @@ exports.uploadProjectInitiationDocuments = asyncHandler(async (req, res, next) =
 // @route  POST /api/v1/projectInitiation/:id/technicalSpecification
 // @access   Private
 exports.uploadProjectInitiationTechnicalSpecificationDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     const projectStage = await ProjectStage.findOne({title: "SCOPE/TOR/TECHNICAL SPECIFICATION"})
 
@@ -384,11 +439,11 @@ exports.uploadProjectInitiationTechnicalSpecificationDocuments = asyncHandler(as
     }
 
     const folderPath = `${projectInitiation.title}/Technical Specification`
-    // const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    // const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, folder)
     // projectInitiation.files = documentLinks
     // projectInitiation.files.append(documentLinks)
 
-    const documentLinks = await uploadDocument(req, res, projectInitiation, req.files, folderPath)
+    const documentLinks = await uploadDocument(req, projectInitiation, req.files, folderPath)
     projectInitiation.files = projectInitiation.files.concat(documentLinks)
 
     await projectInitiation.save()
@@ -400,13 +455,14 @@ exports.uploadProjectInitiationTechnicalSpecificationDocuments = asyncHandler(as
 
     await projectTechnicalSpecificationEmail(projectInitiation, req, res, next)
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -414,17 +470,20 @@ exports.uploadProjectInitiationTechnicalSpecificationDocuments = asyncHandler(as
 // @route  POST /api/v1/projectInitiation/:id/costEstimation
 // @access   Private
 exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     const projectStage = await ProjectStage.findOne({title: "COST ESTIMATION"})
 
@@ -448,7 +507,7 @@ exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req
     }
 
     const folder = "Cost Estimation"
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, folder)
     // projectInitiation.files = documentLinks
     projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
@@ -460,13 +519,14 @@ exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req
 
     await projectCostEstimationEmail(projectInitiation, req, res, next)
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -474,17 +534,20 @@ exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req
 // @route  POST /api/v1/projectInitiation/:id/selectionMethod
 // @access   Private
 exports.uploadProjectInitiationSelectionMethodDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     const projectStage = await ProjectStage.findOne({title: "SELECTION METHOD"})
 
@@ -508,7 +571,7 @@ exports.uploadProjectInitiationSelectionMethodDocuments = asyncHandler(async (re
     }
 
     const folder = "Selection Method"
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, folder)
     // projectInitiation.files = documentLinks
     projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
@@ -520,13 +583,14 @@ exports.uploadProjectInitiationSelectionMethodDocuments = asyncHandler(async (re
 
     await projectSelectionMethodEmail(projectInitiation, req, res, next)
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -534,17 +598,20 @@ exports.uploadProjectInitiationSelectionMethodDocuments = asyncHandler(async (re
 // @route  POST /api/v1/projectInitiation/:id/noObjection
 // @access   Private
 exports.uploadProjectInitiationNoObjectionDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     const projectStage = await ProjectStage.findOne({title: "NO OBJECTION"})
 
@@ -568,7 +635,7 @@ exports.uploadProjectInitiationNoObjectionDocuments = asyncHandler(async (req, r
     }
 
     const folder = "No Objection"
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, folder)
     // projectInitiation.files = documentLinks
     projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
@@ -580,13 +647,14 @@ exports.uploadProjectInitiationNoObjectionDocuments = asyncHandler(async (req, r
 
     await projectNoObjectionEmail(projectInitiation, req, res, next)
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -594,17 +662,20 @@ exports.uploadProjectInitiationNoObjectionDocuments = asyncHandler(async (req, r
 // @route  POST /api/v1/projectInitiation/:id/issuanceOfSPN
 // @access   Private
 exports.uploadProjectInitiationIssuanceOfSPNDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     const projectStage = await ProjectStage.findOne({title: "ISSUANCE OF SPN"})
 
@@ -628,7 +699,7 @@ exports.uploadProjectInitiationIssuanceOfSPNDocuments = asyncHandler(async (req,
     }
 
     const folder = "Issuance Of SPN"
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, folder)
     // projectInitiation.files = documentLinks
     projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
@@ -640,13 +711,14 @@ exports.uploadProjectInitiationIssuanceOfSPNDocuments = asyncHandler(async (req,
 
     await projectIssuanceOfSPNEmail(projectInitiation, req, res, next)
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -654,17 +726,20 @@ exports.uploadProjectInitiationIssuanceOfSPNDocuments = asyncHandler(async (req,
 // @route  POST /api/v1/projectInitiation/:id/submissionOfProposals
 // @access   Private
 exports.uploadProjectInitiationSubmissionOfProposalsDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     const projectStage = await ProjectStage.findOne({title: "SUBMISSION OF PROPOSALS"})
 
@@ -688,7 +763,7 @@ exports.uploadProjectInitiationSubmissionOfProposalsDocuments = asyncHandler(asy
     }
 
     const folder = "Submission Of Proposals"
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, folder)
     // projectInitiation.files = documentLinks
     projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
@@ -700,13 +775,14 @@ exports.uploadProjectInitiationSubmissionOfProposalsDocuments = asyncHandler(asy
 
     await projectSubmissionOfProposalsEmail(projectInitiation, req, res, next)
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -714,44 +790,46 @@ exports.uploadProjectInitiationSubmissionOfProposalsDocuments = asyncHandler(asy
 // @route  POST /api/v1/projectInitiation/:id/bidOpeningExercise
 // @access   Private
 exports.uploadProjectInitiationBidOpeningExerciseDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    // const {file} = req
+    // if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
 
-    const projectStage = await ProjectStage.findOne({title: "BID OPENING EXERCISE"})
+    // const projectStage = await ProjectStage.findOne({title: "BID OPENING EXERCISE"})
 
-    const payload = {
-      employeeName: req.user.fullname,
-      employeeEmail: req.user.email,
-      project: projectInitiation._id,
-      projectTitle: projectInitiation.title,
-      projectStage: projectStage,
-      documentType: req.body.documentType,
-      documentName: req.body.documentName,
-      files: req.body.files,
-      memo: req.body.memo,
-      description: req.body.description,
+    // const payload = {
+    //   employeeName: req.user.fullname,
+    //   employeeEmail: req.user.email,
+    //   project: projectInitiation._id,
+    //   projectTitle: projectInitiation.title,
+    //   projectStage: projectStage,
+    //   documentType: req.body.documentType,
+    //   documentName: req.body.documentName,
+    //   files: req.body.files,
+    //   memo: req.body.memo,
+    //   description: req.body.description,
 
-    }
-    const bidOpeningExercise = await SupportingDocuments.create(payload)
+    // }
+    // const bidOpeningExercise = await SupportingDocuments.create(payload)
 
-    if (!bidOpeningExercise) {
-      return new ErrorResponseJSON(res, "Bid Opening Exercise Documents not uploaded!", 400 );
-    }
+    // if (!bidOpeningExercise) {
+    //   return new ErrorResponseJSON(res, "Bid Opening Exercise Documents not uploaded!", 400 );
+    // }
 
-    const folder = "Bid Opening Exercise"
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
-    // projectInitiation.files = documentLinks
-    projectInitiation.files.append(documentLinks)
-    await projectInitiation.save()
+    // const folder = "Bid Opening Exercise"
+    // const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, folder)
+    // // projectInitiation.files = documentLinks
+    // projectInitiation.files.append(documentLinks)
+    // await projectInitiation.save()
+
+    const {projectInitiation, documents} = await this.uploadProjectSupportingDocuments(req, res, next, "BID OPENING EXERCISE")
 
     /**
      * TODO:
@@ -760,13 +838,14 @@ exports.uploadProjectInitiationBidOpeningExerciseDocuments = asyncHandler(async 
 
     await projectBidOpeningExerciseEmail(projectInitiation, req, res, next)
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -774,17 +853,20 @@ exports.uploadProjectInitiationBidOpeningExerciseDocuments = asyncHandler(async 
 // @route  POST /api/v1/projectInitiation/:id/bidEvaluation
 // @access   Private
 exports.uploadProjectInitiationBidEvaluationDocuments = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
 
-    const {file} = req
-    if (!file) return new ErrorResponseJSON(res, "No files provided!", 400);
+    const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
+
+    // check for existing project initiation
+    const projectInitiation = await this.checkProjectInitiation(req, res)
 
     const projectStage = await ProjectStage.findOne({title: "EVALUATION OF BID OPENING EXERCISE"})
 
@@ -808,7 +890,7 @@ exports.uploadProjectInitiationBidEvaluationDocuments = asyncHandler(async (req,
     }
 
     const folder = "Bid Evaluation"
-    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, file, folder)
+    const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, folder)
     // projectInitiation.files = documentLinks
     projectInitiation.files.append(documentLinks)
     await projectInitiation.save()
@@ -820,13 +902,14 @@ exports.uploadProjectInitiationBidEvaluationDocuments = asyncHandler(async (req,
 
     await projectBidEvaluationEmail(projectInitiation, req, res, next)
 
-    res.status(200).json({
-      success: true,
-      data: projectInitiation,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // res.status(200).json({
+    //   success: true,
+    //   data: projectInitiation,
+    // });
+    return new SuccessResponseJSON(res, projectInitiation)
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -834,32 +917,118 @@ exports.uploadProjectInitiationBidEvaluationDocuments = asyncHandler(async (req,
 // @route  GET /api/v1/projectInitiation/:id/tasks
 // @access   Private
 exports.getProjectInitiationTasks = asyncHandler(async (req, res, next) => {
-  try {
-    const projectInitiation = await ProjectInitiation.findById(req.params.id)
-      .populate(this.populateProjectInitiationDetails);
+  // try {
+    // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    //   .populate(this.populateProjectInitiationDetails);
 
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
+    // if (!projectInitiation) {
+    //   return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+    // }
 
     const projectTasks = await ProjectTask.find({project: req.params.id});
 
     res.status(200).json({
       success: true,
-      project: projectInitiation,
+      // project: projectInitiation,
       data: projectTasks,
     });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
+
+exports.uploadProjectSupportingDocuments = asyncHandler(async (req, res, next, title = "BID OPENING EXERCISE") => {
+  /**
+   * handle project initiation supporting document upload
+   */
+  const {files} = req
+  if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
+
+  const projectInitiation = await ProjectInitiation.findById(req.params.id)
+    .populate(this.populateProjectInitiationDetails);
+  if (!projectInitiation) return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+
+  const projectStage = await ProjectStage.findOne({title: title})
+
+  // const payload = {
+  //   employeeName: req.user.fullname,
+  //   employeeEmail: req.user.email,
+  //   project: projectInitiation._id,
+  //   projectTitle: projectInitiation.projectTitle,
+  //   projectStage: projectStage,
+  //   documentType: req.body.documentType,
+  //   documentName: req.body.documentName,
+  //   files: req.body.files,
+  //   memo: req.body.memo,
+  //   description: req.body.description,
+
+  // }
+
+  // add user details to req.body
+  addUserDetails(req)
+  
+  req.body.project = projectInitiation._id,
+  req.body.projectTitle = projectInitiation.projectTitle,
+  req.body.projectStage = projectStage._id,
+
+  console.log(req.body)
+
+
+  // const documents = await SupportingDocuments.create(payload)
+  const documents = await SupportingDocuments.create(req.body)
+  if (!documents) return new ErrorResponseJSON(res, `${title.toLowerCase()} Documents not uploaded!`, 400 );
+
+  const folderPath = titleCaps(title)
+  const documentLinks = await uploadDocument(req, projectInitiation, file, folderPath)
+  projectInitiation.files = projectInitiation.files || []
+  projectInitiation.files = projectInitiation.files.concat(documentLinks)
+  await projectInitiation.save()
+
+  return {projectInitiation, documents}
+});
+
+
+// exports.addUserDetails = async (req, updated = false) => {
+//   if (updated) {
+//     req.body.updatedBy = req.user._id
+//     req.body.updatedAt = Date.now()
+//   } else {
+//     req.body.name = req.user.fullname
+//     req.body.email = req.user.email
+//     req.body.createdBy = req.user._id
+//     req.body.createdAt = Date.now()
+//   }
+// }
+
+
+exports.checkProjectInitiation = async (req, res, query = {}) => {
+  // let projectInitiation;
+  // if (req.params.id) {
+  //   projectInitiation = await ProjectInitiation.findById(req.params.id)
+  // } else{
+  //   projectInitiation = await ProjectInitiation.find(query)
+  // }
+  
+  // if (projectInitiation.length > 0) {
+  //   return new ErrorResponseJSON(res, "This projectInitiation already exists, update it instead!", 400);
+  // }
+  // return projectInitiation.populate(this.populateProjectInitiationDetails);
+
+  let projectInitiation = await checkInstance(
+    req, res, ProjectInitiation, this.populateProjectInitiationDetails, query, "Project Initiation"
+  )
+  return projectInitiation
+}
+
+
+/**
 // @desc    Get all Started ProjectInitiations
 // @route  GET /api/v1/projectInitiation/started
 // @access   Public
 exports.getAllStartedProjectInitiations = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
     const startedProjectInitiation = await ProjectInitiation.find({status: "Started"})
       .populate(this.populateProjectInitiationDetails);
 
@@ -870,9 +1039,9 @@ exports.getAllStartedProjectInitiations = asyncHandler(async (req, res, next) =>
       success: true,
       data: startedProjectInitiation,
     });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -880,7 +1049,7 @@ exports.getAllStartedProjectInitiations = asyncHandler(async (req, res, next) =>
 // @route  GET /api/v1/projectInitiation/terminated
 // @access   Public
 exports.getAllTerminatedProjectInitiations = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
     const terminatedProjectInitiation = await ProjectInitiation.find({status: "Terminated"})
       .populate(this.populateProjectInitiationDetails);
 
@@ -891,9 +1060,9 @@ exports.getAllTerminatedProjectInitiations = asyncHandler(async (req, res, next)
       success: true,
       data: terminatedProjectInitiation,
     });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -901,7 +1070,7 @@ exports.getAllTerminatedProjectInitiations = asyncHandler(async (req, res, next)
 // @route  GET /api/v1/projectInitiation/pending
 // @access   Public
 exports.getAllPendingProjectInitiations = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
     const pendingProjectInitiation = await ProjectInitiation.find({status: "Pending"})
       .populate(this.populateProjectInitiationDetails);
 
@@ -912,9 +1081,9 @@ exports.getAllPendingProjectInitiations = asyncHandler(async (req, res, next) =>
       success: true,
       data: pendingProjectInitiation,
     });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -922,7 +1091,7 @@ exports.getAllPendingProjectInitiations = asyncHandler(async (req, res, next) =>
 // @route  GET /api/v1/projectInitiation/completed
 // @access   Public
 exports.getAllCompletedProjectInitiations = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
     const completedProjectInitiation = await ProjectInitiation.find({status: "Completed"})
       .populate(this.populateProjectInitiationDetails);
 
@@ -933,9 +1102,9 @@ exports.getAllCompletedProjectInitiations = asyncHandler(async (req, res, next) 
       success: true,
       data: completedProjectInitiation,
     });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -943,7 +1112,7 @@ exports.getAllCompletedProjectInitiations = asyncHandler(async (req, res, next) 
 // @route  GET /api/v1/projectInitiation/approved
 // @access   Public
 exports.getAllApprovedProjectInitiations = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
     const approvedProjectInitiation = await ProjectInitiation.find({status: "Approved"})
       .populate(this.populateProjectInitiationDetails);
 
@@ -954,9 +1123,9 @@ exports.getAllApprovedProjectInitiations = asyncHandler(async (req, res, next) =
       success: true,
       data: approvedProjectInitiation,
     });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -964,7 +1133,7 @@ exports.getAllApprovedProjectInitiations = asyncHandler(async (req, res, next) =
 // @route  GET /api/v1/projectInitiation/declined
 // @access   Public
 exports.getAllDeclinedProjectInitiations = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
     const declinedProjectInitiation = await ProjectInitiation.find({status: "Declined"})
       .populate(this.populateProjectInitiationDetails);
 
@@ -975,9 +1144,9 @@ exports.getAllDeclinedProjectInitiations = asyncHandler(async (req, res, next) =
       success: true,
       data: declinedProjectInitiation,
     });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
 
 
@@ -985,7 +1154,7 @@ exports.getAllDeclinedProjectInitiations = asyncHandler(async (req, res, next) =
 // @route  GET /api/v1/projectInitiation/onHold
 // @access   Public
 exports.getAllOnHoldProjectInitiations = asyncHandler(async (req, res, next) => {
-  try {
+  // try {
     const onHoldProjectInitiation = await ProjectInitiation.find({status: "On Hold"})
       .populate(this.populateProjectInitiationDetails);
 
@@ -996,7 +1165,8 @@ exports.getAllOnHoldProjectInitiations = asyncHandler(async (req, res, next) => 
       success: true,
       data: onHoldProjectInitiation,
     });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // } catch (err) {
+  //   return new ErrorResponseJSON(res, err.message, 500);
+  // }
 });
+ */

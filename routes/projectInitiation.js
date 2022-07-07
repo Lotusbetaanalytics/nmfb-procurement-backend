@@ -38,13 +38,17 @@ router.post("/", verifyToken, hasPermission("CreateAndModifyProjectInitiation"),
   // authorize("Super Admin", "Head of Procurement", "Frontdesk"), 
   createProjectInitiation); // create a projectInitiation
 router.get("/", verifyToken, advancedResults(ProjectInitiation, populateProjectInitiationDetails), getAllProjectInitiations); // get all projectInitiations
-router.get("/started", verifyToken, getAllStartedProjectInitiations); // get all projectInitiations
-router.get("/terminated", verifyToken, getAllTerminatedProjectInitiations); // get all projectInitiations
-router.get("/pending", verifyToken, getAllPendingProjectInitiations); // get all projectInitiations
-router.get("/completed", verifyToken, getAllCompletedProjectInitiations); // get all projectInitiations
-router.get("/approved", verifyToken, getAllApprovedProjectInitiations); // get all projectInitiations
-router.get("/declined", verifyToken, getAllDeclinedProjectInitiations); // get all projectInitiations
-router.get("/onHold", verifyToken, getAllOnHoldProjectInitiations); // get all projectInitiations
+
+
+// router.get("/started", verifyToken, getAllStartedProjectInitiations); // get all Started projectInitiations
+// router.get("/terminated", verifyToken, getAllTerminatedProjectInitiations); // get all Terminated projectInitiations
+// router.get("/pending", verifyToken, getAllPendingProjectInitiations); // get all Pending projectInitiations
+// router.get("/completed", verifyToken, getAllCompletedProjectInitiations); // get all Completed projectInitiations
+// router.get("/approved", verifyToken, getAllApprovedProjectInitiations); // get all Approved projectInitiations
+// router.get("/declined", verifyToken, getAllDeclinedProjectInitiations); // get all Declined projectInitiations
+// router.get("/onHold", verifyToken, getAllOnHoldProjectInitiations); // get all OnHold projectInitiations
+
+
 router.get("/:id", verifyToken, getProjectInitiation); // get projectInitiation details by id
 router.patch("/:id", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), 
   // authorize("Super Admin", "HOP", "Admin", "Front Desk Officer", "PDO"), 
