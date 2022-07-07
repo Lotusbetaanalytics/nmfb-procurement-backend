@@ -23,10 +23,12 @@ const EvaluationResponseSchema = new mongoose.Schema({
    * j. Upload financial evaluation report
    */
 
-  employeeName: {
+  // creator name (createdBy.name)
+  name: {
     type: String,
   },
-  employeeEmail: {
+  // creator email (createdBy.email)
+  email: {
     type: String,
   },
   contract: {

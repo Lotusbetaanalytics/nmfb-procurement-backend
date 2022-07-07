@@ -2,10 +2,12 @@ const mongoose = require("mongoose");
 
 const EvaluationTemplateSchema = new mongoose.Schema({
 
-  employeeName: {
+  // creator name (createdBy.name)
+  name: {
     type: String,
   },
-  employeeEmail: {
+  // creator email (createdBy.email)
+  email: {
     type: String,
   },
   question: {

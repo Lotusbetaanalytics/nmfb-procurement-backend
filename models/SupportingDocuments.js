@@ -48,10 +48,12 @@ const SupportingDocumentsSchema = new mongoose.Schema({
    * i. Upload technical evaluation forwarding memo
    * j. Upload financial evaluation report  
    */
-  employeeName: {
+  // creator name (createdBy.name)
+  name: {
     type: String,
   },
-  employeeEmail: {
+  // creator email (createdBy.email)
+  email: {
     type: String,
   },
   project: {

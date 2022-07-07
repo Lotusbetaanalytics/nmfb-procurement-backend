@@ -2,10 +2,12 @@ const mongoose = require("mongoose");
 
 const ContractEvaluationSchema = new mongoose.Schema({
 
-  employeeName: {
+  // creator name (createdBy.name)
+  name: {
     type: String,
   },
-  employeeEmail: {
+  // creator email (createdBy.email)
+  email: {
     type: String,
   },
   contract: {

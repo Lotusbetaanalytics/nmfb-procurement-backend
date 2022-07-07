@@ -2,9 +2,11 @@ const mongoose = require("mongoose");
 
 const ProjectTaskSchema = new mongoose.Schema({
 
+  // creator name (createdBy.name)
   name: {
     type: String,
   },
+  // creator email (createdBy.email)
   email: {
     type: String,
   },
