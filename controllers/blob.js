@@ -17,7 +17,7 @@ exports.createBlob = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "This blob already exists, update it instead!", 400)
   }
 
-  const documentLinks = await uploadBlob(req, res)
+  const documentLinks = await uploadBlob(req)
   console.log(documentLinks)
 
   req.body.file = documentLinks

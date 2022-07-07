@@ -80,6 +80,10 @@ exports.uploadDocument = async (req, project, files = undefined, folderPath = un
    * @returns link to uploaded document
    */
   files = files ? files: req.files
+  if (!files) {
+    console.log("There are no Files Provided for Upload") 
+    return undefined
+  }
   let title = project.title || project.projectTitle
   parentDir = parentDir ? parentDir : title
   console.log("files, parentDir, folderPath:", files, parentDir, folderPath)
