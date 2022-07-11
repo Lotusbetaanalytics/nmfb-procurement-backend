@@ -1,31 +1,26 @@
 const asyncHandler = require("../middleware/async");
 const Role = require("../models/Role");
-const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse");
+const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 
 
 // @desc    Create Role
 // @route  POST /api/v1/role
 // @access   Private
 exports.createRole = asyncHandler(async (req, res, next) => {
-  try {
-    const existingRole = await Role.find({title: req.body.title});
+    // const existingRole = await Role.find({title: req.body.title});
 
-    if (existingRole.length > 0) {
-      return new ErrorResponseJSON(res, "This role already exists, update it instead!", 400);
-    }
+    // if (existingRole.length > 0) {
+    //   return new ErrorResponseJSON(res, "This role already exists, update it instead!", 400);
+    // }
+
+    await this.checkRole(req, res, {title: req.body.title})
 
     const role = await Role.create(req.body);
-
     if (!role) {
       return new ErrorResponseJSON(res, "Role not created!", 404);
     }
-    res.status(200).json({
-      success: true,
-      data: role,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    return new SuccessResponseJSON(res, role)
 });
 
 
@@ -41,19 +36,13 @@ exports.getAllRoles = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/role/:id
 // @access   Private
 exports.getRole = asyncHandler(async (req, res, next) => {
-  try {
-    const role = await Role.findById(req.params.id);
+    // const role = await Role.findById(req.params.id);
 
-    if (!role) {
-      return new ErrorResponseJSON(res, "Role not found!", 404);
-    }
-    res.status(200).json({
-      success: true,
-      data: role,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // if (!role) {
+    //   return new ErrorResponseJSON(res, "Role not found!", 404);
+    // }
+    const role = await this.checkRole(req, res)
+    return new SuccessResponseJSON(res, role)
 });
 
 
@@ -61,22 +50,14 @@ exports.getRole = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/role/:id
 // @access   Private
 exports.updateRole = asyncHandler(async (req, res, next) => {
-  try {
     const role = await Role.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
-
     if (!role) {
       return new ErrorResponseJSON(res, "Role not updated!", 400);
     }
-    res.status(200).json({
-      success: true,
-      data: role,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    return new SuccessResponseJSON(res, role)
 });
 
 
@@ -84,17 +65,26 @@ exports.updateRole = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/role
 // @access   Private
 exports.deleteRole = asyncHandler(async (req, res, next) => {
-  try {
     const role = await Role.findByIdAndDelete(req.params.id);
-
     if (!role) {
       return new ErrorResponseJSON(res, "Role not found!", 404);
     }
-    res.status(200).json({
-      success: true,
-      data: role,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    return new SuccessResponseJSON(res, role)
 });
+
+
+exports.checkRole = async (req, res, query = {}) => {
+  /**
+   * @summary
+   *  check if Role instance exists, check if req.params.id exists and perform logic based on that
+   * 
+   * @throws `Role not Found!`, 404
+   * @throws `This Role already exists, update it instead!`, 400
+   * 
+   * @returns product initiation instance 
+   */
+  let role = await checkInstance(
+    req, res, Role, this.populateRole, query, "Role"
+  )
+  return role
+}

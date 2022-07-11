@@ -2,9 +2,9 @@ const asyncHandler = require("../middleware/async");
 const EvaluationResponse = require("../models/EvaluationResponse");
 
 
-exports.populateContractDetails = "createdBy updatedBy deactivatedBy"
+exports.populateContract = "createdBy updatedBy deactivatedBy"
 
-exports.populateContractEvaluationDetails = "contract project projectType evaluatingOfficer businessUsersUnitName createdBy updatedBy"
+exports.populateContractEvaluation = "contract project projectType evaluatingOfficer businessUsersUnitName createdBy updatedBy"
 
 
 exports.contractEvaluationScore = asyncHandler( async(contract, req, res, next) => {

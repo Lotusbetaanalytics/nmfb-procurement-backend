@@ -9,17 +9,17 @@ const ProjectInitiation = require("../models/ProjectInitiation");
 const ProjectOnboarding = require("../models/ProjectOnboarding");
 
 
-exports.populateProjectInitiationDetails = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
+exports.populateProjectInitiation = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
 
-exports.populateProjectOnboardingDetails = "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
+exports.populateProjectOnboarding = "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
 
-exports.populateProjectTaskDetails = "project assignedBy assignedTo reassignedTo responsibleOfficer responsibleUnit createdBy"
+exports.populateProjectTask = "project assignedBy assignedTo reassignedTo responsibleOfficer responsibleUnit createdBy"
 
 
 exports.generateProjectId = asyncHandler(async projectId => {
   try {
-    const projectInitiation = await ProjectInitiation.findById(projectId).populate(this.populateProjectInitiationDetails);
-    const projectOnboarding = await ProjectOnboarding.findOne({project: projectId}).populate(this.populateProjectOnboardingDetails);
+    const projectInitiation = await ProjectInitiation.findById(projectId).populate(this.populateProjectInitiation);
+    const projectOnboarding = await ProjectOnboarding.findOne({project: projectId}).populate(this.populateProjectOnboarding);
     // const projectType = await ProjectType.findById(project.projectType);
 
     let projectTypeFirstLetter = projectOnboarding.projectType.title.slice(0, 1);
@@ -270,3 +270,25 @@ exports.addPermissionsToRole = async (roleID, permissions) => {
 //   const role = await Role.findById(roleID)
 
 // }
+
+
+exports.setProjectOnboardingStatus = async projectOnboarding => {
+  if (projectOnboarding.isApproved && projectOnboarding.status != "Completed" && projectOnboarding.status != "Started" ) {
+    projectOnboarding.status = "Started";
+  } else if (projectOnboarding.isApproved && projectOnboarding.status != "Started") {
+    projectOnboarding.status = "Completed";
+  } else if (projectOnboardingprojectOnboarding.status == "Terminated") {
+    projectOnboarding.isApproved = false;
+  }
+  await projectOnboarding.save();
+}
+
+exports.setProjectOnboardingApprovalStatus = async projectOnboarding => {
+  if (projectOnboarding.isApproved && projectOnboarding.status == "Completed") {
+    const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project);
+    projectInitiation.status = "Approved";
+    projectInitiation.isApproved = true;
+    projectInitiation.isOnboarded = true;
+    await projectInitiation.save();
+  }
+}

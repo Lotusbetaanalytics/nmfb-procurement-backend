@@ -16,62 +16,62 @@ const {generateProjectId} = require("../utils/projectUtils")
 const titleCaps = require("../utils/titleCaps")
 
 
-exports.populateProjectInitiationDetails = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
+exports.populateProjectInitiation = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
 
 
 // @desc    Create ProjectInitiation
 // @route  POST /api/v1/projectInitiation
 // @access   Private
 exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
-    // check for existing project initiation
-    await this.checkProjectInitiation(req, res, {projectTitle: req.body.projectTitle})
+  // check for existing project initiation
+  await this.checkProjectInitiation(req, res, {projectTitle: req.body.projectTitle})
 
-    // add user details to req.body
-    addUserDetails(req)
-    // console.log("req.body after addUserDetails", req.body)
+  // add user details to req.body
+  addUserDetails(req)
+  // console.log("req.body after addUserDetails", req.body)
 
-    // check user role and fill relevant field
-    if (req.user.role.title == "Head of Procurement") {
-      req.body.headOfProcurement = req.user._id;
-    } else if (req.user.role.title == "Admin" || req.user.role.title == "Frontdesk") {
-      req.body.frontDeskOfficer = req.user._id;
-    } else if (req.user.role.title == "Super Admin") {
-      // do nothing
-    } else {
-      return new ErrorResponseJSON(res, `You are not authorized to initiate projects!. Role is ${req.user.role.title}`, 404);
-    }
-    // console.log("req.body after checking for role", req.body)
+  // check user role and fill relevant field
+  if (req.user.role.title == "Head of Procurement") {
+    req.body.headOfProcurement = req.user._id;
+  } else if (req.user.role.title == "Admin" || req.user.role.title == "Frontdesk") {
+    req.body.frontDeskOfficer = req.user._id;
+  } else if (req.user.role.title == "Super Admin") {
+    // do nothing
+  } else {
+    return new ErrorResponseJSON(res, `You are not authorized to initiate projects!. Role is ${req.user.role.title}`, 404);
+  }
+  // console.log("req.body after checking for role", req.body)
 
-    // create project initiation
-    const projectInitiation = await ProjectInitiation.create(req.body);
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not created!", 404);
-    }
+  // create project initiation
+  const projectInitiation = await ProjectInitiation.create(req.body);
+  if (!projectInitiation) {
+    return new ErrorResponseJSON(res, "ProjectInitiation not created!", 404);
+  }
 
-    /**
-    // DONE: Generate project ID: requires project to be onboarded first
-    projectInitiation.projectId = await generateProjectId(projectInitiation)
-    console.log(`projectInitiation.projectId: ${projectInitiation.projectId}`)
-    await projectInitiation.save()
-     */
+  /**
+  // DONE: Generate project ID: requires project to be onboarded first
+  projectInitiation.projectId = await generateProjectId(projectInitiation)
+  console.log(`projectInitiation.projectId: ${projectInitiation.projectId}`)
+  await projectInitiation.save()
+    */
 
-    /**
-     * DONE:
-     * Post-conditions:
-     * • The PPC portal shall send successful initiation project email notification to the head of procurement
-     * • The PPC portal shall send a new project email notification to the project desk officer
-     * • The system shall send email notification to the front office /admin to upload or review documents.
-     * */
-    // send project initiation mail
-    await projectInitiationEmail(projectInitiation);
+  /**
+   * DONE:
+   * Post-conditions:
+   * • The PPC portal shall send successful initiation project email notification to the head of procurement
+   * • The PPC portal shall send a new project email notification to the project desk officer
+   * • The system shall send email notification to the front office /admin to upload or review documents.
+   * */
+  // send project initiation mail
+  await projectInitiationEmail(projectInitiation);
 
-    // upload files
-    const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.projectTitle)
-    projectInitiation.files = projectInitiation.files || []
-    projectInitiation.files = projectInitiation.files.concat(documentLinks)
-    await projectInitiation.save()
+  // upload files
+  const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.projectTitle)
+  projectInitiation.files = projectInitiation.files || []
+  projectInitiation.files = projectInitiation.files.concat(documentLinks)
+  await projectInitiation.save()
 
-    return new SuccessResponseJSON(res, projectInitiation)
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -87,10 +87,10 @@ exports.getAllProjectInitiations = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectInitiation/:id
 // @access   Private
 exports.getProjectInitiation = asyncHandler(async (req, res, next) => {
-    // check for existing project initiation
-    const projectInitiation = await this.checkProjectInitiation(req, res)
+  // check for existing project initiation
+  const projectInitiation = await this.checkProjectInitiation(req, res)
 
-    return new SuccessResponseJSON(res, projectInitiation)
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -98,41 +98,41 @@ exports.getProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id
 // @access   Private
 exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
-    // add user details to req.body
-    addUserDetails(req, true)
-    // console.log("req.body after addUserDetails", req.body)
+  // add user details to req.body
+  addUserDetails(req, true)
+  // console.log("req.body after addUserDetails", req.body)
 
-    const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
-    }
+  const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!projectInitiation) {
+    return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
+  }
 
-    // DONE: Generate project ID: requires project to be onboarded first
-    // TODO: Fix naming bug in project ID
-    if (!projectInitiation.projectId)
-      projectInitiation.projectId = await generateProjectId(projectInitiation);
-      await projectInitiation.save()
-
-    /**
-     * DONE:
-     * Post-conditions (Depending on the ProjectInitiation status):
-     * • The PPC portal shall send successful update of project email notification to the head of procurement
-     * • The PPC portal shall send a update project email notification to the project desk officer
-     * • The system shall send email notification to the front office /admin to upload or review documents.
-     * */
-    // send project initiation mail
-    await projectInitiationEmail(projectInitiation, true, req, res, next);
-
-    // upload files
-    const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.projectTitle)
-    projectInitiation.files = projectInitiation.files || []
-    projectInitiation.files = projectInitiation.files.concat(documentLinks)
+  // DONE: Generate project ID: requires project to be onboarded first
+  // TODO: Fix naming bug in project ID
+  if (!projectInitiation.projectId)
+    projectInitiation.projectId = await generateProjectId(projectInitiation);
     await projectInitiation.save()
 
-    return new SuccessResponseJSON(res, projectInitiation)
+  /**
+   * DONE:
+   * Post-conditions (Depending on the ProjectInitiation status):
+   * • The PPC portal shall send successful update of project email notification to the head of procurement
+   * • The PPC portal shall send a update project email notification to the project desk officer
+   * • The system shall send email notification to the front office /admin to upload or review documents.
+   * */
+  // send project initiation mail
+  await projectInitiationEmail(projectInitiation, true, req, res, next);
+
+  // upload files
+  const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.projectTitle)
+  projectInitiation.files = projectInitiation.files || []
+  projectInitiation.files = projectInitiation.files.concat(documentLinks)
+  await projectInitiation.save()
+
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -140,11 +140,11 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/projectInitiation
 // @access   Private
 exports.deleteProjectInitiation = asyncHandler(async (req, res, next) => {
-    const projectInitiation = await ProjectInitiation.findByIdAndDelete(req.params.id);
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-    }
-    return new SuccessResponseJSON(res, projectInitiation)
+  const projectInitiation = await ProjectInitiation.findByIdAndDelete(req.params.id);
+  if (!projectInitiation) {
+    return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+  }
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -152,15 +152,15 @@ exports.deleteProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectInitiation/:id/approve
 // @access   Private
 exports.approveProjectInitiation = asyncHandler(async (req, res, next) => {
-    // check for existing project initiation
-    const projectInitiation = await this.checkProjectInitiation(req, res)
+  // check for existing project initiation
+  const projectInitiation = await this.checkProjectInitiation(req, res)
 
-    // onboard the project and set initiation status to approved
-    projectInitiation.status = "Approved";
-    projectInitiation.isOnboarded = true;
-    projectInitiation.save();
+  // onboard the project and set initiation status to approved
+  projectInitiation.status = "Approved";
+  projectInitiation.isOnboarded = true;
+  projectInitiation.save();
 
-    return new SuccessResponseJSON(res, projectInitiation)
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -168,14 +168,14 @@ exports.approveProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectInitiation/:id/decline
 // @access   Private
 exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
-    // check for existing project initiation
-    const projectInitiation = await this.checkProjectInitiation(req, res)
+  // check for existing project initiation
+  const projectInitiation = await this.checkProjectInitiation(req, res)
 
-    // set project initiation status to declined
-    projectInitiation.status = "Declined";
-    projectInitiation.save();
+  // set project initiation status to declined
+  projectInitiation.status = "Declined";
+  projectInitiation.save();
 
-    return new SuccessResponseJSON(res, projectInitiation)
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -184,23 +184,23 @@ exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id/assign
 // @access   Private
 exports.assignProject = asyncHandler(async (req, res, next) => {
-    // check for existing project initiation
-    await this.checkProjectInitiation(req, res)
+  // check for existing project initiation
+  await this.checkProjectInitiation(req, res)
 
-    // req.body.assignedBy = req.user._id;
-    // req.body.assignedTo = req.body.responsibleOfficer;
+  // req.body.assignedBy = req.user._id;
+  // req.body.assignedTo = req.body.responsibleOfficer;
 
-    const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
-    }
-    // send project assignment email
-    await projectAssignmentEmail(projectInitiation);
+  const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!projectInitiation) {
+    return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
+  }
+  // send project assignment email
+  await projectAssignmentEmail(projectInitiation);
 
-    return new SuccessResponseJSON(res, projectInitiation)
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -209,30 +209,30 @@ exports.assignProject = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id/status
 // @access   Private
 exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
-    // add user details to req.body
-    await addUserDetails(req, true)
+  // add user details to req.body
+  await addUserDetails(req, true)
 
-    const {status} = req.body
+  const {status} = req.body
 
-    const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, {status}, {
-      new: true,
-      runValidators: true,
-    });
-    if (!projectInitiation) {
-      return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
-    }
+  const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, {status}, {
+    new: true,
+    runValidators: true,
+  });
+  if (!projectInitiation) {
+    return new ErrorResponseJSON(res, "ProjectInitiation not updated!", 400);
+  }
 
-    /**
-     * DONE:
-     * Post-conditions (Depending on the ProjectInitiation status):
-     * • The PPC portal shall send successful update of project email notification to the head of procurement
-     * • The PPC portal shall send a update project email notification to the project desk officer
-     * • The system shall send email notification to the front office /admin to upload or review documents.
-     * */
-    // send project initiation mail
-    await projectInitiationEmail(projectInitiation, true);
+  /**
+   * DONE:
+   * Post-conditions (Depending on the ProjectInitiation status):
+   * • The PPC portal shall send successful update of project email notification to the head of procurement
+   * • The PPC portal shall send a update project email notification to the project desk officer
+   * • The system shall send email notification to the front office /admin to upload or review documents.
+   * */
+  // send project initiation mail
+  await projectInitiationEmail(projectInitiation, true);
 
-    return new SuccessResponseJSON(res, projectInitiation)
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -241,19 +241,19 @@ exports.updateProjectInitiationStatus = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectInitiation/:id/upload
 // @access   Private
 exports.uploadProjectInitiationDocuments = asyncHandler(async (req, res, next) => {
-    // check for files in request
-    if (!req.files) return new ErrorResponseJSON(res, "No files provided!", 400);
+  // check for files in request
+  if (!req.files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-    // check for existing project initiation
-    const projectInitiation = await this.checkProjectInitiation(req, res)
+  // check for existing project initiation
+  const projectInitiation = await this.checkProjectInitiation(req, res)
 
-    // upload files
-    const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.projectTitle)
-    projectInitiation.files = projectInitiation.files || []
-    projectInitiation.files = projectInitiation.files.concat(documentLinks)
-    await projectInitiation.save()
+  // upload files
+  const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.projectTitle)
+  projectInitiation.files = projectInitiation.files || []
+  projectInitiation.files = projectInitiation.files.concat(documentLinks)
+  await projectInitiation.save()
 
-    return new SuccessResponseJSON(res, projectInitiation)
+  return new SuccessResponseJSON(res, projectInitiation)
 });
 
 
@@ -420,7 +420,7 @@ exports.uploadProjectSupportingDocuments = asyncHandler(async (req, res, next, t
   /**
    * @summary
    *  upload project supporting documents using req.params.id (project initiation id) and title 
-   *  save uploaded file urls to projectInitiation and supportingDocument instances
+   *  save uploaded files urls to projectInitiation and supportingDocument instances
    * 
    * @param title - string for getting project stage, folder name and formatting error messages
    * 
@@ -429,9 +429,11 @@ exports.uploadProjectSupportingDocuments = asyncHandler(async (req, res, next, t
   const {files} = req
   if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-  const projectInitiation = await ProjectInitiation.findById(req.params.id)
-    .populate(this.populateProjectInitiationDetails);
-  if (!projectInitiation) return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+  // const projectInitiation = await ProjectInitiation.findById(req.params.id)
+  //   .populate(this.populateProjectInitiation);
+  // if (!projectInitiation) return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
+
+  const projectInitiation = await this.checkProjectInitiation(req, res)
 
   const projectStage = await ProjectStage.findOne({title: title})
 
@@ -452,7 +454,7 @@ exports.uploadProjectSupportingDocuments = asyncHandler(async (req, res, next, t
   // const documents = await SupportingDocuments.create(payload)
 
   // add user details to req.body
-  addUserDetails(req)
+  addUserDetails(req, true)
   
   req.body.project = projectInitiation._id
   req.body.projectTitle = projectInitiation.projectTitle
@@ -465,7 +467,7 @@ exports.uploadProjectSupportingDocuments = asyncHandler(async (req, res, next, t
   // create folder path
   const folderPath = `${projectInitiation.projectTitle}/${titleCaps(title)}`
   // upload files
-  const documentLinks = await uploadDocument(req, projectInitiation, file, folderPath)
+  const documentLinks = await uploadDocument(req, projectInitiation, files, folderPath)
   // save uploaded file url(s) to project initiation instance
   projectInitiation.files = projectInitiation.files || []
   projectInitiation.files = projectInitiation.files.concat(documentLinks)
@@ -483,8 +485,7 @@ exports.uploadProjectSupportingDocuments = asyncHandler(async (req, res, next, t
 exports.checkProjectInitiation = async (req, res, query = {}) => {
   /**
    * @summary
-   *  check if product initiation instance exists perform 
-   *  check if req.params.id exists
+   *  check if Project Initiation instance exists, check if req.params.id exists and perform logic based on that
    * 
    * @throws `Project Initiation not Found!`, 404
    * @throws `This Project Initiation already exists, update it instead!`, 400
@@ -492,7 +493,7 @@ exports.checkProjectInitiation = async (req, res, query = {}) => {
    * @returns product initiation instance 
    */
   let projectInitiation = await checkInstance(
-    req, res, ProjectInitiation, this.populateProjectInitiationDetails, query, "Project Initiation"
+    req, res, ProjectInitiation, this.populateProjectInitiation, query, "Project Initiation"
   )
   return projectInitiation
 }

@@ -1,31 +1,30 @@
 const asyncHandler = require("../middleware/async");
 const Permission = require("../models/Permission");
-const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse");
+const {addUserDetails, checkInstance} = require("../utils/queryUtils");
+
+
+exports.populatePermission = undefined
 
 
 // @desc    Create Permission
 // @route  POST /api/v1/permission
 // @access   Private
 exports.createPermission = asyncHandler(async (req, res, next) => {
-  try {
-    const existingPermission = await Permission.find({title: req.body.title});
+  // const existingPermission = await Permission.find({title: req.body.title});
 
-    if (existingPermission.length > 0) {
-      return new ErrorResponseJSON(res, "This permission already exists, update it instead!", 400);
-    }
+  // if (existingPermission.length > 0) {
+  //   return new ErrorResponseJSON(res, "This permission already exists, update it instead!", 400);
+  // }
 
-    const permission = await Permission.create(req.body);
+  // check permission instance
+  await this.checkPermission(req, res, {title: req.body.title})
 
-    if (!permission) {
-      return new ErrorResponseJSON(res, "Permission not created!", 404);
-    }
-    res.status(200).json({
-      success: true,
-      data: permission,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
+  const permission = await Permission.create(req.body);
+  if (!permission) {
+    return new ErrorResponseJSON(res, "Permission not created!", 404);
   }
+  return new SuccessResponseJSON(res, permission)
 });
 
 
@@ -41,19 +40,12 @@ exports.getAllPermissions = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/permission/:id
 // @access   Private
 exports.getPermission = asyncHandler(async (req, res, next) => {
-  try {
-    const permission = await Permission.findById(req.params.id);
-
-    if (!permission) {
-      return new ErrorResponseJSON(res, "Permission not found!", 404);
-    }
-    res.status(200).json({
-      success: true,
-      data: permission,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // const permission = await Permission.findById(req.params.id);
+  // if (!permission) {
+  //   return new ErrorResponseJSON(res, "Permission not found!", 404);
+  // }
+  const permission = await this.checkPermission(req, res)
+  return new SuccessResponseJSON(res, permission)
 });
 
 
@@ -61,22 +53,14 @@ exports.getPermission = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/permission/:id
 // @access   Private
 exports.updatePermission = asyncHandler(async (req, res, next) => {
-  try {
-    const permission = await Permission.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!permission) {
-      return new ErrorResponseJSON(res, "Permission not updated!", 400);
-    }
-    res.status(200).json({
-      success: true,
-      data: permission,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
+  const permission = await Permission.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!permission) {
+    return new ErrorResponseJSON(res, "Permission not updated!", 400);
   }
+  return new SuccessResponseJSON(res, permission)
 });
 
 
@@ -84,17 +68,26 @@ exports.updatePermission = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/permission
 // @access   Private
 exports.deletePermission = asyncHandler(async (req, res, next) => {
-  try {
     const permission = await Permission.findByIdAndDelete(req.params.id);
-
     if (!permission) {
       return new ErrorResponseJSON(res, "Permission not found!", 404);
     }
-    res.status(200).json({
-      success: true,
-      data: permission,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    return new SuccessResponseJSON(res, permission)
 });
+
+
+exports.checkPermission = async (req, res, query = {}) => {
+  /**
+   * @summary
+   *  check if Permission instance exists, check if req.params.id exists and perform logic based on that
+   * 
+   * @throws `Permission not Found!`, 404
+   * @throws `This Permission already exists, update it instead!`, 400
+   * 
+   * @returns product initiation instance 
+   */
+  let permission = await checkInstance(
+    req, res, Permission, this.populatePermission, query, "Permission"
+  )
+  return permission
+}

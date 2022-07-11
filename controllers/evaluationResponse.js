@@ -1,34 +1,30 @@
 const asyncHandler = require("../middleware/async");
 const EvaluationResponse = require("../models/EvaluationResponse");
-const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse");
+const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 
 
-exports.populateEvaluationResponseDetails = "contract evaluationTemplate createdBy"
+exports.populateEvaluationResponse = "contract evaluationTemplate createdBy"
 
 
 // @desc    Create EvaluationResponse
 // @route  POST /api/v1/evaluationResponse
 // @access   Private
 exports.createEvaluationResponse = asyncHandler(async (req, res, next) => {
-  try {
-    const existingEvaluationResponse = await EvaluationResponse.find({project: req.body.project});
+  // const existingEvaluationResponse = await EvaluationResponse.find({project: req.body.project});
 
-    if (existingEvaluationResponse.length > 0) {
-      return new ErrorResponseJSON(res, "This evaluationResponse already exists, update it instead!", 400);
-    }
+  // if (existingEvaluationResponse.length > 0) {
+  //   return new ErrorResponseJSON(res, "This evaluationResponse already exists, update it instead!", 400);
+  // }
 
-    const evaluationResponse = await EvaluationResponse.create(req.body);
+  // check evaluation response instance
+  await this.checkEvaluationResponse(req, res, {evaluationTemplate: req.body.evaluationTemplate, createdBy: req.user._id})
 
-    if (!evaluationResponse) {
-      return new ErrorResponseJSON(res, "EvaluationResponse not created!", 404);
-    }
-    res.status(200).json({
-      success: true,
-      data: evaluationResponse,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
+  const evaluationResponse = await EvaluationResponse.create(req.body);
+  if (!evaluationResponse) {
+    return new ErrorResponseJSON(res, "EvaluationResponse not created!", 404);
   }
+  return new SuccessResponseJSON(res, evaluationResponse)
 });
 
 
@@ -44,20 +40,13 @@ exports.getAllEvaluationResponses = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/evaluationResponse/:id
 // @access   Private
 exports.getEvaluationResponse = asyncHandler(async (req, res, next) => {
-  const evaluationResponse = await EvaluationResponse.findById(req.params.id).populate(this.populateEvaluationResponseDetails);
+  // const evaluationResponse = await EvaluationResponse.findById(req.params.id).populate(this.populateEvaluationResponse);
 
-  if (!evaluationResponse) {
-    return new ErrorResponseJSON(res, "EvaluationResponse not found!", 404);
-  }
-
-  try {
-    res.status(200).json({
-      success: true,
-      data: evaluationResponse,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // if (!evaluationResponse) {
+  //   return new ErrorResponseJSON(res, "EvaluationResponse not found!", 404);
+  // }
+  const evaluationResponse = await this.checkEvaluationResponse(req, res)
+  return new SuccessResponseJSON(res, evaluationResponse)
 });
 
 
@@ -69,19 +58,10 @@ exports.updateEvaluationResponse = asyncHandler(async (req, res, next) => {
     new: true,
     runValidators: true,
   });
-
   if (!evaluationResponse) {
     return new ErrorResponseJSON(res, "EvaluationResponse not updated!", 400);
   }
-
-  try {
-    res.status(200).json({
-      success: true,
-      data: evaluationResponse,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  return new SuccessResponseJSON(res, evaluationResponse)
 });
 
 
@@ -90,17 +70,25 @@ exports.updateEvaluationResponse = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.deleteEvaluationResponse = asyncHandler(async (req, res, next) => {
   const evaluationResponse = await EvaluationResponse.findByIdAndDelete(req.params.id);
-
   if (!evaluationResponse) {
     return new ErrorResponseJSON(res, "EvaluationResponse not found!", 404);
   }
-
-  try {
-    res.status(200).json({
-      success: true,
-      data: evaluationResponse,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  return new SuccessResponseJSON(res, evaluationResponse)
 });
+
+
+exports.checkEvaluationResponse = async (req, res, query = {}) => {
+  /**
+   * @summary
+   *  check if Evaluation Response instance exists, check if req.params.id exists and perform logic based on that
+   * 
+   * @throws `Evaluation Response not Found!`, 404
+   * @throws `This Evaluation Response already exists, update it instead!`, 400
+   * 
+   * @returns product initiation instance 
+   */
+  let evaluationResponse = await checkInstance(
+    req, res, EvaluationResponse, this.populateEvaluationResponse, query, "Evaluation Response"
+  )
+  return evaluationResponse
+}

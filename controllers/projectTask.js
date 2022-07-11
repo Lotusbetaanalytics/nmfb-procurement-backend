@@ -1,38 +1,33 @@
 const asyncHandler = require("../middleware/async");
 const ProjectTask = require("../models/ProjectTask");
-const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse");
 const {projectTaskAssignmentEmail, projectTaskReassignmentEmail} = require("../utils/projectEmail");
+const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 
 
-exports.populateProjectTaskDetails = "project assignedBy assignedTo reassignedTo responsibleOfficer responsibleUnit createdBy"
+exports.populateProjectTask = "project assignedBy assignedTo reassignedTo responsibleOfficer responsibleUnit createdBy"
 
 
 // @desc    Create ProjectTask
 // @route  POST /api/v1/projectTask
 // @access   Private
 exports.createProjectTask = asyncHandler(async (req, res, next) => {
-  try {
-    const existingProjectTask = await ProjectTask.find({projectTitle: req.body.projectTitle});
+    // const existingProjectTask = await ProjectTask.find({projectTitle: req.body.projectTitle});
 
-    if (existingProjectTask.length > 0) {
-      return new ErrorResponseJSON(res, "This projectTask already exists, update it instead!", 400);
-    }
+    // if (existingProjectTask.length > 0) {
+    //   return new ErrorResponseJSON(res, "This projectTask already exists, update it instead!", 400);
+    // }
+
+    await this.checkProjectTask(req, res, {title: req.body.title})
 
     const projectTask = await ProjectTask.create(req.body);
-
     if (!projectTask) {
       return new ErrorResponseJSON(res, "ProjectTask not created!", 404);
     }
 
     await projectTaskAssignmentEmail(projectTask, req, res, next);
 
-    res.status(200).json({
-      success: true,
-      data: projectTask,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    return new SuccessResponseJSON(res, projectTask)
 });
 
 
@@ -48,19 +43,12 @@ exports.getAllProjectTasks = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectTask/:id
 // @access   Private
 exports.getProjectTask = asyncHandler(async (req, res, next) => {
-  try {
-    const projectTask = await ProjectTask.findById(req.params.id).populate(populateProjectTaskDetails);
-
-    if (!projectTask) {
-      return new ErrorResponseJSON(res, "ProjectTask not found!", 404);
-    }
-    res.status(200).json({
-      success: true,
-      data: projectTask,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    // const projectTask = await ProjectTask.findById(req.params.id).populate(populateProjectTask);
+    // if (!projectTask) {
+    //   return new ErrorResponseJSON(res, "ProjectTask not found!", 404);
+    // }
+    const projectTask = await this.checkProjectTask(req, res)
+    return new SuccessResponseJSON(res, projectTask)
 });
 
 
@@ -68,12 +56,10 @@ exports.getProjectTask = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectTask/:id
 // @access   Private
 exports.updateProjectTask = asyncHandler(async (req, res, next) => {
-  try {
     const projectTask = await ProjectTask.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
-
     if (!projectTask) {
       return new ErrorResponseJSON(res, "ProjectTask not updated!", 400);
     }
@@ -81,14 +67,7 @@ exports.updateProjectTask = asyncHandler(async (req, res, next) => {
     if ("reassignedTo" in req.body) {
       await projectTaskReassignmentEmail(projectTask, req, res, next);
     }
-
-    res.status(200).json({
-      success: true,
-      data: projectTask,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    return new SuccessResponseJSON(res, projectTask)
 });
 
 
@@ -96,17 +75,26 @@ exports.updateProjectTask = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/projectTask
 // @access   Private
 exports.deleteProjectTask = asyncHandler(async (req, res, next) => {
-  try {
     const projectTask = await ProjectTask.findByIdAndDelete(req.params.id);
-
     if (!projectTask) {
       return new ErrorResponseJSON(res, "ProjectTask not found!", 404);
     }
-    res.status(200).json({
-      success: true,
-      data: projectTask,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+    return new SuccessResponseJSON(res, projectTask)
 });
+
+
+exports.checkProjectTask = async (req, res, query = {}) => {
+  /**
+   * @summary
+   *  check if Project Task instance exists, check if req.params.id exists and perform logic based on that
+   * 
+   * @throws `Project Task not Found!`, 404
+   * @throws `This Project Task already exists, update it instead!`, 400
+   * 
+   * @returns product initiation instance 
+   */
+  let projectTask = await checkInstance(
+    req, res, ProjectTask, this.populateProjectTask, query, "Project Task"
+  )
+  return projectTask
+}

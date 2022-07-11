@@ -2,6 +2,13 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 
 
 exports.addUserDetails = async (req, updated = false) => {
+  /**
+   * @summary
+   *  add authenticated user details to the request body
+   * 
+   * @param req - request object, for updating req.body
+   * @param updated - specify if the details are for an update request
+   */
   if (updated) {
     req.body.updatedBy = req.user._id
     req.body.updatedAt = Date.now()
@@ -14,27 +21,26 @@ exports.addUserDetails = async (req, updated = false) => {
 }
 
 
-exports.checkInstance = async (req, res, model, populate, query = {}, instanceName = undefined) => {
-  instanceName = instanceName ? instanceName : "Instance"
+exports.checkInstance = async (req, res, model, populate, query = {}, instanceName = "Instance") => {
+    /**
+   * @summary
+   *  check if model instance exists, check if req.params.id exists and perform logic based on that
+   * 
+   * @param req - request object
+   * @param res - response object
+   * @param model - model for creating model instance
+   * @param populate - query for populating model
+   * @param query - query for filtering the model
+   * @param instanceName - name to be used in error responses
+   * 
+   * @throws `Instance not Found!`, 404
+   * @throws `This Instance already exists, update it instead!`, 400
+   * 
+   * @returns product initiation instance 
+   */
+  // instanceName = instanceName ? instanceName : "Instance"
   // console.log("model, populate, query, instanceName:", model, populate, query, instanceName)
   let instance;
-  // if (req.params.id) {
-  //   console.log("req.params.id:", req.params.id)
-  //   instance = await model.findById(req.params.id)
-  //   if (req.params.id && !instance) {
-  //     console.log("Instance not found")
-  //     throw new ErrorResponseJSON(res, `${instanceName} not Found!`, 404);
-  //   }
-  // } else{
-  //   console.log("query:", query)
-  //   instance = await model.find(query)
-  //   console.log(instance)
-  //   if (instance.length > 0) {
-  //     console.log("Instance found return error")
-  //     throw new ErrorResponseJSON(res, `This ${instanceName} already exists, update it instead!`, 400);
-  //   }
-  // }
-
   if (req.params.id) {
     instance = await model.findById(req.params.id).populate(populate)
   } else{

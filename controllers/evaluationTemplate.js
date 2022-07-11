@@ -1,31 +1,30 @@
 const asyncHandler = require("../middleware/async");
 const EvaluationTemplate = require("../models/EvaluationTemplate");
-const {ErrorResponseJSON} = require("../utils/errorResponse");
+const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse");
+const {addUserDetails, checkInstance} = require("../utils/queryUtils");
+
+
+exports.populateEvaluationTemplate = undefined
 
 
 // @desc    Create EvaluationTemplate
 // @route  POST /api/v1/evaluationTemplate
 // @access   Private
 exports.createEvaluationTemplate = asyncHandler(async (req, res, next) => {
-  try {
-    const existingEvaluationTemplate = await EvaluationTemplate.find({project: req.body.project});
+  // const existingEvaluationTemplate = await EvaluationTemplate.find({project: req.body.project});
 
-    if (existingEvaluationTemplate.length > 0) {
-      return new ErrorResponseJSON(res, "This evaluationTemplate already exists, update it instead!", 400);
-    }
+  // if (existingEvaluationTemplate.length > 0) {
+  //   return new ErrorResponseJSON(res, "This evaluationTemplate already exists, update it instead!", 400);
+  // }
 
-    const evaluationTemplate = await EvaluationTemplate.create(req.body);
+  // check evaluation template instance
+  await this.checkEvaluationTemplate(req, res, {project: req.body.project})
 
-    if (!evaluationTemplate) {
-      return new ErrorResponseJSON(res, "EvaluationTemplate not created!", 404);
-    }
-    res.status(200).json({
-      success: true,
-      data: evaluationTemplate,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
+  const evaluationTemplate = await EvaluationTemplate.create(req.body);
+  if (!evaluationTemplate) {
+    return new ErrorResponseJSON(res, "EvaluationTemplate not created!", 404);
   }
+  return new SuccessResponseJSON(res, evaluationTemplate)
 });
 
 
@@ -41,20 +40,12 @@ exports.getAllEvaluationTemplates = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/evaluationTemplate/:id
 // @access   Private
 exports.getEvaluationTemplate = asyncHandler(async (req, res, next) => {
-  const evaluationTemplate = await EvaluationTemplate.findById(req.params.id);
-
-  if (!evaluationTemplate) {
-    return new ErrorResponseJSON(res, "EvaluationTemplate not found!", 404);
-  }
-
-  try {
-    res.status(200).json({
-      success: true,
-      data: evaluationTemplate,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  // const evaluationTemplate = await EvaluationTemplate.findById(req.params.id);
+  // if (!evaluationTemplate) {
+  //   return new ErrorResponseJSON(res, "EvaluationTemplate not found!", 404);
+  // }
+  const evaluationTemplate = await this.checkEvaluationTemplate(req, res)
+  return new SuccessResponseJSON(res, evaluationTemplate)
 });
 
 
@@ -66,19 +57,10 @@ exports.updateEvaluationTemplate = asyncHandler(async (req, res, next) => {
     new: true,
     runValidators: true,
   });
-
   if (!evaluationTemplate) {
     return new ErrorResponseJSON(res, "EvaluationTemplate not updated!", 400);
   }
-
-  try {
-    res.status(200).json({
-      success: true,
-      data: evaluationTemplate,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  return new SuccessResponseJSON(res, evaluationTemplate)
 });
 
 
@@ -87,17 +69,25 @@ exports.updateEvaluationTemplate = asyncHandler(async (req, res, next) => {
 // @access   Private
 exports.deleteEvaluationTemplate = asyncHandler(async (req, res, next) => {
   const evaluationTemplate = await EvaluationTemplate.findByIdAndDelete(req.params.id);
-
   if (!evaluationTemplate) {
     return new ErrorResponseJSON(res, "EvaluationTemplate not found!", 404);
   }
-
-  try {
-    res.status(200).json({
-      success: true,
-      data: evaluationTemplate,
-    });
-  } catch (err) {
-    return new ErrorResponseJSON(res, err.message, 500);
-  }
+  return new SuccessResponseJSON(res, evaluationTemplate)
 });
+
+
+exports.checkEvaluationTemplate = async (req, res, query = {}) => {
+  /**
+   * @summary
+   *  check if Evaluation Template instance exists, check if req.params.id exists and perform logic based on that
+   * 
+   * @throws `Evaluation Template not Found!`, 404
+   * @throws `This Evaluation Template already exists, update it instead!`, 400
+   * 
+   * @returns product initiation instance 
+   */
+  let evaluationTemplate = await checkInstance(
+    req, res, EvaluationTemplate, this.populateEvaluationTemplate, query, "Evaluation Template"
+  )
+  return evaluationTemplate
+}

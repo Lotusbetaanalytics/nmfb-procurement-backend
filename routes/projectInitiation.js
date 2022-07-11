@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const ProjectInitiation = require("../models/ProjectInitiation");
 const {
-  populateProjectInitiationDetails,
+  populateProjectInitiation,
   assignProject,
   createProjectInitiation,
   getAllProjectInitiations,
@@ -37,7 +37,7 @@ const advancedResults = require("../middleware/advancedResults");
 router.post("/", verifyToken, hasPermission("CreateAndModifyProjectInitiation"), 
   // authorize("Super Admin", "Head of Procurement", "Frontdesk"), 
   createProjectInitiation); // create a projectInitiation
-router.get("/", verifyToken, advancedResults(ProjectInitiation, populateProjectInitiationDetails), getAllProjectInitiations); // get all projectInitiations
+router.get("/", verifyToken, advancedResults(ProjectInitiation, populateProjectInitiation), getAllProjectInitiations); // get all projectInitiations
 
 
 // router.get("/started", verifyToken, getAllStartedProjectInitiations); // get all Started projectInitiations
