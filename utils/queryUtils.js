@@ -1,4 +1,5 @@
-const {ErrorResponseJSON} = require("../utils/errorResponse");
+const { RestError } = require("@azure/core-http");
+const {ErrorResponse, ErrorResponseJSON} = require("../utils/errorResponse");
 
 
 exports.addUserDetails = async (req, updated = false) => {
@@ -48,9 +49,11 @@ exports.checkInstance = async (req, res, model, populate, query = {}, instanceNa
   }
   
   if (req.params.id && !instance) {
-    return  new ErrorResponseJSON(res, `${instanceName} not Found!`, 404);
+    throw new ErrorResponse(`${instanceName} not Found!`, 404)
+    // return  new ErrorResponseJSON(res, `${instanceName} not Found!`, 404);
   } else if (!req.params.id && instance.length > 0) {
-    return  new ErrorResponseJSON(res, `This ${instanceName} already exists, update it instead!`, 400);
+    throw new ErrorResponse(`This ${instanceName} already exists, update it instead!`, 400)
+    // return  new ErrorResponseJSON(res, `This ${instanceName} already exists, update it instead!`, 400);
   }
   return instance;
 }
