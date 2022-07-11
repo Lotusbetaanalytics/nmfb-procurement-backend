@@ -20,20 +20,8 @@ exports.populateProjectOnboarding = "project projectType contractType budgetLine
 // @route  POST /api/v1/projectOnboarding
 // @access   Private
 exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
-  // const existingProjectOnboarding = await ProjectOnboarding.find({projectTitle: req.body.projectTitle}).populate(
-  //   this.populateProjectOnboarding
-  // );
-
-  // if (existingProjectOnboarding.length > 0) {
-  //   return new ErrorResponseJSON(res, "This projectOnboarding already exists, update it instead!", 400);
-  // }
-
-  // check project onboarding instance
+  // check for existing project onboarding instance
   await this.checkProjectOnboarding(req, res, {projectTitle: req.body.projectTitle})
-
-  // req.body.name = req.user.fullname;
-  // req.body.email = req.user.email;
-  // req.body.createdBy = req.user._id;
 
   // add user details to req.body
   addUserDetails(req)
@@ -43,29 +31,7 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "ProjectOnboarding not created!", 404);
   }
 
-  // if (
-  //   projectOnboarding.isApproved &&
-  //   projectOnboarding.status != "Completed" &&
-  //   projectOnboarding.status != "Started"
-  // ) {
-  //   projectOnboarding.status = "Started";
-  // } else if (projectOnboarding.isApproved && projectOnboarding.status != "Started") {
-  //   projectOnboarding.status = "Completed";
-  // } else if (projectOnboardingprojectOnboarding.status == "Terminated") {
-  //   projectOnboarding.isApproved = false;
-  // }
-  // await projectOnboarding.save();
-
   await setProjectOnboardingStatus(projectOnboarding)
-
-  // if (projectOnboarding.isApproved && projectOnboarding.status == "Completed") {
-  //   const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project);
-  //   projectInitiation.status = "Approved";
-  //   projectInitiation.isApproved = true;
-  //   projectInitiation.isOnboarded = true;
-  //   await projectInitiation.save();
-  // }
-
   await setProjectOnboardingApprovalStatus(projectOnboarding)
 
   const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project);
@@ -78,7 +44,6 @@ exports.createProjectOnboarding = asyncHandler(async (req, res, next) => {
    * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
    * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
    */
-  // await projectOnboardingEmail(projectOnboarding, req, res, next);
   await projectOnboardingEmail(projectOnboarding);
 
   // /**
@@ -117,15 +82,8 @@ exports.getAllProjectOnboardings = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectOnboarding/:id
 // @access   Private
 exports.getProjectOnboarding = asyncHandler(async (req, res, next) => {
-    // const projectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
-    //   this.populateProjectOnboarding
-    // );
-
-    // if (!projectOnboarding) {
-    //   return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
-    // }
-    const projectOnboarding = await this.checkProjectOnboarding(req, res)
-    return new SuccessResponseJSON(res, projectOnboarding)
+  const projectOnboarding = await this.checkProjectOnboarding(req, res)
+  return new SuccessResponseJSON(res, projectOnboarding)
 });
 
 
@@ -133,9 +91,6 @@ exports.getProjectOnboarding = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectOnboarding/:id
 // @access   Private
 exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
-  // req.body.updatedBy = req.user._id;
-  // req.body.updatedAt = Date.now();
-
   // add user details to req.body
   addUserDetails(req, true)
 
@@ -147,15 +102,6 @@ exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "ProjectOnboarding not updated!", 400);
   }
 
-  // if (projectOnboarding.isApproved && projectOnboarding.status != "Completed" && projectOnboarding.status != "Started") {
-  //   projectOnboarding.status = "Started";
-  // } else if (projectOnboarding.isApproved && projectOnboarding.status != "Started") {
-  //   projectOnboarding.status = "Completed";
-  // } else if (projectOnboardingprojectOnboarding.status == "Terminated") {
-  //   projectOnboarding.isApproved = false;
-  // }
-  // await projectOnboarding.save();
-
   await setProjectOnboardingStatus(projectOnboarding)
   await setProjectOnboardingApprovalStatus(projectOnboarding)
 
@@ -165,7 +111,6 @@ exports.updateProjectOnboarding = asyncHandler(async (req, res, next) => {
    * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’
    * • If the selected contract type is ‘new’ the system shall send an email notification to the PDO with a link to scope the project and save the project to the ‘New project list’
    */
-  // await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
   await projectOnboardingEmail(projectOnboarding, true);
 
   // /**
@@ -270,18 +215,11 @@ exports.getAllCompletedProjectOnboardings = asyncHandler(async (req, res, next) 
 // @route  GET /api/v1/projectOnboarding/:id/terminate
 // @access   Private
 exports.terminateProjectOnboarding = asyncHandler(async (req, res, next) => {
-    // const projectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
-    //   this.populateProjectOnboarding
-    // );
+  const projectOnboarding = await this.checkProjectOnboarding(req, res)
+  projectOnboarding.status = "Terminated";
+  projectOnboarding.save();
 
-    // if (!projectOnboarding) {
-    //   return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
-    // }
-    const projectOnboarding = await this.checkProjectOnboarding(req, res)
-    projectOnboarding.status = "Terminated";
-    projectOnboarding.save();
-
-    return new SuccessResponseJSON(res, projectOnboarding)
+  return new SuccessResponseJSON(res, projectOnboarding)
 });
 
 
@@ -290,14 +228,6 @@ exports.terminateProjectOnboarding = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectOnboarding/:id/status
 // @access   Private
 exports.updateProjectOnboardingStatus = asyncHandler(async (req, res, next) => {
-  // existingProjectOnboarding = await ProjectOnboarding.findById(req.params.id).populate(
-  //   this.populateProjectOnboarding
-  // );
-  // await this.checkProjectOnboarding(req, res)
-
-  // req.body.updatedBy = req.user._id;
-  // req.body.updatedAt = Date.now();
-
   // add user details to req.body
   addUserDetails(req, true)
 
@@ -318,7 +248,6 @@ exports.updateProjectOnboardingStatus = asyncHandler(async (req, res, next) => {
    * • The PPC portal shall send a update project email notification to the project desk officer
    * • The system shall send email notification to the front office /admin to upload or review documents.
    * */
-  // await projectOnboardingUpdateEmail(projectOnboarding, req, res, next);
   await projectOnboardingEmail(projectOnboarding, true);
 
   return new SuccessResponseJSON(res, projectOnboarding)
@@ -330,26 +259,15 @@ exports.updateProjectOnboardingStatus = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectOnboarding/:id/upload
 // @access   Private
 exports.uploadProjectOnboardingDocuments = asyncHandler(async (req, res, next) => {
-
   const {files} = req
   if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
   // add user details to req.body
   addUserDetails(req, true)
 
-  // const projectOnboarding = await ProjectOnboarding.findById(req.params.id)
-  //   .populate(this.populateProjectOnboarding);
-
-  // if (!projectOnboarding) {
-  //   return new ErrorResponseJSON(res, "ProjectOnboarding not found!", 404);
-  // }
-
   const projectOnboarding = await this.checkProjectOnboarding(req, res)
 
   const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project)
-  // const documentLinks = uploadProjectDocuments(req, res, projectInitiation, files, "onboarding")
-  // projectOnboarding.files = documentLinks
-  // await projectOnboarding.save()
 
   // upload files
   const documentLinks = await uploadDocument(req, projectInitiation, files, folderPath)
@@ -370,7 +288,7 @@ exports.checkProjectOnboarding = async (req, res, query = {}) => {
    * @throws `Project Onboarding not Found!`, 404
    * @throws `This Project Onboarding already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Project Onboarding instance
    */
   let projectOnboarding = await checkInstance(
     req, res, ProjectOnboarding, this.populateProjectOnboarding, query, "Project Onboarding"

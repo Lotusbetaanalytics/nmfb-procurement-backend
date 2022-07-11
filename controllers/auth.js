@@ -15,7 +15,6 @@ const Role = require("../models/Role");
 // const {updateAllSchema} = require("../utils/updateDetails")
 
 
-//Register new users and send a token
 // @desc    Register new user / login existing user and send token
 // @route  GET /api/v1/auth/logout
 // @access   Private
@@ -49,21 +48,21 @@ exports.postUserDetails = async (req, res, next) => {
     try {
       const photo = await axios(photoConfig); //get user data from active directory
       avatar = new Buffer.from(photo.data, "binary").toString("base64");
-      console.log("photo: " + photo)
-      console.log("avatar: " + avatar)
+      // console.log("photo: " + photo)
+      // console.log("avatar: " + avatar)
     } catch (err) {
-      console.log(err.message)
-      console.log("User image not found")
+      // console.log(err.message)
+      // console.log("User image not found")
       // return new ErrorResponseJSON(res, err.message, 404)
     }
       
-    console.log("code continued")
+    // console.log("code continued")
     try {
       const { data } = await axios(config); //get user data from active directory
-      console.log("data: " + data)
+      // console.log("data: " + data)
       
       const { mail, displayName } = data;
-      console.log(mail)
+      // console.log(mail)
       if (!mail || !displayName) {
         return new ErrorResponseJSON(res, "Improperly configured account, could not get mail and displayName", 400)
       }
@@ -76,9 +75,9 @@ exports.postUserDetails = async (req, res, next) => {
 
       // console.log(`AD Data: ${data.keys()}`) // Will break the code if uncommented
       let email = mail.toLowerCase()
-      console.log(email)
+      // console.log(email)
       const checkStaff = await Staff.findOne({ email: email }).populate("photo"); //check if there is a staff with the email in the db
-      console.log("Tried 1")
+      // console.log("Tried 1")
       if (checkStaff) {
         // console.log("!!!important!!!")
         // console.log(checkStaff.photo.image)
@@ -93,7 +92,7 @@ exports.postUserDetails = async (req, res, next) => {
               await checkStaff.save();
             }
           } catch (err) {
-            console.log("Error handling images from azure AD")
+            // console.log("Error handling images from azure AD")
             // return new ErrorResponseJSON(res, "Error handling images from azure AD", 400)
           }
           // When limiting accounts to pre created ones

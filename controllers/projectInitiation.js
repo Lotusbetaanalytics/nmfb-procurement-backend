@@ -28,7 +28,6 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
 
   // add user details to req.body
   addUserDetails(req)
-  // console.log("req.body after addUserDetails", req.body)
 
   // check user role and fill relevant field
   if (req.user.role.title == "Head of Procurement") {
@@ -40,7 +39,6 @@ exports.createProjectInitiation = asyncHandler(async (req, res, next) => {
   } else {
     return new ErrorResponseJSON(res, `You are not authorized to initiate projects!. Role is ${req.user.role.title}`, 404);
   }
-  // console.log("req.body after checking for role", req.body)
 
   // create project initiation
   const projectInitiation = await ProjectInitiation.create(req.body);
@@ -87,9 +85,7 @@ exports.getAllProjectInitiations = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectInitiation/:id
 // @access   Private
 exports.getProjectInitiation = asyncHandler(async (req, res, next) => {
-  // check for existing project initiation
   const projectInitiation = await this.checkProjectInitiation(req, res)
-
   return new SuccessResponseJSON(res, projectInitiation)
 });
 
@@ -100,7 +96,6 @@ exports.getProjectInitiation = asyncHandler(async (req, res, next) => {
 exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
   // add user details to req.body
   addUserDetails(req, true)
-  // console.log("req.body after addUserDetails", req.body)
 
   const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -186,9 +181,6 @@ exports.declineProjectInitiation = asyncHandler(async (req, res, next) => {
 exports.assignProject = asyncHandler(async (req, res, next) => {
   // check for existing project initiation
   await this.checkProjectInitiation(req, res)
-
-  // req.body.assignedBy = req.user._id;
-  // req.body.assignedTo = req.body.responsibleOfficer;
 
   const projectInitiation = await ProjectInitiation.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -429,10 +421,6 @@ exports.uploadProjectSupportingDocuments = asyncHandler(async (req, res, next, t
   const {files} = req
   if (!files) return new ErrorResponseJSON(res, "No files provided!", 400);
 
-  // const projectInitiation = await ProjectInitiation.findById(req.params.id)
-  //   .populate(this.populateProjectInitiation);
-  // if (!projectInitiation) return new ErrorResponseJSON(res, "ProjectInitiation not found!", 404);
-
   const projectInitiation = await this.checkProjectInitiation(req, res)
 
   const projectStage = await ProjectStage.findOne({title: title})
@@ -451,15 +439,12 @@ exports.uploadProjectSupportingDocuments = asyncHandler(async (req, res, next, t
 
   // }
 
-  // const documents = await SupportingDocuments.create(payload)
-
   // add user details to req.body
   addUserDetails(req, true)
   
   req.body.project = projectInitiation._id
   req.body.projectTitle = projectInitiation.projectTitle
   req.body.projectStage = projectStage._id
-  // console.log(req.body)
 
   // create supporting documents instance
   const documents = await SupportingDocuments.create(req.body)
@@ -490,7 +475,7 @@ exports.checkProjectInitiation = async (req, res, query = {}) => {
    * @throws `Project Initiation not Found!`, 404
    * @throws `This Project Initiation already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Project Initiation instance
    */
   let projectInitiation = await checkInstance(
     req, res, ProjectInitiation, this.populateProjectInitiation, query, "Project Initiation"

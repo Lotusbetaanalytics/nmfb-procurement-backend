@@ -11,13 +11,7 @@ exports.populateEvaluationResponse = "contract evaluationTemplate createdBy"
 // @route  POST /api/v1/evaluationResponse
 // @access   Private
 exports.createEvaluationResponse = asyncHandler(async (req, res, next) => {
-  // const existingEvaluationResponse = await EvaluationResponse.find({project: req.body.project});
-
-  // if (existingEvaluationResponse.length > 0) {
-  //   return new ErrorResponseJSON(res, "This evaluationResponse already exists, update it instead!", 400);
-  // }
-
-  // check evaluation response instance
+  // check for existing evaluation response instance
   await this.checkEvaluationResponse(req, res, {evaluationTemplate: req.body.evaluationTemplate, createdBy: req.user._id})
 
   const evaluationResponse = await EvaluationResponse.create(req.body);
@@ -40,11 +34,6 @@ exports.getAllEvaluationResponses = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/evaluationResponse/:id
 // @access   Private
 exports.getEvaluationResponse = asyncHandler(async (req, res, next) => {
-  // const evaluationResponse = await EvaluationResponse.findById(req.params.id).populate(this.populateEvaluationResponse);
-
-  // if (!evaluationResponse) {
-  //   return new ErrorResponseJSON(res, "EvaluationResponse not found!", 404);
-  // }
   const evaluationResponse = await this.checkEvaluationResponse(req, res)
   return new SuccessResponseJSON(res, evaluationResponse)
 });
@@ -85,7 +74,7 @@ exports.checkEvaluationResponse = async (req, res, query = {}) => {
    * @throws `Evaluation Response not Found!`, 404
    * @throws `This Evaluation Response already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Evaluation Response instance
    */
   let evaluationResponse = await checkInstance(
     req, res, EvaluationResponse, this.populateEvaluationResponse, query, "Evaluation Response"

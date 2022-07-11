@@ -5,23 +5,21 @@ const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse
 const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 
 
+exports.populateProjectStage = ""
+
+
 // @desc    Create ProjectStage
 // @route  POST /api/v1/projectStage
 // @access   Private
 exports.createProjectStage = asyncHandler(async (req, res, next) => {
-    // const existingProjectStage = await ProjectStage.find({title: req.body.title});
+  // check for existing project stage instance
+  await this.checkProjectStage(req, res, {title: req.body.title})
 
-    // if (existingProjectStage.length > 0) {
-    //   return new ErrorResponseJSON(res, "This projectStage already exists, update it instead!", 400);
-    // }
-
-    await this.checkProjectStage(req, res, {title: req.body.title})
-
-    const projectStage = await ProjectStage.create(req.body);
-    if (!projectStage) {
-      return new ErrorResponseJSON(res, "ProjectStage not created!", 404);
-    }
-    return new SuccessResponseJSON(res, projectStage)
+  const projectStage = await ProjectStage.create(req.body);
+  if (!projectStage) {
+    return new ErrorResponseJSON(res, "ProjectStage not created!", 404);
+  }
+  return new SuccessResponseJSON(res, projectStage)
 });
 
 
@@ -37,13 +35,8 @@ exports.getAllProjectStages = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectStage/:id
 // @access   Private
 exports.getProjectStage = asyncHandler(async (req, res, next) => {
-    // const projectStage = await ProjectStage.findById(req.params.id);
-
-    // if (!projectStage) {
-    //   return new ErrorResponseJSON(res, "ProjectStage not found!", 404);
-    // }
-    const projectStage = await this.checkProjectStage(req, resolveModuleName)
-    return new SuccessResponseJSON(res, projectStage)
+  const projectStage = await this.checkProjectStage(req, resolveModuleName)
+  return new SuccessResponseJSON(res, projectStage)
 });
 
 
@@ -51,14 +44,14 @@ exports.getProjectStage = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectStage/:id
 // @access   Private
 exports.updateProjectStage = asyncHandler(async (req, res, next) => {
-    const projectStage = await ProjectStage.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!projectStage) {
-      return new ErrorResponseJSON(res, "ProjectStage not updated!", 400);
-    }
-    return new SuccessResponseJSON(res, projectStage)
+  const projectStage = await ProjectStage.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!projectStage) {
+    return new ErrorResponseJSON(res, "ProjectStage not updated!", 400);
+  }
+  return new SuccessResponseJSON(res, projectStage)
 });
 
 
@@ -66,11 +59,11 @@ exports.updateProjectStage = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/projectStage
 // @access   Private
 exports.deleteProjectStage = asyncHandler(async (req, res, next) => {
-    const projectStage = await ProjectStage.findByIdAndDelete(req.params.id);
-    if (!projectStage) {
-      return new ErrorResponseJSON(res, "ProjectStage not found!", 404);
-    }
-    return new SuccessResponseJSON(res, projectStage)
+  const projectStage = await ProjectStage.findByIdAndDelete(req.params.id);
+  if (!projectStage) {
+    return new ErrorResponseJSON(res, "ProjectStage not found!", 404);
+  }
+  return new SuccessResponseJSON(res, projectStage)
 });
 
 
@@ -82,7 +75,7 @@ exports.checkProjectStage = async (req, res, query = {}) => {
    * @throws `Project Stage not Found!`, 404
    * @throws `This Project Stage already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Project Stage instance
    */
   let projectStage = await checkInstance(
     req, res, ProjectStage, this.populateProjectStage, query, "Project Stage"

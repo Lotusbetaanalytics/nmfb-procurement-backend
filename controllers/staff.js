@@ -12,30 +12,20 @@ exports.populateStaff = "team role photo"
 // @route  POST /api/v1/staff
 // @access   Private
 exports.createStaff = asyncHandler(async (req, res, next) => {
-    // const existingStaff = await Staff.find({email: req.body.email}).populate(this.populateStaff);
+  // check for existing staff instance
+  await this.checkStaff(req, res, {email: req.body.email})
+  // Only email, role and team are accepted
+  payload = {
+    email: req.body.email,
+    role: req.body.role,
+    team: req.body.team,
+  };
 
-    // if (existingStaff.length > 0) {
-    //   return new ErrorResponseJSON(res, "This staff already exists, update it instead!", 400);
-    // }
-
-    await this.checkStaff(req, res, {email: req.body.email})
-    // Only email, role and team are accepted
-    payload = {
-      email: req.body.email,
-      role: req.body.role,
-      team: req.body.team,
-    };
-
-    const staff = await Staff.create(payload);
-    if (!staff) {
-      return new ErrorResponseJSON(res, "Staff not created!", 404);
-    }
-    // res.status(200).json({
-    //   success: true,
-    //   message: "Only email, role and team are accepted",
-    //   data: staff,
-    // });
-    return new SuccessResponseJSON(res, staff, 201)
+  const staff = await Staff.create(payload);
+  if (!staff) {
+    return new ErrorResponseJSON(res, "Staff not created!", 404);
+  }
+  return new SuccessResponseJSON(res, staff, 201)
 });
 
 
@@ -52,12 +42,8 @@ exports.getAllStaffs = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/staff/:id
 // @access   Private
 exports.getStaff = asyncHandler(async (req, res, next) => {
-    // const staff = await Staff.findById(req.params.id).populate(this.populateStaff);
-    // if (!staff) {
-    //   return new ErrorResponseJSON(res, "Staff not found!", 404);
-    // }
-    const staff = await this.checkStaff(req, res)
-    return new SuccessResponseJSON(res, staff)
+  const staff = await this.checkStaff(req, res)
+  return new SuccessResponseJSON(res, staff)
 });
 
 
@@ -65,14 +51,14 @@ exports.getStaff = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/staff/:id
 // @access   Private
 exports.updateStaff = asyncHandler(async (req, res, next) => {
-    const staff = await Staff.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!staff) {
-      return new ErrorResponseJSON(res, "Staff not updated!", 400);
-    }
-    return new SuccessResponseJSON(res, staff)
+  const staff = await Staff.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!staff) {
+    return new ErrorResponseJSON(res, "Staff not updated!", 400);
+  }
+  return new SuccessResponseJSON(res, staff)
 });
 
 
@@ -80,11 +66,11 @@ exports.updateStaff = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/staff
 // @access   Private
 exports.deleteStaff = asyncHandler(async (req, res, next) => {
-    const staff = await Staff.findByIdAndDelete(req.params.id);
-    if (!staff) {
-      return new ErrorResponseJSON(res, "Staff not found!", 404);
-    }
-    return new SuccessResponseJSON(res, staff)
+  const staff = await Staff.findByIdAndDelete(req.params.id);
+  if (!staff) {
+    return new ErrorResponseJSON(res, "Staff not found!", 404);
+  }
+  return new SuccessResponseJSON(res, staff)
 });
 
 
@@ -92,12 +78,8 @@ exports.deleteStaff = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/staff/team/:id
 // @access   Private
 exports.getTeamStaff = asyncHandler(async (req, res, next) => {
-    const staff = await Staff.find({team: req.params.id}).populate(this.populateStaff);
-
-    // if (staff.length < 1) {
-    //   return new ErrorResponseJSON(res, "Staff not found!", 404);
-    // }
-    return new SuccessResponseJSON(res, staff)
+  const staff = await Staff.find({team: req.params.id}).populate(this.populateStaff);
+  return new SuccessResponseJSON(res, staff)
 });
 
 
@@ -105,11 +87,8 @@ exports.getTeamStaff = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/staff/role/:id
 // @access   Private
 exports.getRoleStaff = asyncHandler(async (req, res, next) => {
-    const staff = await Staff.find({role: req.params.id}).populate(this.populateStaff);
-    // if (staff.length < 1) {
-    //   return new ErrorResponseJSON(res, "Staff not found!", 404);
-    // }
-    return new SuccessResponseJSON(res, staff)
+  const staff = await Staff.find({role: req.params.id}).populate(this.populateStaff);
+  return new SuccessResponseJSON(res, staff)
 });
 
 
@@ -176,7 +155,7 @@ exports.checkStaff = async (req, res, query = {}) => {
    * @throws `Staff not Found!`, 404
    * @throws `This Staff already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Staff instance
    */
   let staff = await checkInstance(
     req, res, Staff, this.populateStaff, query, "Staff"

@@ -37,7 +37,7 @@ exports.checkInstance = async (req, res, model, populate, query = {}, instanceNa
    * @throws `Instance not Found!`, 404
    * @throws `This Instance already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns model instance
    */
   // instanceName = instanceName ? instanceName : "Instance"
   // console.log("model, populate, query, instanceName:", model, populate, query, instanceName)

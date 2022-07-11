@@ -11,7 +11,7 @@ exports.populateBudgetLineItem = ""
 // @route  POST /api/v1/budgetLineItem
 // @access   Private
 exports.createBudgetLineItem = asyncHandler(async (req, res, next) => {
-  // check budget line item instance
+  // check for existing budget line item instance
   await this.checkBudgetLineItem(req, res, {title: req.body.title})
 
   const budgetLineItem = await BudgetLineItem.create(req.body);
@@ -74,7 +74,7 @@ exports.checkBudgetLineItem = async (req, res, query = {}) => {
    * @throws `Budget Line Item not Found!`, 404
    * @throws `This Budget Line Item already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Budget Line Item instance 
    */
   let budgetLineItem = await checkInstance(
     req, res, BudgetLineItem, this.populateBudgetLineItem, query, "Budget Line Item"

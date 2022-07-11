@@ -7,8 +7,8 @@ const {
   getContract,
   updateContract,
   deleteContract,
-  getAllActiveContracts,
-  getAllTerminatedContracts,
+  // getAllActiveContracts,
+  // getAllTerminatedContracts,
   getAllFailedContracts,
   terminateContract,
 } = require("../controllers/contract");
@@ -17,8 +17,8 @@ const advancedResults = require("../middleware/advancedResults");
 
 router.post("/", verifyToken, hasPermission("CreateAndModifyContract"), createContract); // create a contract
 router.get("/", advancedResults(Contract, populateContract), getAllContracts); // get all contracts
-router.get("/active", verifyToken, getAllActiveContracts); // get all active contracts
-router.get("/terminated", verifyToken, getAllTerminatedContracts); // get all terminated contracts
+// router.get("/active", verifyToken, getAllActiveContracts); // get all active contracts
+// router.get("/terminated", verifyToken, getAllTerminatedContracts); // get all terminated contracts
 router.get("/failed", verifyToken, getAllFailedContracts); // get all failed contracts
 router.get("/:id", verifyToken, getContract); // get contract details by id
 router.patch("/:id", verifyToken, hasPermission("CreateAndModifyContract"), updateContract); // update contract details by id

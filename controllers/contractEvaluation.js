@@ -6,7 +6,6 @@ const {contractEvaluationEmail} = require("../utils/contractEmail");
 const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 
 
-
 exports.populateContractEvaluation = "contract project projectType evaluatingOfficer businessUsersUnitName createdBy updatedBy"
 
 
@@ -14,24 +13,17 @@ exports.populateContractEvaluation = "contract project projectType evaluatingOff
 // @route  POST /api/v1/contractEvaluation
 // @access   Private
 exports.createContractEvaluation = asyncHandler(async (req, res, next) => {
-  // check contract evaluation
+  // check for existing contract evaluation
   await this.checkContractEvaluation(req, res, {project: req.body.project})
 
   // add user details to req.body
   addUserDetails(req)
-
-  // if (!employeeName || !employeeEmail) {
-  //   req.body.employeeName = req.user.fullname;
-  //   req.body.employeeEmail = req.user.email;
-  // }
 
   if (!req.body.projectTitle || !req.body.projectType) {
     const projectInitiation = await ProjectInitiation.findById(req.body.project);
     req.body.projectTitle = projectInitiation.projectTitle;
     req.body.projectType = projectInitiation.projectType;
   }
-
-  // req.body.createdBy = req.user._id;
 
   const contractEvaluation = await ContractEvaluation.create(req.body);
   if (!contractEvaluation) {
@@ -110,7 +102,7 @@ exports.checkContractEvaluation = async (req, res, query = {}) => {
    * @throws `Contract Evaluation not Found!`, 404
    * @throws `This Contract Evaluation already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Contract Evaluation instance
    */
   let contractEvaluation = await checkInstance(
     req, res, ContractEvaluation, this.populateContractEvaluation, query, "Contract Evaluation"

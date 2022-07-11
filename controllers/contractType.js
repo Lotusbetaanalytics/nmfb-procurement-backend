@@ -4,20 +4,14 @@ const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse
 const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 
 
-exports.populateContractType = undefined
+exports.populateContractType = ""
 
 
 // @desc    Create ContractType
 // @route  POST /api/v1/contractType
 // @access   Private
 exports.createContractType = asyncHandler(async (req, res, next) => {
-  // const existingContractType = await ContractType.find({title: req.body.title});
-
-  // if (existingContractType.length > 0) {
-  //   return new ErrorResponseJSON(res, "This contractType already exists, update it instead!", 400);
-  // }
-  
-  // check contract type instance
+  // check for existing contract type instance
   await  this.checkContractType(req, res, {title: req.body.title})
 
   const contractType = await ContractType.create(req.body);
@@ -40,11 +34,6 @@ exports.getAllContractTypes = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/contractType/:id
 // @access   Private
 exports.getContractType = asyncHandler(async (req, res, next) => {
-  // const contractType = await ContractType.findById(req.params.id);
-
-  // if (!contractType) {
-  //   return new ErrorResponseJSON(res, "ContractType not found!", 404);
-  // }
   const contractType = await this.checkContractType(req, res)
   return new SuccessResponseJSON(res, contractType)
 });
@@ -85,7 +74,7 @@ exports.checkContractType = async (req, res, query = {}) => {
    * @throws `Contract Type not Found!`, 404
    * @throws `This Contract Type already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Contract Type instance
    */
   let contractType = await checkInstance(
     req, res, ContractType, this.populateContractType, query, "Contract Type"

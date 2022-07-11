@@ -4,20 +4,14 @@ const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse
 const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 
 
-exports.populateProjectCategory = undefined
+exports.populateProjectCategory = ""
 
 
 // @desc    Create ProjectCategory
 // @route  POST /api/v1/projectCategory
 // @access   Private
 exports.createProjectCategory = asyncHandler(async (req, res, next) => {
-  // const existingProjectCategory = await ProjectCategory.find({title: req.body.title});
-
-  // if (existingProjectCategory.length > 0) {
-  //   return new ErrorResponseJSON(res, "This projectCategory already exists, update it instead!", 400);
-  // }
-
-  // check project category instance
+  // check for existing project category instance
   await this.checkProjectCategory(req, res, {title: req.body.title})
 
   const projectCategory = await ProjectCategory.create(req.body);
@@ -40,11 +34,6 @@ exports.getAllProjectCategorys = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/projectCategory/:id
 // @access   Private
 exports.getProjectCategory = asyncHandler(async (req, res, next) => {
-  // const projectCategory = await ProjectCategory.findById(req.params.id);
-
-  // if (!projectCategory) {
-  //   return new ErrorResponseJSON(res, "ProjectCategory not found!", 404);
-  // }
   const projectCategory = await this.checkProjectCategory(req, res)
   return new SuccessResponseJSON(res, projectCategory)
 });
@@ -85,7 +74,7 @@ exports.checkProjectCategory = async (req, res, query = {}) => {
    * @throws `Project Category not Found!`, 404
    * @throws `This Project Category already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Project Category instance
    */
   let projectCategory = await checkInstance(
     req, res, ProjectCategory, this.populateProjectCategory, query, "Project Category"

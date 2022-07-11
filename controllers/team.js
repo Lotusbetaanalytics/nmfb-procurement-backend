@@ -12,32 +12,10 @@ exports.populateTeam = "role head"
 // @route  POST /api/v1/team
 // @access   Private
 exports.createTeam = asyncHandler(async (req, res, next) => {
-    
-  // const existingTeam = await Team.find({title: req.body.title});
-
-  // if (existingTeam.length > 0) {
-  //   return new ErrorResponseJSON(res, "This team already exists, update it instead!", 400);
-  // }
-
+  // check for existing team instance
   await this.checkTeam(req, res, {title: req.body.title})
 
   const team = await Team.create(req.body);
-
-  // if (team.title == "Procurement" && team.head) {
-  //   const procurementHead = await Staff.findById(team.head)
-  //   const procurementHeadRole = await Role.findOne({title: "HOP"})
-  //   procurementHead.isTeamHead = true
-  //   procurementHead.isHOP = true
-  //   procurementHead.role = procurementHeadRole
-  //   await procurementHead.save()
-  // } else if (team.head) {
-  //   const head = await Staff.findById(team.head)
-  //   const headRole = await Role.findOne({title: "HOP"})
-  //   head.isTeamHead = true
-  //   head.role = headRole
-  //   await head.save()
-  // }
-
   if (!team) {
     return new ErrorResponseJSON(res, "Team not created!", 404);
   }
@@ -60,10 +38,6 @@ exports.getAllTeams = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/team/:id
 // @access   Private
 exports.getTeam = asyncHandler(async (req, res, next) => {
-  // const team = await Team.findById(req.params.id).populate(this.populateTeam);
-  // if (!team) {
-  //   return new ErrorResponseJSON(res, "Team not found!", 404);
-  // }
   const team = await this.checkTeam(req, res)
   return new SuccessResponseJSON(res, team)
 });
@@ -107,7 +81,7 @@ exports.checkTeam = async (req, res, query = {}) => {
    * @throws `Team not Found!`, 404
    * @throws `This Team already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Team instance
    */
   let team = await checkInstance(
     req, res, Team, this.populateTeam, query, "Team"

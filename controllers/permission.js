@@ -4,20 +4,14 @@ const {ErrorResponseJSON, SuccessResponseJSON} = require("../utils/errorResponse
 const {addUserDetails, checkInstance} = require("../utils/queryUtils");
 
 
-exports.populatePermission = undefined
+exports.populatePermission = ""
 
 
 // @desc    Create Permission
 // @route  POST /api/v1/permission
 // @access   Private
 exports.createPermission = asyncHandler(async (req, res, next) => {
-  // const existingPermission = await Permission.find({title: req.body.title});
-
-  // if (existingPermission.length > 0) {
-  //   return new ErrorResponseJSON(res, "This permission already exists, update it instead!", 400);
-  // }
-
-  // check permission instance
+  // check for existing permission instance
   await this.checkPermission(req, res, {title: req.body.title})
 
   const permission = await Permission.create(req.body);
@@ -40,10 +34,6 @@ exports.getAllPermissions = asyncHandler(async (req, res, next) => {
 // @route  GET /api/v1/permission/:id
 // @access   Private
 exports.getPermission = asyncHandler(async (req, res, next) => {
-  // const permission = await Permission.findById(req.params.id);
-  // if (!permission) {
-  //   return new ErrorResponseJSON(res, "Permission not found!", 404);
-  // }
   const permission = await this.checkPermission(req, res)
   return new SuccessResponseJSON(res, permission)
 });
@@ -68,11 +58,11 @@ exports.updatePermission = asyncHandler(async (req, res, next) => {
 // @route  DELETE /api/v1/permission
 // @access   Private
 exports.deletePermission = asyncHandler(async (req, res, next) => {
-    const permission = await Permission.findByIdAndDelete(req.params.id);
-    if (!permission) {
-      return new ErrorResponseJSON(res, "Permission not found!", 404);
-    }
-    return new SuccessResponseJSON(res, permission)
+  const permission = await Permission.findByIdAndDelete(req.params.id);
+  if (!permission) {
+    return new ErrorResponseJSON(res, "Permission not found!", 404);
+  }
+  return new SuccessResponseJSON(res, permission)
 });
 
 
@@ -84,7 +74,7 @@ exports.checkPermission = async (req, res, query = {}) => {
    * @throws `Permission not Found!`, 404
    * @throws `This Permission already exists, update it instead!`, 400
    * 
-   * @returns product initiation instance 
+   * @returns Permission instance
    */
   let permission = await checkInstance(
     req, res, Permission, this.populatePermission, query, "Permission"
