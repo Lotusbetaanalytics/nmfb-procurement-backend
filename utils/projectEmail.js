@@ -13,23 +13,20 @@ const {
   populateContractEvaluation,
 } = require("./contractUtils")
 const sendEmail = require("./sendEmail")
-
-
-exports.getStaffEmail = (staff = undefined) => {
-  return staff ? staff.email : undefined
-}
+const {getStaffEmail} = require("./queryUtils")
 
 
 exports.projectInitiationEmail = async (projectInitiation, updated = false) => {
   // Send mail to the HOP, PDO and Front desk officer when project is initiated and when initiation is updated
   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
+  const headOfProcurementEmail = getStaffEmail(headOfProcurement)
   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
-  const projectDeskOfficerEmail = this.getStaffEmail(projectDeskOfficer)
+  const projectDeskOfficerEmail = getStaffEmail(projectDeskOfficer)
   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-  const frontDeskOfficerEmail = this.getStaffEmail(frontDeskOfficer)
+  const frontDeskOfficerEmail = getStaffEmail(frontDeskOfficer)
 
   const reciepients = []
-  if (headOfProcurement) {reciepients.push(headOfProcurement.email)}
+  if (headOfProcurement) {reciepients.push(headOfProcurementEmail)}
   const cc = []
   if (projectDeskOfficerEmail) {cc.push(projectDeskOfficerEmail)}
   if (frontDeskOfficerEmail) {cc.push(frontDeskOfficerEmail)}
@@ -55,12 +52,12 @@ exports.projectInitiationEmail = async (projectInitiation, updated = false) => {
     emailOptions.subject = `Project Initiation Update`
 
     const updatedBy = await Staff.findById(projectInitiation.updatedBy)
-    emailOptions.cc.push(this.getStaffEmail(updatedBy))
+    emailOptions.cc.push(getStaffEmail(updatedBy))
 
     emailOptions.html = `Project Initiation Update Email`
   } else {
     const createdBy = await Staff.findById(projectInitiation.createdBy)
-    emailOptions.cc.push(this.getStaffEmail(createdBy))
+    emailOptions.cc.push(getStaffEmail(createdBy))
   }
   try {
     const email = await sendEmail(emailOptions)
@@ -83,11 +80,11 @@ exports.projectOnboardingEmail = async (projectOnboarding, updated = false) => {
   const projectInitiation = await ProjectInitiation.findById(projectOnboarding.project).populate(populateProjectInitiation)
 
   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
-  const headOfProcurementEmail = this.getStaffEmail(headOfProcurement)
+  const headOfProcurementEmail = getStaffEmail(headOfProcurement)
   const frontDeskOfficer = await Staff.findById(projectInitiation.frontDeskOfficer)
-  const frontDeskOfficerEmail = this.getStaffEmail(frontDeskOfficer)
+  const frontDeskOfficerEmail = getStaffEmail(frontDeskOfficer)
   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
-  const projectDeskOfficerEmail = this.getStaffEmail(projectDeskOfficer)
+  const projectDeskOfficerEmail = getStaffEmail(projectDeskOfficer)
 
   const contractTypeTitle = projectOnboarding.contractType.title
 
@@ -119,12 +116,12 @@ exports.projectOnboardingEmail = async (projectOnboarding, updated = false) => {
     emailOptions.subject = `Project Onboarding Update`
 
     const updatedBy = await Staff.findById(projectOnboarding.updatedBy)
-    emailOptions.cc.push(this.getStaffEmail(updatedBy))
+    emailOptions.cc.push(getStaffEmail(updatedBy))
 
     emailOptions.html = `Project Onboarding Update Email`
   } else {
     const createdBy = await Staff.findById(projectOnboarding.createdBy)
-    emailOptions.cc.push(this.getStaffEmail(createdBy))
+    emailOptions.cc.push(getStaffEmail(createdBy))
   }
 
   try {

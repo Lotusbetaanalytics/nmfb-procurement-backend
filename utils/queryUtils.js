@@ -2,6 +2,11 @@ const { RestError } = require("@azure/core-http");
 const {ErrorResponse, ErrorResponseJSON} = require("../utils/errorResponse");
 
 
+exports.getStaffEmail = (staff = undefined) => {
+  return staff ? staff.email : undefined
+}
+
+
 exports.addUserDetails = async (req, updated = false) => {
   /**
    * @summary
