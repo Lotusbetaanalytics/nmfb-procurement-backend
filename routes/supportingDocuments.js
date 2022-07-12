@@ -11,6 +11,7 @@ const {
 const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
+
 router.post("/", verifyToken, createSupportingDocuments); // create a supportingDocuments
 router.get("/", advancedResults(SupportingDocuments, populateSupportingDocuments), getAllSupportingDocuments); // get all supportingDocumentss
 router.get("/:id", verifyToken, getSupportingDocuments); // get supportingDocuments details by id

@@ -19,6 +19,7 @@ const {verifyToken, authorize, hasPermission} = require("../middleware/auth");
 const {multerUploadConfig} = require("../utils/fileUtils")
 const advancedResults = require("../middleware/advancedResults");
 
+
 router.post("/", verifyToken, hasPermission("CreateAndModifyProjectOnboarding"), createProjectOnboarding); // create a projectOnboarding
 router.get("/", verifyToken, advancedResults(ProjectOnboarding, populateProjectOnboarding), getAllProjectOnboardings); // get all projectOnboardings
 // router.get("/started", verifyToken, getAllStartedProjectOnboardings); // get all started projectOnboardings

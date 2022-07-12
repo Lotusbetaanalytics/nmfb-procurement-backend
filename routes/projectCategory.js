@@ -10,6 +10,7 @@ const {
 const {verifyToken, hasPermission} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
+
 router.post("/", verifyToken, hasPermission("CreateAndModifyProjectCategory"), createProjectCategory); // create a projectCategory
 router.get("/", advancedResults(ProjectCategory), getAllProjectCategorys); // get all projectCategorys
 router.get("/:id", verifyToken, getProjectCategory); // get projectCategory details by id

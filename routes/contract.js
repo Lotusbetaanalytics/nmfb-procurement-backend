@@ -15,6 +15,7 @@ const {
 const {verifyToken, hasPermission} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
+
 router.post("/", verifyToken, hasPermission("CreateAndModifyContract"), createContract); // create a contract
 router.get("/", advancedResults(Contract, populateContract), getAllContracts); // get all contracts
 // router.get("/active", verifyToken, getAllActiveContracts); // get all active contracts

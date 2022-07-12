@@ -10,6 +10,7 @@ const {
 const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
+
 router.post("/", verifyToken, createBudgetLineItem); // create a budgetLineItem
 router.get("/", advancedResults(BudgetLineItem), getAllBudgetLineItems); // get all budgetLineItems
 router.get("/:id", verifyToken, getBudgetLineItem); // get budgetLineItem details by id

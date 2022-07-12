@@ -34,7 +34,7 @@ exports.createContractEvaluation = asyncHandler(async (req, res, next) => {
    * TODO:
    * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
    */
-  await contractEvaluationEmail(contractEvaluation, req, res, next);
+  await contractEvaluationEmail(contractEvaluation);
 
   return new SuccessResponseJSON(res, contractEvaluation)
 });
@@ -76,7 +76,7 @@ exports.updateContractEvaluation = asyncHandler(async (req, res, next) => {
    * TODO:
    * PPC portal notifies Front Office/ Admin team member on screen that obligation has been saved successfully
    */
-  await contractEvaluationEmail(contractEvaluation, req, res, next);
+  await contractEvaluationEmail(contractEvaluation, true);
 
   return new SuccessResponseJSON(res, contractEvaluation)
 });

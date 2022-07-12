@@ -1,14 +1,9 @@
 const router = require("express").Router();
 const Role = require("../models/Role");
-const {
-  createRole,
-  getAllRoles,
-  getRole,
-  updateRole,
-  deleteRole,
-} = require("../controllers/role");
+const {createRole, getAllRoles, getRole, updateRole, deleteRole} = require("../controllers/role");
 const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
+
 
 router.post("/", createRole); // create a role
 router.get("/", advancedResults(Role), getAllRoles); // get all roles

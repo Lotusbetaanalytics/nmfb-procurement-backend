@@ -17,6 +17,7 @@ const {
 const {verifyToken} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
+
 router.post("/", createStaff); // create a staff
 router.get("/", advancedResults(Staff, populateStaff), getAllStaffs); // get all staffs
 // router.get("/teamHead", verifyToken, getTeamHeads); // get all team heads

@@ -10,6 +10,7 @@ const {
 const {verifyToken, hasPermission} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
+
 router.post("/", verifyToken, hasPermission("CreateAndModifyPermission"), createPermission); // create a permission
 router.get("/", advancedResults(Permission), getAllPermissions); // get all permissions
 router.get("/:id", verifyToken, getPermission); // get permission details by id

@@ -10,6 +10,7 @@ const {
 const {verifyToken, hasPermission} = require("../middleware/auth");
 const advancedResults = require("../middleware/advancedResults");
 
+
 router.post("/", verifyToken, hasPermission("CreateAndModifyEvaluationTemplate"), createEvaluationTemplate); // create a evaluationTemplate
 router.get("/", advancedResults(EvaluationTemplate), getAllEvaluationTemplates); // get all evaluationTemplate
 router.get("/:id", verifyToken, getEvaluationTemplate); // get evaluationTemplate details by id
