@@ -15,6 +15,9 @@ exports.createProjectTask = asyncHandler(async (req, res, next) => {
   // check for existing project task
   await this.checkProjectTask(req, res, {title: req.body.title})
 
+  // add user details to req.body
+  addUserDetails(req)
+
   const projectTask = await ProjectTask.create(req.body);
   if (!projectTask) {
     return new ErrorResponseJSON(res, "ProjectTask not created!", 404);
@@ -47,6 +50,9 @@ exports.getProjectTask = asyncHandler(async (req, res, next) => {
 // @route  PATCH /api/v1/projectTask/:id
 // @access   Private
 exports.updateProjectTask = asyncHandler(async (req, res, next) => {
+  // add user details to req.body
+  addUserDetails(req)
+  
   const projectTask = await ProjectTask.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,

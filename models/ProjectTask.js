@@ -61,6 +61,13 @@ const ProjectTaskSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff"
+  },
+  updatedAt: {
+    type: Date,
+  },
 });
 
 module.exports = mongoose.model("ProjectTask", ProjectTaskSchema);
