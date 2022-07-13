@@ -7,13 +7,15 @@ const {token} = require("./utils");
 const {permissionTitles} = require("../utils/utilStore");
 const ProjectInitiation = require("../models/ProjectInitiation");
 const ProjectOnboarding = require("../models/ProjectOnboarding");
+// const {populateProjectInitiation} = require("../controllers/projectInitiation");
+// const {populateProjectOnboarding} = require("../controllers/projectOnboarding");
+// const {populateProjectTask} = require("../controllers/projectTask");
 
 
 exports.populateProjectInitiation = "contractType contract projectDeskOfficer frontDeskOfficer headOfProcurement createdBy updatedBy"
-
 exports.populateProjectOnboarding = "project projectType contractType budgetLineItem projectCategory responsibleUnit responsibleOfficer assignedBy assignedTo createdBy updatedBy"
-
 exports.populateProjectTask = "project assignedBy assignedTo reassignedTo responsibleOfficer responsibleUnit createdBy"
+exports.populateStaff = "team role photo"
 
 
 exports.generateProjectId = asyncHandler(async projectId => {
@@ -51,6 +53,7 @@ exports.generateProjectId = asyncHandler(async projectId => {
     return undefined;
   }
 });
+
 
 exports.projectStages = {
   "SCOPE/TOR/TECHNICAL SPECIFICATION": {
@@ -120,6 +123,7 @@ exports.projectStages = {
   },
 }
 
+
 exports.createProjectStages = async (projectStages = Object.entries(this.projectStages)) => {
   // for (const name of projectStages) {
   for (const [key, name] of projectStages) {
@@ -142,7 +146,9 @@ exports.createProjectStages = async (projectStages = Object.entries(this.project
   return true
 }
 
-exports.createModelInstances = async (model=ProjectStage, object=this.projectStages) => {
+
+// TODO: Remove this
+exports.createModelInstances = async (model = ProjectStage, object=this.projectStages) => {
   if (typeof object != "object") {
     console.log(`type of parameter is not object`)
     return false
@@ -165,13 +171,14 @@ exports.createModelInstances = async (model=ProjectStage, object=this.projectSta
   }
 }
 
-exports.deleteAllProjectStages = async () => {
-  allProjectStages = await ProjectStage.find()
 
-  for (const [key, stage] of Object.entries(allProjectStages))
-    await ProjectStage.findByIdAndDelete(stage._id)
-  console.log("All stages deleted")
-}
+// exports.deleteAllProjectStages = async () => {
+//   allProjectStages = await ProjectStage.find()
+
+//   for (const [key, stage] of Object.entries(allProjectStages))
+//     await ProjectStage.findByIdAndDelete(stage._id)
+//   console.log("All stages deleted")
+// }
 
 // exports.asyncHandler =  fn => async (...args) => {
 //   try {
@@ -183,7 +190,7 @@ exports.deleteAllProjectStages = async () => {
 // }
 
 
-exports.createModelInstanceWithList = async (model=Permission, list=permissionTitles) => {
+exports.createModelInstanceWithList = async (model = Permission, list = permissionTitles) => {
   for (const item of list) {
     console.log(item)
     const payload = {title: item} 
@@ -193,45 +200,48 @@ exports.createModelInstanceWithList = async (model=Permission, list=permissionTi
   console.log(`All model instances created successfully.`)
 }
 
-// TODO: Test this, likely to have errors
-exports.createModelInstances = async (model=ProjectStage, object=this.projectStages) => {
-  if (typeof object != "object") {
-    console.log(`type of parameter is not object`)
-    return false
-  }
-  try {
-    const instances = object
-    for (const [key, instance] of Object.entries(instances)) {
-      console.log(`key, instance:${key}, ${instance}`)
-      const payload = {}
 
-      for (const [index, item] of Object.entries(instance)) {
-        console.log(`index, item:${key}, ${instance}`)
-        payload[index] = item
-      }
-      try {await model.create(payload)}
-      catch (err) {console.log(`error: ${err}, during model creation`)}
-    }
-  } catch (err) {
-    console.log(`Error creating model instances: ${err}`)
-  }
-}
+// // TODO: Test this, likely to have errors
+// exports.createModelInstances = async (model = ProjectStage, object = this.projectStages) => {
+//   if (typeof object != "object") {
+//     console.log(`type of parameter is not object`)
+//     return false
+//   }
+//   try {
+//     const instances = object
+//     for (const [key, instance] of Object.entries(instances)) {
+//       console.log(`key, instance:${key}, ${instance}`)
+//       const payload = {}
 
-exports.deleteAllModelInstances = async (model=ProjectStage) => {
-  const instances = await model.find()
-  console.log(instances)
-  try {
-    // let item;
-    for (const [key, instance] of Object.entries(instances)) {
-      // var item = await model.findById(instance._id)
-      // await item.save()
-      await model.findByIdAndDelete(instance._id)
-    }
-    console.log(`All model instances deleted`)
-  } catch (err) {
-    console.log(`Error deleting model instances: ${err}`)
-  }
-}
+//       for (const [index, item] of Object.entries(instance)) {
+//         console.log(`index, item:${key}, ${instance}`)
+//         payload[index] = item
+//       }
+//       try {await model.create(payload)}
+//       catch (err) {console.log(`error: ${err}, during model creation`)}
+//     }
+//   } catch (err) {
+//     console.log(`Error creating model instances: ${err}`)
+//   }
+// }
+
+
+// exports.deleteAllModelInstances = async (model = ProjectStage) => {
+//   const instances = await model.find()
+//   console.log(instances)
+//   try {
+//     // let item;
+//     for (const [key, instance] of Object.entries(instances)) {
+//       // var item = await model.findById(instance._id)
+//       // await item.save()
+//       await model.findByIdAndDelete(instance._id)
+//     }
+//     console.log(`All model instances deleted`)
+//   } catch (err) {
+//     console.log(`Error deleting model instances: ${err}`)
+//   }
+// }
+
 
 exports.addPermissionsToRole = async (roleID, permissions) => {
   let permissionIDs = [];
@@ -282,6 +292,7 @@ exports.setProjectOnboardingStatus = async projectOnboarding => {
   }
   await projectOnboarding.save();
 }
+
 
 exports.setProjectOnboardingApprovalStatus = async projectOnboarding => {
   if (projectOnboarding.isApproved && projectOnboarding.status == "Completed") {
