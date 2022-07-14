@@ -2,7 +2,7 @@ const asyncHandler = require("../middleware/async");
 const EvaluationResponse = require("../models/EvaluationResponse");
 
 
-exports.contractEvaluationScore = asyncHandler( async(contract) => {
+exports.contractEvaluationScore = async (contract) => {
   const evaluationResponses = await EvaluationResponse.find({contract: contract._id})
   const evaluationResponsesLength = evaluationResponses.length
   // let evaluationScore = 0
@@ -33,4 +33,4 @@ exports.contractEvaluationScore = asyncHandler( async(contract) => {
     result.terminated = false
   }
   return result
-})
+}

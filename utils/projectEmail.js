@@ -371,7 +371,7 @@ exports.projectOnboardingEmail = async (projectOnboarding, updated = false) => {
 // })
 
 
-exports.projectAssignmentEmail = asyncHandler(async (projectInitiation, updated = false) => {
+exports.projectAssignmentEmail = async (projectInitiation, updated = false) => {
   /**
    * @summary
    *  PPC portal forwards project to the responsible officer and send email notification to the responsible officer and head of procurement.
@@ -395,10 +395,10 @@ exports.projectAssignmentEmail = asyncHandler(async (projectInitiation, updated 
   }
   const email = await this.projectStageEmail(projectInitiation, subject, salutation, message, reciepients, [], ["h", "f", "r"])
   return email
-})
+}
 
 
-exports.projectTaskAssignmentEmail = asyncHandler(async (projectTask, updated = false) => {
+exports.projectTaskAssignmentEmail = async (projectTask, updated = false) => {
   /**
    * @summary 
    *  PPC portal saves status in pending list, forwards request to the responsible officer and send email notification to the responsible officer and the head of team
@@ -432,10 +432,10 @@ exports.projectTaskAssignmentEmail = asyncHandler(async (projectTask, updated = 
   }
   const email = await this.projectStageEmail(projectInitiation, subject, salutation, message, reciepients, [], ["h", "f", "r"])
   return email
-})
+}
 
 
-exports.projectTaskReassignmentEmail = asyncHandler(async (projectTask, updated = false) => {
+exports.projectTaskReassignmentEmail = async (projectTask, updated = false) => {
   /**
    * @summary 
    *  PPC portal saves status in pending list, forwards request to the responsible officer and send email notification to the responsible officer and the head of team
@@ -471,7 +471,7 @@ exports.projectTaskReassignmentEmail = asyncHandler(async (projectTask, updated 
   }
   const email = await this.projectStageEmail(projectInitiation, subject, salutation, message, reciepients, [], ["h", "f", "r"])
   return email
-})
+}
 
 
 

@@ -3,7 +3,10 @@ const Role = require("../models/Role");
 const Staff = require("../models/Staff");
 
 
-exports.giveRolesAndTeams = asyncHandler(async () => {
+exports.giveRolesAndTeams = async () => {
+  /**
+   * Assign default roles and teams for all staff (that don't already have roles or have unusable roles)
+   */
   const allStaff = await Staff.find()
   for (let [key, staff] of Object.entries(allStaff)) {
     try{
@@ -20,10 +23,10 @@ exports.giveRolesAndTeams = asyncHandler(async () => {
     }
   } 
   return true
-})
+}
 
 
-exports.configureHeadRoles = asyncHandler(async (team, req, res, next) => {
+exports.configureHeadRoles = async (team) => {
   /**
    * Configure Procurement Head (HOP) and Team Head Roles when roles are created or updated
    * */ 
@@ -49,4 +52,4 @@ exports.configureHeadRoles = asyncHandler(async (team, req, res, next) => {
     return false
   }
 
-})
+}
