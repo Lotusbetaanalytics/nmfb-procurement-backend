@@ -270,7 +270,7 @@ exports.projectOnboardingEmail = async (projectOnboarding, updated = false) => {
 
 
 
-// exports.projectOnboardingEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
+// exports.projectOnboardingEmailDepreciated = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • If the selected contract type is ‘existing contract’ the system shall send an email notification to the PDO to specify evaluation officers and save the project to the ‘renewal list’ 
@@ -341,7 +341,7 @@ exports.projectOnboardingEmail = async (projectOnboarding, updated = false) => {
 // })
 
 
-// exports.projectOnboardingUpdateEmail = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
+// exports.projectOnboardingUpdateEmailDepreciated = asyncHandler(async (projectOnboardingInstance, req, res, next) => {
 //   const projectInitiation = await ProjectInitiation.findById(projectOnboardingInstance.project).populate(populateProjectInitiation)
 //   const headOfProcurement = await Staff.findById(projectInitiation.headOfProcurement)
 //   const projectDeskOfficer = await Staff.findById(projectInitiation.projectDeskOfficer)
@@ -475,7 +475,7 @@ exports.projectTaskReassignmentEmail = async (projectTask, updated = false) => {
 
 
 
-// exports.projectAssignmentEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+// exports.projectAssignmentEmailDepreciated = asyncHandler(async (projectInitiationInstance, req, res, next) => {
 //   /**
 //    * Summary: Send Email to the responsible officer when the head of procurement assigns a project
 //    * TODO: 
@@ -508,7 +508,7 @@ exports.projectTaskReassignmentEmail = async (projectTask, updated = false) => {
 // })
 
 
-// exports.projectTaskAssignmentEmail = asyncHandler(async (projectTaskInstance, req, res, next) => {
+// exports.projectTaskAssignmentEmailDepreciated = asyncHandler(async (projectTaskInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal saves status in pending list, forwards request to the responsible officer and send email notification to the responsible officer and the head of team
@@ -567,7 +567,7 @@ exports.projectTaskReassignmentEmail = async (projectTask, updated = false) => {
 // })
 
 
-// exports.projectTaskReassignmentEmail = asyncHandler(async (projectTaskInstance, req, res, next) => {
+// exports.projectTaskReassignmentEmailDepreciated = asyncHandler(async (projectTaskInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal saves status in pending list, forwards request to the responsible officer and send email notification to the responsible officer and the head of team
@@ -625,7 +625,6 @@ exports.projectTaskReassignmentEmail = async (projectTask, updated = false) => {
 //   }
   
 // })
-
 
 
 /**
@@ -789,7 +788,7 @@ exports.projectBidEvaluationEmail = async (contractEvaluation, updated = false) 
 
 
 
-// exports.projectTechnicalSpecificationEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+// exports.projectTechnicalSpecificationEmailDepreciated = asyncHandler(async (projectInitiationInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal forwards project to the responsible officer and send email notification to the responsible officer and head of procurement.
@@ -864,7 +863,7 @@ exports.projectBidEvaluationEmail = async (contractEvaluation, updated = false) 
 //  */
 
 
-// exports.projectCostEstimationEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+// exports.projectCostEstimationEmailDepreciated = asyncHandler(async (projectInitiationInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
@@ -925,7 +924,7 @@ exports.projectBidEvaluationEmail = async (contractEvaluation, updated = false) 
 
 // // TODO: Use projectCostEstimationEmail as a template for all document upload emails 
 
-// exports.projectSelectionMethodEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+// exports.projectSelectionMethodEmailDepreciated = asyncHandler(async (projectInitiationInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal sends email notification notifying the PDO to take action on the ‘no objection ‘ stage
@@ -983,7 +982,7 @@ exports.projectBidEvaluationEmail = async (contractEvaluation, updated = false) 
 // })
 
 
-// exports.projectNoObjectionEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+// exports.projectNoObjectionEmailDepreciated = asyncHandler(async (projectInitiationInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal sends email notification notifying the PDO to take action on the ‘issuance of SPN ‘ stage
@@ -1057,7 +1056,7 @@ exports.projectBidEvaluationEmail = async (contractEvaluation, updated = false) 
 // })
 
 
-// exports.projectIssuanceOfSPNEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+// exports.projectIssuanceOfSPNEmailDepreciated = asyncHandler(async (projectInitiationInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal sends email notification notifying the front desk to take action on the ‘Submission of Proposals ‘stage
@@ -1116,7 +1115,7 @@ exports.projectBidEvaluationEmail = async (contractEvaluation, updated = false) 
 
 
 
-// exports.projectSubmissionOfProposalsEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+// exports.projectSubmissionOfProposalsEmailDepreciated = asyncHandler(async (projectInitiationInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal sends email notification notifying the HOP to take action on the ‘Evaluation ‘stage
@@ -1151,7 +1150,7 @@ exports.projectBidEvaluationEmail = async (contractEvaluation, updated = false) 
 
 
 // // TODO: Add evaluating officer to the mail cc
-// exports.projectBidOpeningExerciseEmail = asyncHandler(async (projectInitiationInstance, req, res, next) => {
+// exports.projectBidOpeningExerciseEmailDepreciated = asyncHandler(async (projectInitiationInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal sends email notification notifying the HOP to take action on the ‘Evaluation ‘stage
@@ -1185,7 +1184,7 @@ exports.projectBidEvaluationEmail = async (contractEvaluation, updated = false) 
 // })
 
 
-// exports.projectBidEvaluationEmail = asyncHandler(async (contractEvaluationInstance, req, res, next) => {
+// exports.projectBidEvaluationEmailDepreciated = asyncHandler(async (contractEvaluationInstance, req, res, next) => {
 //   /**
 //    * TODO: 
 //    * • PPC portal sends email notification notifying the evaluation team member to take action on the ‘Prepare contract award ‘stage
@@ -1253,10 +1252,8 @@ exports.projectStageEmail = async (projectInitiation, subject, salutation, messa
   const responsibleOfficer = await Staff.findById(projectInitiation.responsibleOfficer)
   const responsibleOfficerEmail = getStaffEmail(responsibleOfficer)
 
-  // const reciepients = []
   if (projectDeskOfficerEmail) {reciepients.push(projectDeskOfficerEmail)}
   if ("h" in options && headOfProcurementEmail) {reciepients.push(headOfProcurementEmail)}
-  // const cc = []
   if ("f" in options && frontDeskOfficerEmail) {cc.push(frontDeskOfficerEmail)}
   if ("r" in options && responsibleOfficerEmail) {cc.push(responsibleOfficerEmail)}
 
@@ -1270,9 +1267,6 @@ exports.projectStageEmail = async (projectInitiation, subject, salutation, messa
 
   if (updated) {
     emailOptions.subject = `${emailOptions.subject} Update`
-
-    // const updatedBy = await Staff.findById(projectInitiation.updatedBy)
-    // emailOptions.cc.push(getStaffEmail(updatedBy))
 
     emailOptions.html = `${emailOptions.subject} Documents have been updated`
   } else {

@@ -119,7 +119,7 @@ exports.updateProjectInitiation = asyncHandler(async (req, res, next) => {
    * • The system shall send email notification to the front office /admin to upload or review documents.
    * */
   // send project initiation mail
-  await projectInitiationEmail(projectInitiation, true, req, res, next);
+  await projectInitiationEmail(projectInitiation, true);
 
   // upload files
   const documentLinks = await uploadDocument(req, projectInitiation, req.files, projectInitiation.projectTitle)
@@ -249,7 +249,8 @@ exports.uploadProjectInitiationDocuments = asyncHandler(async (req, res, next) =
 });
 
 
-// TODO: Update the below to use supporting documents
+// NOTE: Endpoints for uploading documents (supporting documents)
+
 // @desc    Upload ProjectInitiation TechnicalSpecification Documents
 // @route  POST /api/v1/projectInitiation/:id/technicalSpecification
 // @access   Private
@@ -264,7 +265,7 @@ exports.uploadProjectInitiationTechnicalSpecificationDocuments = asyncHandler(as
    * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
    */
 
-  await projectTechnicalSpecificationEmail(projectInitiation, req, res, next)
+  await projectTechnicalSpecificationEmail(projectInitiation)
 
   return new SuccessResponseJSON(res, projectInitiation)
 });
@@ -282,7 +283,7 @@ exports.uploadProjectInitiationCostEstimationDocuments = asyncHandler(async (req
    * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
    */
 
-  await projectCostEstimationEmail(projectInitiation, req, res, next)
+  await projectCostEstimationEmail(projectInitiation)
 
   return new SuccessResponseJSON(res, projectInitiation)
 });
@@ -300,7 +301,7 @@ exports.uploadProjectInitiationSelectionMethodDocuments = asyncHandler(async (re
    * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
    */
 
-  await projectSelectionMethodEmail(projectInitiation, req, res, next)
+  await projectSelectionMethodEmail(projectInitiation)
 
   return new SuccessResponseJSON(res, projectInitiation)
 });
@@ -318,7 +319,7 @@ exports.uploadProjectInitiationNoObjectionDocuments = asyncHandler(async (req, r
    * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
    */
 
-  await projectNoObjectionEmail(projectInitiation, req, res, next)
+  await projectNoObjectionEmail(projectInitiation)
 
   return new SuccessResponseJSON(res, projectInitiation)
 });
@@ -336,7 +337,7 @@ exports.uploadProjectInitiationIssuanceOfSPNDocuments = asyncHandler(async (req,
    * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
    */
 
-  await projectIssuanceOfSPNEmail(projectInitiation, req, res, next)
+  await projectIssuanceOfSPNEmail(projectInitiation)
 
   return new SuccessResponseJSON(res, projectInitiation)
 });
@@ -354,7 +355,7 @@ exports.uploadProjectInitiationSubmissionOfProposalsDocuments = asyncHandler(asy
    * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
    */
 
-  await projectSubmissionOfProposalsEmail(projectInitiation, req, res, next)
+  await projectSubmissionOfProposalsEmail(projectInitiation)
 
   return new SuccessResponseJSON(res, projectInitiation)
 });
@@ -372,7 +373,7 @@ exports.uploadProjectInitiationBidOpeningExerciseDocuments = asyncHandler(async 
    * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
    */
 
-  await projectBidOpeningExerciseEmail(projectInitiation, req, res, next)
+  await projectBidOpeningExerciseEmail(projectInitiation)
 
   return new SuccessResponseJSON(res, projectInitiation)
 });
@@ -392,7 +393,7 @@ exports.uploadProjectInitiationBidEvaluationDocuments = asyncHandler(async (req,
    * PPC portal sends email notification notifying the PDO to take action on the ‘selection method ‘ stage
    */
 
-  await projectBidEvaluationEmail(projectInitiation, req, res, next)
+  await projectBidEvaluationEmail(projectInitiation)
 
   return new SuccessResponseJSON(res, projectInitiation)
 });

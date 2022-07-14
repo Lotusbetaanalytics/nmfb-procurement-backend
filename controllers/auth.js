@@ -14,6 +14,7 @@ const {ErrorResponseJSON} = require("../utils/errorResponse");
 const Role = require("../models/Role");
 // const {updateAllSchema} = require("../utils/updateDetails")
 
+// TODO: Refactor this file
 
 // @desc    Register new user / login existing user and send token
 // @route  GET /api/v1/auth/logout

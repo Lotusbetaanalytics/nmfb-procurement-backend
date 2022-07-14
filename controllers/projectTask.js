@@ -23,7 +23,7 @@ exports.createProjectTask = asyncHandler(async (req, res, next) => {
     return new ErrorResponseJSON(res, "ProjectTask not created!", 404);
   }
 
-  await projectTaskAssignmentEmail(projectTask, req, res, next);
+  await projectTaskAssignmentEmail(projectTask);
 
   return new SuccessResponseJSON(res, projectTask)
 });
@@ -62,7 +62,7 @@ exports.updateProjectTask = asyncHandler(async (req, res, next) => {
   }
 
   if ("reassignedTo" in req.body) {
-    await projectTaskReassignmentEmail(projectTask, req, res, next);
+    await projectTaskReassignmentEmail(projectTask);
   }
   return new SuccessResponseJSON(res, projectTask)
 });
